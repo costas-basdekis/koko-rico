@@ -1,0 +1,47 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+svg {
+  border: 1px solid black;
+}
+
+.grid-square {
+  stroke: black;
+  fill: white;
+}
+
+.grid-wall {
+  stroke: black;
+  stroke-width: 3px;
+}
+
+.grid-wall.ghost:not(:hover) {
+  stroke: transparent;
+}
+
+.grid-wall.clickable:hover {
+  cursor: pointer;
+}
+
+.robot {
+  stroke: black;
+}
+.robot.index-0 {
+  fill: red;
+}
+.robot.index-1 {
+  fill: green;
+}
+.robot.index-2 {
+  fill: blue;
+}
+.robot.index-3 {
+  fill: yellow;
+}
+
+.distance-map-item {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
