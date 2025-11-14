@@ -1,4 +1,4 @@
-import { Position, PositionMap } from "../utils";
+import { Position, PositionMap, positionsEqual } from "../utils";
 import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
 
@@ -84,7 +84,7 @@ export class Game {
           nextPosition.y += wallIndexOffset * 2 - 1;
         }
       }
-      if (nextPosition.x === position.x && nextPosition.y === position.y) {
+      if (positionsEqual(nextPosition, position)) {
         continue;
       }
       nextPositions.push(nextPosition);
