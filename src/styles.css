@@ -41,7 +41,14 @@ svg {
   fill: yellow;
 }
 
+.robot-next-position {
+  stroke: black;
+  fill: green;
+  cursor: pointer;
+}
+
 .distance-map-item {
   text-anchor: middle;
   dominant-baseline: middle;
+  pointer-events: none;
 }

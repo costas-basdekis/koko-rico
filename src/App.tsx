@@ -1,7 +1,7 @@
 import "./styles.css";
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
-import { Game, Field, WallType } from "./game";
+import { Game, Field, WallType, Robot } from "./game";
 import { DGame, DrawSettings } from "./components";
 import { Position, PositionMap } from "./utils";
 
@@ -17,6 +17,9 @@ export default function App() {
     },
     [game]
   );
+  const onRobotResetClick = useCallback(() => {
+    setGame(game.moveRobot(game.robots[0], { x: 10, y: 10 }));
+  }, [game, setGame]);
   const onRandomWallsClick = useCallback(() => {
     const newField = pickRandomWalls(game.field, 20);
     setGame(game.change({ field: newField }));
@@ -35,10 +38,15 @@ export default function App() {
     }
     return Math.max(...distanceMap.values());
   }, [distanceMap]);
+  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position) => {
+    console.log("Clicked");
+    setGame(game.moveRobot(robot, nextPosition));
+  }, [game, setGame]);
   return (
     <div className="App">
       <h1>Koko Rico</h1>
       <div>
+        <button onClick={onRobotResetClick}>Reset robot</button>
         <button onClick={onRandomWallsClick}>Randomly pick 20 walls</button>
         <button onClick={onRandomCrossedWallsClick}>Randomly pick 30 crossed walls</button>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
@@ -50,6 +58,8 @@ export default function App() {
             showDistances
             onGhostWallClick={onGhostWallClick}
             onDistanceMapChange={onDistanceMapChange}
+            showRobotControls
+            onRobotMoveClick={onRobotMoveClick}
           />
         </DrawSettings.ContextProvider>
       </svg>

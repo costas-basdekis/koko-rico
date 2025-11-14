@@ -71,7 +71,6 @@ export class Field {
       topWalls = new PositionMap(topWalls);
       const previous = topWalls.get(position);
       topWalls.set(position, !previous);
-      console.log(position, previous, !previous);
     }
     return this._change({ topWalls, leftWalls });
   }

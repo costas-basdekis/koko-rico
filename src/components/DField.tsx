@@ -7,16 +7,20 @@ export interface DFieldProps {
   field: Field;
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
+  nextRobotPositions?: Position[];
+  onRobotMoveClick?: (nextPosition: Position) => void;
 }
 
 export function DField({
   field,
   showGhostWalls = false,
   onGhostWallClick,
+  nextRobotPositions,
+  onRobotMoveClick,
 }: DFieldProps) {
   return (
     <g className={"field"}>
-      <DGrid field={field} />
+      <DGrid field={field} nextRobotPositions={nextRobotPositions} onRobotMoveClick={onRobotMoveClick} />
       <DWalls
         key={"top"}
         walls={field.topWalls}

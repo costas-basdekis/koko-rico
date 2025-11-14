@@ -8,4 +8,8 @@ export class Robot {
     this.position = position;
     this.index = index;
   }
+
+  moveTo(newPosition: Position): Robot {
+    return new Robot(newPosition, this.index);
+  }
 }

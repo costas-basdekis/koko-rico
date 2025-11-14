@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { Game, WallType } from "../game";
+import { useCallback, useEffect, useMemo } from "react";
+import { Direction, Game, Robot, WallType } from "../game";
 import { Position, PositionMap } from "../utils";
 import { DField } from "./DField";
 import { DFieldDistances } from "./DFieldDistances";
@@ -10,6 +10,8 @@ export interface DGameProps {
   showDistances?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
+  showRobotControls?: boolean;
+  onRobotMoveClick?: (robot: Robot, nextPosition: Position) => void;
 }
 
 export function DGame({
@@ -17,6 +19,8 @@ export function DGame({
   showDistances = false,
   onGhostWallClick,
   onDistanceMapChange,
+  showRobotControls = false,
+  onRobotMoveClick,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances) {
@@ -30,12 +34,29 @@ export function DGame({
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);
   }, [distanceMap]);
+  const nextRobotPositions = useMemo(() => {
+    if (!showRobotControls) {
+      return [];
+    }
+    if (!game.robots[0]) {
+      return [];
+    }
+    const robot = game.robots[0];
+    return Object.values(Direction)
+      .map(direction => game.getNextPositionAtDirection(robot.position, direction as Direction, robot))
+      .filter(nextPosition => nextPosition) as Position[];
+  }, [game, game.robots[0], showRobotControls]);
+  const onRobotNextPositionClick = useCallback((nextPosition: Position) => {
+    onRobotMoveClick?.(game.robots[0], nextPosition)
+  }, [game.robots[0], onRobotMoveClick]);
   return (
     <g className={"game"}>
       <DField
         field={game.field}
         showGhostWalls
         onGhostWallClick={onGhostWallClick}
+        nextRobotPositions={showRobotControls ? nextRobotPositions : undefined}
+        onRobotMoveClick={onRobotNextPositionClick}
       />
       {distanceMap ? (
         <DFieldDistances field={game.field} distanceMap={distanceMap} />
