@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/koko-rico/static/css/main.f1fc48c1.css",
-    "main.js": "/koko-rico/static/js/main.8c396a78.js",
+    "main.js": "/koko-rico/static/js/main.4cf1a023.js",
     "index.html": "/koko-rico/index.html",
     "main.f1fc48c1.css.map": "/koko-rico/static/css/main.f1fc48c1.css.map",
-    "main.8c396a78.js.map": "/koko-rico/static/js/main.8c396a78.js.map"
+    "main.4cf1a023.js.map": "/koko-rico/static/js/main.4cf1a023.js.map"
   },
   "entrypoints": [
     "static/css/main.f1fc48c1.css",
-    "static/js/main.8c396a78.js"
+    "static/js/main.4cf1a023.js"
   ]
 }
