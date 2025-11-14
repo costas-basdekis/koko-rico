@@ -1,3 +1,4 @@
+import _ from "underscore";
 import { Position, PositionMap, positionsEqual } from "../utils";
 import { Direction } from "./Direction";
 import { Field, WallType } from "./Field";
@@ -125,5 +126,54 @@ export class Game {
       return null;
     }
     return nextPosition;
+  }
+  
+  pickRandomWalls(count: number): Game {
+    const newField = Field.makeForSize(this.field.width, this.field.height);
+    const position = { x: 0, y: 0 };
+    for (const _i of _.range(count)) {
+      while (true) {
+        const type = ["left", "top"][_.random(0, 1)] as WallType;
+        if (type === "left") {
+          position.x = _.random(1, this.field.width - 1);
+          position.y = _.random(0, this.field.width - 1);
+          console.log(type, position);
+          if (newField.leftWalls.get(position)) {
+            continue;
+          }
+          newField.leftWalls.set(position, true);
+          break;
+        } else {
+          position.x = _.random(0, this.field.width - 1);
+          position.y = _.random(1, this.field.width - 1);
+          console.log(type, position);
+          if (newField.topWalls.get(position)) {
+            continue;
+          }
+          newField.topWalls.set(position, true);
+          break;
+        }
+      }
+    }
+    return this.change({field: newField});
+  }
+
+  pickRandomCrossedWalls(count: number): Game {
+    let newGame = this.change({field: Field.makeForSize(this.field.width, this.field.height)});
+    for (const _i of _.range(count)) {
+      const leftWallsCrossed = new PositionMap<boolean>();
+      const topWallsCrossed = new PositionMap<boolean>();
+      newGame.calculateReachableRobotPositions(newGame.robots[0], leftWallsCrossed, topWallsCrossed);
+      const wallsCrossed: [WallType, Position][] = [
+        ...Array.from(leftWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["left", position] as [WallType, Position]),
+        ...Array.from(topWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["top", position] as [WallType, Position]),
+      ];
+      if (!wallsCrossed.length) {
+        break;
+      }
+      const [wallType, position] = wallsCrossed[_.random(0, wallsCrossed.length - 1)];
+      newGame = newGame.toggleWall(position, wallType);
+    }
+    return newGame;
   }
 }
