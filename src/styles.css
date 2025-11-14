@@ -41,10 +41,17 @@ svg {
   fill: yellow;
 }
 
-.robot-next-position {
-  stroke: black;
+.grid-square.robot-next-position {
   fill: green;
   cursor: pointer;
+}
+
+.grid-square.target-position {
+  fill: yellow;
+}
+
+.grid-square.robot-next-position.target-position {
+  fill: purple;
 }
 
 .distance-map-item {

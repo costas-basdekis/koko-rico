@@ -13,6 +13,7 @@ export interface DGameProps {
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
   showRobotControls?: boolean;
   onRobotMoveClick?: (robot: Robot, nextPosition: Position) => void;
+  targetPosition?: Position;
 }
 
 export function DGame({
@@ -23,6 +24,7 @@ export function DGame({
   onDistanceMapChange,
   showRobotControls = false,
   onRobotMoveClick,
+  targetPosition,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances) {
@@ -60,6 +62,7 @@ export function DGame({
         onGhostWallClick={onGhostWallClick}
         nextRobotPositions={showRobotControls ? nextRobotPositions : undefined}
         onRobotMoveClick={onRobotNextPositionClick}
+        targetPosition={targetPosition}
       />
       {distanceMap ? (
         <DFieldDistances field={game.field} distanceMap={distanceMap} />

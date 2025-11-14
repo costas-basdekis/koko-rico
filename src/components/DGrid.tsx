@@ -9,9 +9,10 @@ export interface DGridProps {
   nextRobotPositions?: Position[];
   onlyNextRobotPositions?: boolean,
   onRobotMoveClick?: (nextPosition: Position) => void;
+  targetPosition?: Position;
 }
 
-export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = false, onRobotMoveClick }: DGridProps) {
+export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = false, onRobotMoveClick, targetPosition }: DGridProps) {
   return (
     <g className={"grid"}>
       {_.range(field.width).map((x) =>
@@ -27,6 +28,7 @@ export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = fals
               y={y}
               showRobotControls={showRobotControls}
               onRobotMoveClick={onRobotMoveClick}
+              isTarget={targetPosition ? positionsEqual({x, y}, targetPosition) : false}
             />
           );
         })
@@ -40,9 +42,10 @@ export interface DGridCellProps {
   y: number;
   showRobotControls?: boolean;
   onRobotMoveClick?: (nextPosition: Position) => void;
+  isTarget?: boolean;
 }
 
-export function DGridCell({ x, y, showRobotControls, onRobotMoveClick }: DGridCellProps) {
+export function DGridCell({ x, y, showRobotControls, onRobotMoveClick, isTarget = false }: DGridCellProps) {
   const onClick = useCallback(() => {
     onRobotMoveClick?.({x, y});
   }, [x, y, onRobotMoveClick]);
@@ -50,7 +53,7 @@ export function DGridCell({ x, y, showRobotControls, onRobotMoveClick }: DGridCe
   return (
     <rect
       key={`${x},${y}`}
-      className={`grid-square ${showRobotControls ? "robot-next-position" : ""}`}
+      className={`grid-square ${showRobotControls ? "robot-next-position" : ""} ${isTarget ? "target-position" : ""}`}
       x={drawSettings.xOffset + drawSettings.width * x}
       y={drawSettings.yOffset + drawSettings.height * y}
       width={drawSettings.width}

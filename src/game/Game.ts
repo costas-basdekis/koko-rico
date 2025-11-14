@@ -158,21 +158,34 @@ export class Game {
     return this.change({field: newField});
   }
 
-  pickRandomCrossedWalls(count: number): Game {
+  pickRandomCrossedWalls(count: number, minMaxMoveCount?: number): Game {
     let newGame = this.change({field: Field.makeForSize(this.field.width, this.field.height)});
-    for (const _i of _.range(count)) {
-      const leftWallsCrossed = new PositionMap<boolean>();
-      const topWallsCrossed = new PositionMap<boolean>();
-      newGame.calculateReachableRobotPositions(newGame.robots[0], leftWallsCrossed, topWallsCrossed);
-      const wallsCrossed: [WallType, Position][] = [
-        ...Array.from(leftWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["left", position] as [WallType, Position]),
-        ...Array.from(topWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["top", position] as [WallType, Position]),
-      ];
-      if (!wallsCrossed.length) {
+    while (true) {
+      for (const _i of _.range(count)) {
+        const leftWallsCrossed = new PositionMap<boolean>();
+        const topWallsCrossed = new PositionMap<boolean>();
+        newGame.calculateReachableRobotPositions(newGame.robots[0], leftWallsCrossed, topWallsCrossed);
+        const wallsCrossed: [WallType, Position][] = [
+          ...Array.from(leftWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["left", position] as [WallType, Position]),
+          ...Array.from(topWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["top", position] as [WallType, Position]),
+        ];
+        if (!wallsCrossed.length) {
+          break;
+        }
+        const [wallType, position] = wallsCrossed[_.random(0, wallsCrossed.length - 1)];
+        newGame = newGame.toggleWall(position, wallType);
+      }
+      if (minMaxMoveCount === undefined) {
         break;
       }
-      const [wallType, position] = wallsCrossed[_.random(0, wallsCrossed.length - 1)];
-      newGame = newGame.toggleWall(position, wallType);
+      if (!newGame.robots.length) {
+        throw new Error("Game has no robots and minMaxMoveCount was provided");
+      }
+      const distanceMap = newGame.calculateReachableRobotPositions(newGame.robots[0]);
+      const maxMoveCount = Math.max(...distanceMap.values());
+      if (maxMoveCount >= minMaxMoveCount) {
+        break;
+      }
     }
     return newGame;
   }
