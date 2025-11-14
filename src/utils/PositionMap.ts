@@ -35,6 +35,14 @@ export class PositionMap<T> {
     }
   }
 
+  *values(): Iterable<T> {
+    for (const [, line] of this.lines.entries()) {
+      for (const [, t] of line.entries()) {
+        yield t;
+      }
+    }
+  }
+
   has({ x, y }: Position): boolean {
     if (!this.lines.has(y)) {
       return false;

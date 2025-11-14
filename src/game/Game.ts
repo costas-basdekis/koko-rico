@@ -36,14 +36,14 @@ export class Game {
     return this.change({ field: this.field.toggleWall(position, type) });
   }
 
-  calculateReachableRobotPositions(robot: Robot): PositionMap<number> {
+  calculateReachableRobotPositions(robot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(robot.position, 0);
     const queue: [Position, number][] = [[robot.position, 0]];
     while (queue.length) {
       const [[position, distance]] = queue.splice(0, 1);
       const nextDistance = distance + 1;
-      const nextPositions = this.getNextPositions(position, robot);
+      const nextPositions = this.getNextPositions(position, robot, leftWallsCrossed, topWallsCrossed);
       for (const nextPosition of nextPositions) {
         if (distanceMap.has(nextPosition)) {
           continue;
@@ -62,9 +62,11 @@ export class Game {
     ["top", 1],
   ];
 
-  getNextPositions(position: Position, ignoreRobot: Robot): Position[] {
+  getNextPositions(position: Position, ignoreRobot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>): Position[] {
     const nextPositions: Position[] = [];
+    const otherRobots = this.robots.filter(robot => robot !== ignoreRobot);
     for (const [wallType, wallIndexOffset] of Game.directionOffsets) {
+      const positionOffset = wallIndexOffset * 2 - 1;
       const nextPosition = { ...position };
       while (true) {
         const walls =
@@ -79,9 +81,26 @@ export class Game {
           break;
         }
         if (wallType === "left") {
-          nextPosition.x += wallIndexOffset * 2 - 1;
+          nextPosition.x += positionOffset;
         } else {
-          nextPosition.y += wallIndexOffset * 2 - 1;
+          nextPosition.y += positionOffset;
+        }
+        if (otherRobots.find(robot => positionsEqual(robot.position, nextPosition))) {
+          if (wallType === "left") {
+            nextPosition.x -= positionOffset;
+          } else {
+            nextPosition.y -= positionOffset;
+          }
+          break;
+        }
+        if (wallType === "left") {
+          if (leftWallsCrossed) {
+            leftWallsCrossed.set({x: nextPosition.x + (1 - wallIndexOffset), y: nextPosition.y}, true);
+          }
+        } else {
+          if (topWallsCrossed) {
+            topWallsCrossed.set({x: nextPosition.x, y: nextPosition.y + (1 - wallIndexOffset)}, true);
+          }
         }
       }
       if (positionsEqual(nextPosition, position)) {

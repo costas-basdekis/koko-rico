@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Game, WallType } from "../game";
-import { Position } from "../utils";
+import { Position, PositionMap } from "../utils";
 import { DField } from "./DField";
 import { DFieldDistances } from "./DFieldDistances";
 import { DRobot } from "./DRobot";
@@ -9,12 +9,14 @@ export interface DGameProps {
   game: Game;
   showDistances?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
+  onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
 }
 
 export function DGame({
   game,
   showDistances = false,
   onGhostWallClick,
+  onDistanceMapChange,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances) {
@@ -25,6 +27,9 @@ export function DGame({
     }
     return game.calculateReachableRobotPositions(game.robots[0]);
   }, [game, showDistances]);
+  useEffect(() => {
+    onDistanceMapChange?.(distanceMap);
+  }, [distanceMap]);
   return (
     <g className={"game"}>
       <DField
