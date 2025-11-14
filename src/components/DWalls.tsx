@@ -76,6 +76,7 @@ function DWallCell({
         y + (type === "left" ? 1 : 0)
       )}`}
       onClick={clickable ? onClick : undefined}
+      onTouchStart={clickable ? onClick : undefined}
     />
   );
 }

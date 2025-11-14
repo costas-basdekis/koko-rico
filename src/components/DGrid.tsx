@@ -59,6 +59,7 @@ export function DGridCell({ x, y, showRobotControls, onRobotMoveClick, isTarget 
       width={drawSettings.width}
       height={drawSettings.height}
       onClick={showRobotControls ? onClick : undefined}
+      onTouchStart={showRobotControls ? onClick : undefined}
     />
   );
 }
