@@ -15,8 +15,8 @@ export class DrawSettings {
   }
 
   constructor(
-    width: number = 20,
-    height: number = 20,
+    width: number = 40,
+    height: number = 40,
     xOffset: number = 10,
     yOffset: number = 10,
     robotColours: string[] = ["red", "green", "blue", "yellow"]

@@ -13,7 +13,6 @@ export default function App() {
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {
       const newGame = game.toggleWall(position, type);
-      console.log(position, type, game, newGame);
       setGame(newGame);
     },
     [game]
@@ -53,7 +52,7 @@ export default function App() {
       <div>
         <button onClick={onRandomWallsClick}>Randomly pick 20 walls</button>
       </div>
-      <svg width={500} height={500}>
+      <svg width={1000} height={1000}>
         <DrawSettings.ContextProvider value={drawSettings}>
           <DGame
             game={game}
