@@ -9,6 +9,7 @@ export default function App() {
   const [game, setGame]: [Game, any] = useState(
     Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
   );
+  const [robotPath, setRobotPath] = useState<[Position, Position][]>([]);
   const [drawSettings] = useState(new DrawSettings());
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {
@@ -19,7 +20,15 @@ export default function App() {
   );
   const onRobotResetClick = useCallback(() => {
     setGame(game.moveRobot(game.robots[0], { x: 10, y: 10 }));
-  }, [game, setGame]);
+    setRobotPath([]);
+  }, [game, setGame, setRobotPath]);
+  const onUndoRobotMove = useCallback(() => {
+    if (!robotPath.length) {
+      return;
+    }
+    setGame(game.moveRobot(game.robots[0], robotPath[robotPath.length - 1][0]));
+    setRobotPath(robotPath.slice(0, robotPath.length - 1));
+  }, [game, setGame, robotPath, setRobotPath]);
   const onRandomWallsClick = useCallback(() => {
     const newField = pickRandomWalls(game.field, 20);
     setGame(game.change({ field: newField }));
@@ -39,14 +48,15 @@ export default function App() {
     return Math.max(...distanceMap.values());
   }, [distanceMap]);
   const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position) => {
-    console.log("Clicked");
     setGame(game.moveRobot(robot, nextPosition));
-  }, [game, setGame]);
+    setRobotPath([...robotPath, [robot.position, nextPosition]]);
+  }, [game, setGame, robotPath, setRobotPath]);
   return (
     <div className="App">
       <h1>Koko Rico</h1>
       <div>
         <button onClick={onRobotResetClick}>Reset robot</button>
+        <button onClick={onUndoRobotMove} disabled={!robotPath.length}>Undo move</button>
         <button onClick={onRandomWallsClick}>Randomly pick 20 walls</button>
         <button onClick={onRandomCrossedWallsClick}>Randomly pick 30 crossed walls</button>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
@@ -55,6 +65,7 @@ export default function App() {
         <DrawSettings.ContextProvider value={drawSettings}>
           <DGame
             game={game}
+            robotPath={robotPath}
             showDistances
             onGhostWallClick={onGhostWallClick}
             onDistanceMapChange={onDistanceMapChange}

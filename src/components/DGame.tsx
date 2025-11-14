@@ -7,6 +7,7 @@ import { DRobot } from "./DRobot";
 
 export interface DGameProps {
   game: Game;
+  robotPath?: [Position, Position][];
   showDistances?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
@@ -16,6 +17,7 @@ export interface DGameProps {
 
 export function DGame({
   game,
+  robotPath,
   showDistances = false,
   onGhostWallClick,
   onDistanceMapChange,
@@ -53,6 +55,7 @@ export function DGame({
     <g className={"game"}>
       <DField
         field={game.field}
+        robotPath={robotPath}
         showGhostWalls
         onGhostWallClick={onGhostWallClick}
         nextRobotPositions={showRobotControls ? nextRobotPositions : undefined}

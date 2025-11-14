@@ -7,22 +7,29 @@ import { useCallback } from "react";
 export interface DGridProps {
   field: Field;
   nextRobotPositions?: Position[];
+  onlyNextRobotPositions?: boolean,
   onRobotMoveClick?: (nextPosition: Position) => void;
 }
 
-export function DGrid({ field, nextRobotPositions, onRobotMoveClick }: DGridProps) {
+export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = false, onRobotMoveClick }: DGridProps) {
   return (
     <g className={"grid"}>
       {_.range(field.width).map((x) =>
-        _.range(field.height).map((y) => (
-          <DGridCell
-            key={`${x},${y}`}
-            x={x}
-            y={y}
-            showRobotControls={!!nextRobotPositions?.find(position => positionsEqual({x, y}, position))}
-            onRobotMoveClick={onRobotMoveClick}
-          />
-        ))
+        _.range(field.height).map((y) => {
+          const showRobotControls = !!nextRobotPositions?.find(position => positionsEqual({x, y}, position));
+          if (onlyNextRobotPositions && !showRobotControls) {
+            return null;
+          }
+          return (
+            <DGridCell
+              key={`${x},${y}`}
+              x={x}
+              y={y}
+              showRobotControls={showRobotControls}
+              onRobotMoveClick={onRobotMoveClick}
+            />
+          );
+        })
       )}
     </g>
   );

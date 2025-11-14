@@ -4,4 +4,5 @@ export * from "./DGame";
 export * from "./DGrid";
 export * from "./DrawSettings";
 export * from "./DRobot";
+export * from "./DRobotPath";
 export * from "./DWalls";

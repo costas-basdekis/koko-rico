@@ -1,10 +1,12 @@
 import { Field, WallType } from "../game";
 import { Position } from "../utils";
 import { DGrid } from "./DGrid";
+import { DRobotPath } from "./DRobotPath";
 import { DWalls } from "./DWalls";
 
 export interface DFieldProps {
   field: Field;
+  robotPath?: [Position, Position][];
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
   nextRobotPositions?: Position[];
@@ -13,6 +15,7 @@ export interface DFieldProps {
 
 export function DField({
   field,
+  robotPath,
   showGhostWalls = false,
   onGhostWallClick,
   nextRobotPositions,
@@ -20,7 +23,9 @@ export function DField({
 }: DFieldProps) {
   return (
     <g className={"field"}>
-      <DGrid field={field} nextRobotPositions={nextRobotPositions} onRobotMoveClick={onRobotMoveClick} />
+      <DGrid field={field} />
+      {robotPath ? <DRobotPath robotPath={robotPath} /> : null}
+      <DGrid field={field} nextRobotPositions={nextRobotPositions} onlyNextRobotPositions onRobotMoveClick={onRobotMoveClick} />
       <DWalls
         key={"top"}
         walls={field.topWalls}

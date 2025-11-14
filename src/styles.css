@@ -52,3 +52,11 @@ svg {
   dominant-baseline: middle;
   pointer-events: none;
 }
+
+.robot-path-item {
+  stroke: red;
+  fill: red;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 10;
+}
