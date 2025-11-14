@@ -3,6 +3,8 @@ import { Position, PositionMap } from "../utils";
 
 export type Walls = PositionMap<boolean>;
 
+export type WallType = "left" | "top";
+
 export class Field {
   width: number;
   height: number;
@@ -59,7 +61,7 @@ export class Field {
     return field;
   }
 
-  toggleWall(position: Position, type: "left" | "top"): Field {
+  toggleWall(position: Position, type: WallType): Field {
     let topWalls = this.topWalls;
     let leftWalls = this.leftWalls;
     if (type === "left") {

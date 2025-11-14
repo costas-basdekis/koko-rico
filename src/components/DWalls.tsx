@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 import _ from "underscore";
-import { Walls } from "../game";
+import { Walls, WallType } from "../game";
 import { Position } from "../utils";
 import { DrawSettings } from "./DrawSettings";
 
 export interface DWallsProps {
   walls: Walls;
-  type: "top" | "left";
+  type: WallType;
   showGhosts?: boolean;
-  onGhostClick?: (position: Position, type: "left" | "top") => void;
+  onGhostClick?: (position: Position, type: WallType) => void;
   unclickableIndexes?: number[];
 }
 
@@ -44,8 +44,8 @@ interface DWallCellProps {
   position: Position;
   contains: boolean;
   clickable: boolean;
-  type: "left" | "top";
-  onGhostClick?: (position: Position, type: "left" | "top") => void;
+  type: WallType;
+  onGhostClick?: (position: Position, type: WallType) => void;
 }
 
 function DWallCell({

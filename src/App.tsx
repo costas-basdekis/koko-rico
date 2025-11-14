@@ -1,7 +1,7 @@
 import "./styles.css";
 import _ from "underscore";
 import { useCallback, useState } from "react";
-import { Game, Field } from "./game";
+import { Game, Field, WallType } from "./game";
 import { DGame, DrawSettings } from "./components";
 import { Position } from "./utils";
 
@@ -11,7 +11,7 @@ export default function App() {
   );
   const [drawSettings] = useState(new DrawSettings());
   const onGhostWallClick = useCallback(
-    (position: Position, type: "left" | "top") => {
+    (position: Position, type: WallType) => {
       const newGame = game.toggleWall(position, type);
       console.log(position, type, game, newGame);
       setGame(newGame);

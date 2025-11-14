@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Game } from "../game";
+import { Game, WallType } from "../game";
 import { Position } from "../utils";
 import { DField } from "./DField";
 import { DFieldDistances } from "./DFieldDistances";
@@ -8,7 +8,7 @@ import { DRobot } from "./DRobot";
 export interface DGameProps {
   game: Game;
   showDistances?: boolean;
-  onGhostWallClick?: (position: Position, type: "left" | "top") => void;
+  onGhostWallClick?: (position: Position, type: WallType) => void;
 }
 
 export function DGame({

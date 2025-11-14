@@ -1,5 +1,5 @@
 import { Position, PositionMap } from "../utils";
-import { Field } from "./Field";
+import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
 
 export class Game {
@@ -32,7 +32,7 @@ export class Game {
     return new Game(field, robots);
   }
 
-  toggleWall(position: Position, type: "left" | "top"): any {
+  toggleWall(position: Position, type: WallType): Game {
     return this.change({ field: this.field.toggleWall(position, type) });
   }
 
@@ -55,7 +55,7 @@ export class Game {
     return distanceMap;
   }
 
-  static directionOffsets: ["left" | "top", number][] = [
+  static directionOffsets: [WallType, number][] = [
     ["left", 0],
     ["left", 1],
     ["top", 0],

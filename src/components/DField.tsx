@@ -1,4 +1,4 @@
-import { Field } from "../game";
+import { Field, WallType } from "../game";
 import { Position } from "../utils";
 import { DGrid } from "./DGrid";
 import { DWalls } from "./DWalls";
@@ -6,7 +6,7 @@ import { DWalls } from "./DWalls";
 export interface DFieldProps {
   field: Field;
   showGhostWalls?: boolean;
-  onGhostWallClick?: (position: Position, type: "left" | "top") => void;
+  onGhostWallClick?: (position: Position, type: WallType) => void;
 }
 
 export function DField({
