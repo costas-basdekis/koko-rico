@@ -60,6 +60,7 @@ export function DGame({
         robotPath={robotPath}
         showGhostWalls
         onGhostWallClick={onGhostWallClick}
+        robotPosition={game.robots[0].position}
         nextRobotPositions={showRobotControls ? nextRobotPositions : undefined}
         onRobotMoveClick={onRobotNextPositionClick}
         targetPosition={targetPosition}

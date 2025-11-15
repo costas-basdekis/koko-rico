@@ -14,7 +14,8 @@ svg {
 
 .grid-wall {
   stroke: black;
-  stroke-width: 3px;
+  stroke-width: 6px;
+  stroke-linecap: square;
 }
 
 .grid-wall.ghost:not(:hover) {
@@ -66,4 +67,15 @@ svg {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 10;
+}
+
+.next-position-hitbox {
+  cursor: pointer;
+  stroke: transparent;
+  fill: transparent;
+}
+
+.next-position-arrow {
+  fill: green;
+  pointer-events: none;
 }

@@ -13,7 +13,7 @@ export function DRobot({ robot }: DRobotProps) {
       className={`robot index-${robot.index}`}
       cx={drawSettings.getXPosition(robot.position.x + 0.5)}
       cy={drawSettings.getXPosition(robot.position.y + 0.5)}
-      r={drawSettings.width / 2 - 2}
+      r={drawSettings.width / 2 - 5}
     />
   );
 }
