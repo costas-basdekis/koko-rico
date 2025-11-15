@@ -14,6 +14,16 @@ export class DrawSettings {
     return useContext(this.Context);
   }
 
+  static fittingInWindow(windowWidth: number, windowHeight: number, gridWidth: number, gridHeight: number): DrawSettings {
+    const xOffset = 10;
+    const yOffset = 10;
+    const maxWidth = Math.floor((windowWidth - xOffset * 2) /  gridWidth);
+    const maxHeight = Math.floor((windowHeight - yOffset * 2) /  gridHeight);
+    const width = Math.min(maxWidth, maxHeight);
+    const height = width;
+    return new this(width, height, xOffset, yOffset);
+  }
+
   constructor(
     width: number = 40,
     height: number = 40,
@@ -26,6 +36,25 @@ export class DrawSettings {
     this.xOffset = xOffset;
     this.yOffset = yOffset;
     this.robotColours = robotColours;
+  }
+
+  equals(other: DrawSettings): boolean {
+    return (
+      this.width === other.width
+      && this.height === other.height
+      && this.xOffset === other.xOffset
+      && this.yOffset === other.yOffset
+      && this.robotColours.length === other.robotColours.length
+      && this.robotColours.every((colour, index) => colour == other.robotColours[index])
+    )
+  }
+
+  getDisplayWidth(gridWidth: number): number {
+    return this.width * gridWidth + this.xOffset * 2;
+  }
+  
+  getDisplayHeight(gridHeight: number): number {
+    return this.height * gridHeight + this.yOffset * 2;
   }
 
   getXPosition(x: number): number {

@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { SvgDefs } from "./SvgDefs";
 import { DrawSettings } from "./components";
+import { useWindowSize } from "./hooks";
 
 export interface SvgContainerProps {
   gridWidth: number;
@@ -9,11 +10,19 @@ export interface SvgContainerProps {
 }
 
 export function SvgContainer({children, gridWidth, gridHeight}: SvgContainerProps) {
-  const drawSettings = DrawSettings.use();
+  const [drawSettings, setDrawSettings] = useState(new DrawSettings());
+  useWindowSize((windowWidth: number, windowHeight: number) => {
+    const newDrawSettings = DrawSettings.fittingInWindow(windowWidth, windowHeight, gridWidth, gridHeight);
+    if (!newDrawSettings.equals(drawSettings)) {
+      setDrawSettings(newDrawSettings);
+    }
+  }, [gridWidth, gridHeight]);
   return (
-      <svg width={drawSettings.width * gridWidth + drawSettings.xOffset * 2} height={drawSettings.height * gridHeight + drawSettings.yOffset * 2}>
+      <svg width={drawSettings.getDisplayWidth(gridWidth)} height={drawSettings.getDisplayHeight(gridHeight)}>
         <SvgDefs />
-        {children}
+        <DrawSettings.ContextProvider value={drawSettings}>
+          {children}
+        </DrawSettings.ContextProvider>
       </svg>
   );
 }

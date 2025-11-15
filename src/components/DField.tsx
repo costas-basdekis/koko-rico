@@ -76,7 +76,7 @@ export function DNextPosition({position, nextPosition, onRobotMoveClick}: DNextP
       + ` scale(${drawSettings.width / 20})`
       + ` rotate(${rotation})`
     );
-  }, [position, nextPosition]);
+  }, [drawSettings, position, nextPosition]);
   const onClick = useCallback(() => {
     onRobotMoveClick?.(nextPosition);
   }, [nextPosition, onRobotMoveClick]);

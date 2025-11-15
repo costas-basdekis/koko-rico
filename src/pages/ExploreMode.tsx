@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Game, WallType, Robot } from "../game";
-import { DGame, DrawSettings } from "../components";
+import { DGame } from "../components";
 import { Position, PositionMap } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
@@ -10,7 +10,6 @@ export default function ExploreMode() {
     Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
   );
   const [robotPath, setRobotPath] = useState<[Position, Position][]>([]);
-  const [drawSettings] = useState(new DrawSettings());
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {
       const newGame = game.toggleWall(position, type);
@@ -59,18 +58,16 @@ export default function ExploreMode() {
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
       </div>
       <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height}>
-        <DrawSettings.ContextProvider value={drawSettings}>
-          <DGame
-            game={game}
-            robotPath={robotPath}
-            showDistances
-            showGhostWalls
-            onGhostWallClick={onGhostWallClick}
-            onDistanceMapChange={onDistanceMapChange}
-            showRobotControls
-            onRobotMoveClick={onRobotMoveClick}
-          />
-        </DrawSettings.ContextProvider>
+        <DGame
+          game={game}
+          robotPath={robotPath}
+          showDistances
+          showGhostWalls
+          onGhostWallClick={onGhostWallClick}
+          onDistanceMapChange={onDistanceMapChange}
+          showRobotControls
+          onRobotMoveClick={onRobotMoveClick}
+        />
       </SvgContainer>
     </>
   );

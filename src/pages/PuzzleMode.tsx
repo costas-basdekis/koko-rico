@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Game, Robot } from "../game";
-import { DGame, DrawSettings } from "../components";
+import { DGame } from "../components";
 import { Position } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
@@ -16,7 +16,6 @@ export function PuzzleMode() {
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
   }, [game.field]);
   const [robotPath, setRobotPath] = useState<[Position, Position][]>([]);
-  const [drawSettings] = useState(new DrawSettings());
   const onRobotResetClick = useCallback(() => {
     setGame(game.moveRobot(game.robots[0], { x: 10, y: 10 }));
     setRobotPath([]);
@@ -44,15 +43,13 @@ export function PuzzleMode() {
       </div>
       <div>Current moves: {robotPath.length}/{targetDistance}</div>
       <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height}>
-        <DrawSettings.ContextProvider value={drawSettings}>
-          <DGame
-            game={game}
-            robotPath={robotPath}
-            showRobotControls
-            onRobotMoveClick={onRobotMoveClick}
-            targetPosition={targetPosition}
-          />
-        </DrawSettings.ContextProvider>
+        <DGame
+          game={game}
+          robotPath={robotPath}
+          showRobotControls
+          onRobotMoveClick={onRobotMoveClick}
+          targetPosition={targetPosition}
+        />
       </SvgContainer>
     </>
   );
