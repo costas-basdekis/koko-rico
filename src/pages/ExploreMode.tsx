@@ -64,6 +64,7 @@ export default function ExploreMode() {
             game={game}
             robotPath={robotPath}
             showDistances
+            showGhostWalls
             onGhostWallClick={onGhostWallClick}
             onDistanceMapChange={onDistanceMapChange}
             showRobotControls

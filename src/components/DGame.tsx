@@ -9,6 +9,7 @@ export interface DGameProps {
   game: Game;
   robotPath?: [Position, Position][];
   showDistances?: boolean;
+  showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
   showRobotControls?: boolean;
@@ -20,6 +21,7 @@ export function DGame({
   game,
   robotPath,
   showDistances = false,
+  showGhostWalls = false,
   onGhostWallClick,
   onDistanceMapChange,
   showRobotControls = false,
@@ -58,7 +60,7 @@ export function DGame({
       <DField
         field={game.field}
         robotPath={robotPath}
-        showGhostWalls
+        showGhostWalls={showGhostWalls}
         onGhostWallClick={onGhostWallClick}
         robotPosition={game.robots[0].position}
         nextRobotPositions={showRobotControls ? nextRobotPositions : undefined}
