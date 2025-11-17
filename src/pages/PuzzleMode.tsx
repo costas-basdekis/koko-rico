@@ -27,7 +27,11 @@ export function PuzzleMode() {
     setGame(game.moveRobot(game.robots[0], robotPath[robotPath.length - 1][0]));
     setRobotPath(robotPath.slice(0, robotPath.length - 1));
   }, [game, setGame, robotPath, setRobotPath]);
-  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position) => {
+  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, undo: boolean) => {
+    if (undo) {
+      onUndoRobotMove();
+      return;
+    }
     setGame(game.moveRobot(robot, nextPosition));
     setRobotPath([...robotPath, [robot.position, nextPosition]]);
   }, [game, setGame, robotPath, setRobotPath]);
