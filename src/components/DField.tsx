@@ -35,7 +35,9 @@ export function DField({
     <g className={"field"}>
       <DGrid field={field} targetPosition={targetPosition} />
       {robotPath ? <DRobotPath robotPath={robotPath} /> : null}
-      {robotPosition ? nextRobotPositions?.map(nextPosition => <DNextPosition key={getPositionKey(nextPosition)} position={robotPosition} nextPosition={nextPosition} onRobotMoveClick={onRobotMoveClick} />) : null}
+      <g className={"next-positions"}>
+        {robotPosition ? nextRobotPositions?.map(nextPosition => <DNextPosition key={getPositionKey(nextPosition)} position={robotPosition} nextPosition={nextPosition} onRobotMoveClick={onRobotMoveClick} />) : null}
+      </g>
       <DWalls
         key={"top"}
         walls={field.topWalls}
