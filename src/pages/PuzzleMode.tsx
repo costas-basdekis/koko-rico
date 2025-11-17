@@ -46,7 +46,7 @@ export function PuzzleMode() {
         <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
       </div>
       <div>Current moves: {robotPath.length}/{targetDistance}</div>
-      <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height}>
+      <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
         <DGame
           game={game}
           robotPath={robotPath}

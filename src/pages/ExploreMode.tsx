@@ -57,7 +57,7 @@ export default function ExploreMode() {
         <button onClick={onRandomCrossedWallsClick}>Randomly pick 30 crossed walls</button>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
       </div>
-      <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height}>
+      <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
         <DGame
           game={game}
           robotPath={robotPath}

@@ -14,11 +14,11 @@ export class DrawSettings {
     return useContext(this.Context);
   }
 
-  static fittingInWindow(windowWidth: number, windowHeight: number, gridWidth: number, gridHeight: number): DrawSettings {
+  static fittingInWindow(windowWidth: number, windowHeight: number, gridWidth: number, gridHeight: number, extraPaddingX: number = 0, extraPaddingY: number = 0): DrawSettings {
     const xOffset = 10;
     const yOffset = 10;
-    const maxWidth = Math.floor((windowWidth - xOffset * 2) /  gridWidth);
-    const maxHeight = Math.floor((windowHeight - yOffset * 2) /  gridHeight);
+    const maxWidth = Math.floor((windowWidth - extraPaddingX - xOffset * 2) /  gridWidth);
+    const maxHeight = Math.floor((windowHeight - extraPaddingY - yOffset * 2) /  gridHeight);
     const width = Math.min(maxWidth, maxHeight);
     const height = width;
     return new this(width, height, xOffset, yOffset);
