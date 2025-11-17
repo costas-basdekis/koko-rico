@@ -1,11 +1,15 @@
-import { ReactElement } from "react";
-import { create } from "underscore";
+import { cloneElement, isValidElement, ReactElement } from "react";
 
 export const SvgDefinitionMap: Map<string, ReactElement> = new Map();
 
 export function registerSvgDef(name: string, element: ReactElement, createGroup: boolean = true) {
   if (createGroup) {
     element = <g id={name}>{element}</g>;
+  }
+  if (isValidElement(element)) {
+    element = cloneElement(element, {key: name});
+  } else {
+    element = <g key={name}>{element}</g>
   }
   SvgDefinitionMap.set(name, element);
 }
