@@ -1,2 +1,3 @@
 export * from "./ExploreMode";
-export * from "./PuzzleMode";
+export * from "./MultiRobotPuzzleMode";
+export * from "./SingleRobotPuzzleMode";

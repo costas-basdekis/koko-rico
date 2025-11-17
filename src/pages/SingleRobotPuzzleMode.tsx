@@ -5,7 +5,7 @@ import { DGame } from "../components";
 import { Position } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
-export function PuzzleMode() {
+export function SingleRobotPuzzleMode() {
   const [game, setGame]: [Game, any] = useState(
     Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]).pickRandomCrossedWalls(20, 10)
   );
