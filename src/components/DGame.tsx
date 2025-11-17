@@ -56,10 +56,8 @@ export function DGame({
       return [];
     }
     const robot = game.robots[0];
-    const rawNextPositions = Object.values(Direction)
-      .map(direction => game.getNextPositionAtDirection(robot.position, direction as Direction, robot))
-      .filter(nextPosition => nextPosition) as Position[];
-    const nextPositionEntries: {nextPosition: Position, isUndo: boolean}[] = rawNextPositions.map(nextPosition => ({nextPosition, isUndo: false}));
+    const nextPositionEntries: {nextPosition: Position, isUndo: boolean}[] = 
+      game.getNextPositions(robot.position, robot).map(nextPosition => ({nextPosition, isUndo: false}));
     if (robotPath?.length) {
       const [previousPosition] = robotPath[robotPath.length - 1];
       const directionFilter = Array.from(directionFilterMap.values()).find(filter => filter(previousPosition, robot.position));
