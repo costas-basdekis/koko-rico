@@ -48,7 +48,7 @@ export function DGame({
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);
   }, [distanceMap]);
-  const nextRobotPositions = useMemo(() => {
+  const nextRobotPositionEntries = useMemo(() => {
     if (!showRobotControls) {
       return [];
     }
@@ -56,32 +56,37 @@ export function DGame({
       return [];
     }
     const robot = game.robots[0];
-    return Object.values(Direction)
+    const rawNextPositions = Object.values(Direction)
       .map(direction => game.getNextPositionAtDirection(robot.position, direction as Direction, robot))
       .filter(nextPosition => nextPosition) as Position[];
-  }, [game, game.robots[0], showRobotControls]);
-  const onRobotNextPositionClick = useCallback((nextPosition: Position) => {
-    onRobotMoveClick?.(game.robots[0], nextPosition, false)
+    const nextPositionEntries: {nextPosition: Position, isUndo: boolean}[] = rawNextPositions.map(nextPosition => ({nextPosition, isUndo: false}));
+    if (robotPath?.length) {
+      const [previousPosition] = robotPath[robotPath.length - 1];
+      const directionFilter = Array.from(directionFilterMap.values()).find(filter => filter(previousPosition, robot.position));
+      if (directionFilter) {
+        const nextPositionEntry = nextPositionEntries.find(nextPositionEntry => directionFilter(nextPositionEntry.nextPosition, robot.position));
+        if (nextPositionEntry) {
+          nextPositionEntry.nextPosition = previousPosition
+          nextPositionEntry.isUndo = true;
+        }
+      }
+    }
+    return nextPositionEntries;
+  }, [game, game.robots[0], showRobotControls, robotPath]);
+  const onRobotNextPositionClick = useCallback((nextPosition: Position, isUndo: boolean) => {
+    onRobotMoveClick?.(game.robots[0], nextPosition, isUndo)
   }, [game.robots[0], onRobotMoveClick]);
   const onDirectionKeyPress = useCallback((direction: Direction) => {
     if (!game.robots[0]) {
       return;
     }
     const directionFilter = directionFilterMap.get(direction)!;
-    const position = game.robots[0].position;
-    if (robotPath?.length) {
-      const [previousPosition, currentPosition] = robotPath[robotPath.length - 1];
-      if (directionFilter(previousPosition, currentPosition)) {
-        onRobotMoveClick?.(game.robots[0], previousPosition, true);
-        return;
-      }
-    }
-    const nextPosition = nextRobotPositions.find(nextPosition => directionFilter(nextPosition, position));
-    if (!nextPosition) {
+    const nextPositionEntry = nextRobotPositionEntries.find(({nextPosition}) => directionFilter(nextPosition, game.robots[0].position));
+    if (!nextPositionEntry) {
       return;
     }
-    onRobotMoveClick?.(game.robots[0], nextPosition, false);
-  }, [game, robotPath, nextRobotPositions, onRobotMoveClick]);
+    onRobotMoveClick?.(game.robots[0], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
+  }, [game, nextRobotPositionEntries, onRobotMoveClick]);
   useHotkeys('left', (e) => {
     e.preventDefault();
     onDirectionKeyPress(Direction.Left);
@@ -106,7 +111,7 @@ export function DGame({
         showGhostWalls={showGhostWalls}
         onGhostWallClick={onGhostWallClick}
         robotPosition={game.robots[0].position}
-        nextRobotPositions={showRobotControls ? nextRobotPositions : undefined}
+        nextRobotPositionEntries={showRobotControls ? nextRobotPositionEntries : undefined}
         onRobotMoveClick={onRobotNextPositionClick}
         targetPosition={targetPosition}
       />

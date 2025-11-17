@@ -79,3 +79,7 @@ svg {
   fill: green;
   pointer-events: none;
 }
+
+.next-position-arrow.undo {
+  fill: orange;
+}
