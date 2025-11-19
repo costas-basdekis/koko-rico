@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { Field, WallType } from "../game";
-import { makeAndRegisterSvgDef, registerSvgDef } from "../SvgDefs";
+import { Field, Robot, RobotPath, WallType } from "../game";
+import { makeAndRegisterSvgDef } from "../SvgDefs";
 import { getPositionKey, Position } from "../utils";
 import { DGrid } from "./DGrid";
 import { DrawSettings } from "./DrawSettings";
@@ -12,31 +12,57 @@ export const NextPositionArrowUp = makeAndRegisterSvgDef("next-position-arrow-up
 
 export interface DFieldProps {
   field: Field;
-  robotPath?: [Position, Position][];
+  robots?: Robot[];
+  path?: RobotPath;
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
-  robotPosition?: Position,
-  nextRobotPositionEntries?: {nextPosition: Position, isUndo: boolean}[];
-  onRobotMoveClick?: (nextPosition: Position, isUndo: boolean) => void;
+  robotPositions?: Map<number, Position>,
+  nextRobotsPositionEntries?: Map<number, {nextPosition: Position, isUndo: boolean}[]>;
+  onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
   targetPosition?: Position;
 }
 
 export function DField({
   field,
-  robotPath,
+  robots,
+  path,
   showGhostWalls = false,
   onGhostWallClick,
-  nextRobotPositionEntries,
-  robotPosition,
+  nextRobotsPositionEntries,
+  robotPositions,
   onRobotMoveClick,
   targetPosition,
 }: DFieldProps) {
+  if (path && !robots) {
+    throw new Error("DGame cannot accept robotPaths prop without robots prop.");
+  }
+  if (nextRobotsPositionEntries && !robots) {
+    throw new Error("DField cannot accept nextRobotsPositionEntries prop without robots prop.");
+  }
+  if (robotPositions && !robots) {
+    throw new Error("DField cannot accept robotPositions prop without robots prop.");
+  }
+  const robotPathsByIndex = useMemo(() => {
+    if (!path || !robots) {
+      return new Map();
+    }
+    return new Map(robots.map((robot) => [robot.index, path.filter(entry => entry.robotIndex === robot.index)]));
+  }, [path, robots]);
   return (
     <g className={"field"}>
       <DGrid field={field} targetPosition={targetPosition} />
-      {robotPath ? <DRobotPath robotPath={robotPath} /> : null}
+      {path ? Array.from(robotPathsByIndex.entries()).map(([index, robotPath]) => <DRobotPath key={index} robot={robots![index]} robotPath={robotPath} />) : null}
       <g className={"next-positions"}>
-        {robotPosition ? nextRobotPositionEntries?.map(({nextPosition, isUndo}) => <DNextPosition key={getPositionKey(nextPosition)} position={robotPosition} nextPosition={nextPosition} isUndo={isUndo} onRobotMoveClick={onRobotMoveClick} />) : null}
+        {Array.from(nextRobotsPositionEntries?.entries() || []).flatMap(([index, nextRobotPositionEntries]) => nextRobotPositionEntries.map(({nextPosition, isUndo}) => (
+          <DNextPosition 
+            key={`${index}|${getPositionKey(nextPosition)}`}
+            robot={robots![index]}
+            position={robots![index].position}
+            nextPosition={nextPosition}
+            isUndo={isUndo}
+            onRobotMoveClick={onRobotMoveClick}
+          />
+        )))}
       </g>
       <DWalls
         key={"top"}
@@ -59,13 +85,14 @@ export function DField({
 }
 
 export interface DNextPositionProps {
+  robot: Robot;
   position: Position;
   nextPosition: Position;
   isUndo: boolean;
-  onRobotMoveClick?: (nextPosition: Position, isUndo: boolean) => void;
+  onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
 }
 
-export function DNextPosition({position, nextPosition, isUndo, onRobotMoveClick}: DNextPositionProps) {
+export function DNextPosition({robot, position, nextPosition, isUndo, onRobotMoveClick}: DNextPositionProps) {
   const drawSettings = DrawSettings.use();
   const transform = useMemo(() => {
     const rotation = (
@@ -81,7 +108,7 @@ export function DNextPosition({position, nextPosition, isUndo, onRobotMoveClick}
     );
   }, [drawSettings, position, nextPosition]);
   const onClick = useCallback(() => {
-    onRobotMoveClick?.(nextPosition, isUndo);
+    onRobotMoveClick?.(robot, nextPosition, isUndo);
   }, [nextPosition, onRobotMoveClick]);
   return (
     <>
@@ -95,7 +122,7 @@ export function DNextPosition({position, nextPosition, isUndo, onRobotMoveClick}
         onTouchStart={onClick}
       />
       <NextPositionArrowUp
-        className={`next-position-arrow ${isUndo ? "undo" : ""}`}
+        className={`next-position-arrow index-${robot.index} ${isUndo ? "undo" : ""}`}
         transform={transform}
       />
     </>

@@ -62,11 +62,29 @@ svg {
 }
 
 .robot-path-item {
-  stroke: red;
-  fill: red;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 10;
+}
+
+.robot-path-item.index-0 {
+  stroke: red;
+  fill: red;
+}
+
+.robot-path-item.index-1 {
+  stroke: green;
+  fill: green;
+}
+
+.robot-path-item.index-2 {
+  stroke: blue;
+  fill: blue;
+}
+
+.robot-path-item.index-3 {
+  stroke: yellow;
+  fill: yellow;
 }
 
 .next-position-hitbox {
@@ -76,8 +94,23 @@ svg {
 }
 
 .next-position-arrow {
-  fill: green;
   pointer-events: none;
+}
+
+.next-position-arrow.index-0 {
+  fill: red;
+}
+
+.next-position-arrow.index-1 {
+  fill: green;
+}
+
+.next-position-arrow.index-2 {
+  fill: blue;
+}
+
+.next-position-arrow.index-3 {
+  fill: yellow;
 }
 
 .next-position-arrow.undo {

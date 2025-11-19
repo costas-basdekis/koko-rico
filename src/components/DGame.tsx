@@ -8,13 +8,12 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 export interface DGameProps {
   game: Game;
-  robotPath?: [Position, Position][];
   showDistances?: boolean;
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
   showRobotControls?: boolean;
-  onRobotMoveClick?: (robot: Robot, nextPosition: Position, undo: boolean) => void;
+  onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
   targetPosition?: Position;
 }
 
@@ -25,9 +24,15 @@ const directionFilterMap: Map<Direction, (left: Position, right: Position) => bo
   [Direction.Down, (left, right) => left.y > right.y],
 ]);
 
+const hotkeyDirectionMap: Map<string, Direction> = new Map([
+  ['left', Direction.Left],
+  ['right', Direction.Right],
+  ['up', Direction.Up],
+  ['down', Direction.Down],
+]);
+
 export function DGame({
   game,
-  robotPath,
   showDistances = false,
   showGhostWalls = false,
   onGhostWallClick,
@@ -48,68 +53,48 @@ export function DGame({
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);
   }, [distanceMap]);
-  const nextRobotPositionEntries = useMemo(() => {
+  const nextRobotsPositionEntries: Map<number, {nextPosition: Position, isUndo: boolean}[]> = useMemo(() => {
     if (!showRobotControls) {
-      return [];
+      return new Map();
     }
-    if (!game.robots[0]) {
-      return [];
+    return game.getNextRobotsPositionEntries();
+  }, [game, showRobotControls]);
+  const robotPositions = useMemo(() => {
+    if (!showRobotControls) {
+      return undefined;
     }
-    const robot = game.robots[0];
-    const nextPositionEntries: {nextPosition: Position, isUndo: boolean}[] = 
-      game.getNextPositions(robot.position, robot).map(nextPosition => ({nextPosition, isUndo: false}));
-    if (robotPath?.length) {
-      const [previousPosition] = robotPath[robotPath.length - 1];
-      const directionFilter = Array.from(directionFilterMap.values()).find(filter => filter(previousPosition, robot.position));
-      if (directionFilter) {
-        const nextPositionEntry = nextPositionEntries.find(nextPositionEntry => directionFilter(nextPositionEntry.nextPosition, robot.position));
-        if (nextPositionEntry) {
-          nextPositionEntry.nextPosition = previousPosition
-          nextPositionEntry.isUndo = true;
-        }
-      }
-    }
-    return nextPositionEntries;
-  }, [game, game.robots[0], showRobotControls, robotPath]);
-  const onRobotNextPositionClick = useCallback((nextPosition: Position, isUndo: boolean) => {
-    onRobotMoveClick?.(game.robots[0], nextPosition, isUndo)
-  }, [game.robots[0], onRobotMoveClick]);
+    return new Map(game.robots.map(robot => [robot.index, robot.position]));
+  }, [game, showRobotControls]);
+  const onRobotNextPositionClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
+    onRobotMoveClick?.(robot, nextPosition, isUndo)
+  }, [onRobotMoveClick]);
   const onDirectionKeyPress = useCallback((direction: Direction) => {
+    if (!onRobotMoveClick) {
+      return;
+    }
     if (!game.robots[0]) {
       return;
     }
-    const directionFilter = directionFilterMap.get(direction)!;
-    const nextPositionEntry = nextRobotPositionEntries.find(({nextPosition}) => directionFilter(nextPosition, game.robots[0].position));
-    if (!nextPositionEntry) {
+    const nextRobotPositionEntry = game.getRobotMoveInDirection(game.robots[0], direction, nextRobotsPositionEntries);
+    if (!nextRobotPositionEntry) {
       return;
     }
-    onRobotMoveClick?.(game.robots[0], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
-  }, [game, nextRobotPositionEntries, onRobotMoveClick]);
-  useHotkeys('left', (e) => {
+    onRobotMoveClick?.(game.robots[0], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
+  }, [game, nextRobotsPositionEntries, onRobotMoveClick]);
+  useHotkeys(['left', 'right', 'up', 'down'], (e, {hotkey}) => {
     e.preventDefault();
-    onDirectionKeyPress(Direction.Left);
-  });
-  useHotkeys('right', (e) => {
-    e.preventDefault();
-    onDirectionKeyPress(Direction.Right);
-  });
-  useHotkeys('up', (e) => {
-    e.preventDefault();
-    onDirectionKeyPress(Direction.Up);
-  });
-  useHotkeys('down', (e) => {
-    e.preventDefault();
-    onDirectionKeyPress(Direction.Down);
-  });
+    onDirectionKeyPress(hotkeyDirectionMap.get(hotkey)!);
+  }, [onDirectionKeyPress]);
   return (
     <g className={"game"}>
       <DField
         field={game.field}
-        robotPath={robotPath}
+        robots={game.robots}
+        path={game.path}
         showGhostWalls={showGhostWalls}
         onGhostWallClick={onGhostWallClick}
-        robotPosition={game.robots[0].position}
-        nextRobotPositionEntries={showRobotControls ? nextRobotPositionEntries : undefined}
+        robotPositions={robotPositions}
+        nextRobotsPositionEntries={showRobotControls ? nextRobotsPositionEntries : undefined}
         onRobotMoveClick={onRobotNextPositionClick}
         targetPosition={targetPosition}
       />

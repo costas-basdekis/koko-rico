@@ -15,41 +15,29 @@ export function MultiRobotPuzzleMode() {
       .filter(([, distance]) => distance >= 10)
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
   }, [game.field]);
-  const [robotPath, setRobotPath] = useState<[Position, Position][]>([]);
   const onRobotResetClick = useCallback(() => {
-    setGame(game.moveRobot(game.robots[0], { x: 10, y: 10 }));
-    setRobotPath([]);
-  }, [game, setGame, setRobotPath]);
+    setGame(game.resetRobots([{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]));
+  }, [game, setGame]);
   const onUndoRobotMove = useCallback(() => {
-    if (!robotPath.length) {
-      return;
-    }
-    setGame(game.moveRobot(game.robots[0], robotPath[robotPath.length - 1][0]));
-    setRobotPath(robotPath.slice(0, robotPath.length - 1));
-  }, [game, setGame, robotPath, setRobotPath]);
-  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, undo: boolean) => {
-    if (undo) {
-      onUndoRobotMove();
-      return;
-    }
-    setGame(game.moveRobot(robot, nextPosition));
-    setRobotPath([...robotPath, [robot.position, nextPosition]]);
-  }, [game, setGame, robotPath, setRobotPath]);
+    setGame(game.undoMoveRobot());
+  }, [game, setGame]);
+  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
+    setGame(game.moveRobot(robot, nextPosition, isUndo));
+  }, [game, setGame]);
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(game.pickRandomCrossedWalls(30, 10));
   }, [game]);
   return (
     <>
       <div>
-        <button onClick={onRobotResetClick}>Reset robot</button>
-        <button onClick={onUndoRobotMove} disabled={!robotPath.length}>Undo move</button>
+        <button onClick={onRobotResetClick}>Reset robots</button>
+        <button onClick={onUndoRobotMove} disabled={!game.path.length}>Undo move</button>
         <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
       </div>
-      <div>Current moves: {robotPath.length}/{targetDistance}</div>
+      <div>Current moves: {game.path.length}/{targetDistance}</div>
       <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
         <DGame
           game={game}
-          robotPath={robotPath}
           showRobotControls
           onRobotMoveClick={onRobotMoveClick}
           targetPosition={targetPosition}

@@ -4,45 +4,156 @@ import { Direction } from "./Direction";
 import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
 
+export interface RobotPathEntry {
+  previousPosition: Position;
+  position: Position;
+  robotIndex: number;
+}
+
+export type RobotPath = RobotPathEntry[];
+
+export interface NextPositionEntry {
+  nextPosition: Position;
+  isUndo: boolean;
+}
+
+export type NextPositionEntries = NextPositionEntry[];
+
+export type NextPositionEntriesMap = Map<number, NextPositionEntries>;
+
 export class Game {
   field: Field;
   robots: Robot[];
+  path: RobotPath;
 
   static makeForSizeAndRobots(
     width: number,
     height: number,
-    robotPositions: { x: number; y: number }[]
+    robotPositions: { x: number; y: number }[],
   ): Game {
     return new Game(
       Field.makeForSize(width, height),
-      robotPositions.map((position, index) => new Robot(position, index))
+      robotPositions.map((position, index) => new Robot(position, index)),
+      [],
     );
   }
 
-  constructor(field: Field, robots: Robot[]) {
+  constructor(field: Field, robots: Robot[], path: RobotPath) {
     this.field = field;
     this.robots = robots;
+    this.path = path;
   }
 
   change({
     field = this.field,
     robots = this.robots,
+    path = this.path,
   }: {
     field?: Field;
     robots?: Robot[];
+    path?: RobotPath;
   }) {
-    return new Game(field, robots);
+    return new Game(field, robots, path);
   }
 
   toggleWall(position: Position, type: WallType): Game {
     return this.change({ field: this.field.toggleWall(position, type) });
   }
 
-  moveRobot(robot: Robot, newPosition: Position): Game {
+  moveRobot(robot: Robot, newPosition: Position, isUndo: boolean): Game {
     if (!this.robots.includes(robot)) {
       throw new Error("Robot is not part of the game");
     }
-    return this.change({robots: this.robots.map(oldRobot => oldRobot === robot ? oldRobot.moveTo(newPosition) : oldRobot)});
+    if (isUndo) {
+      if (this.path.length === 0) {
+        throw new Error("Cannot undo move: no moves in path");
+      }
+      const {previousPosition, robotIndex} = this.path[this.path.length - 1];
+      if (!positionsEqual(previousPosition, newPosition)) {
+        throw new Error(`Cannot undo ${JSON.stringify(newPosition)} as it doesn't match previous position ${JSON.stringify(previousPosition)}`);
+      }
+      if (robotIndex !== robot.index) {
+        throw new Error(`Cannot undo robot #${robot.index} as the last robot move was by #${robotIndex}`);
+      }
+    }
+    return this.change({
+      robots: this.robots.map(oldRobot => oldRobot === robot ? oldRobot.moveTo(newPosition) : oldRobot),
+      path: isUndo ? this.path.slice(0, this.path.length - 1) : [...this.path, {previousPosition: robot.position, position: newPosition, robotIndex: robot.index}],
+    });
+  }
+
+  getNextRobotsPositionEntries(): NextPositionEntriesMap{
+    return new Map(this.robots.map(robot => [robot.index, this.getNextRobotPositionEntries(robot)]));
+  }
+
+  getNextRobotPositionEntries(robot: Robot): NextPositionEntries {
+    const nextPositionEntries: {nextPosition: Position, isUndo: boolean}[] = 
+      this.getNextPositions(robot.position, robot).map(nextPosition => ({nextPosition, isUndo: false}));
+    if (this.path.length) {
+      const {previousPosition, robotIndex} = this.path[this.path.length - 1];
+      if (robotIndex === robot.index) {
+        const directionFilter = Array.from(Game.directionFilterMap.values()).find(filter => filter(previousPosition, robot.position));
+        if (directionFilter) {
+          const nextPositionEntry = nextPositionEntries.find(nextPositionEntry => directionFilter(nextPositionEntry.nextPosition, robot.position));
+          if (nextPositionEntry) {
+            nextPositionEntry.nextPosition = previousPosition
+            nextPositionEntry.isUndo = true;
+          }
+        }
+      }
+    }
+    return nextPositionEntries;
+  }
+
+  static directionFilterMap: Map<Direction, (left: Position, right: Position) => boolean> = new Map([
+    [Direction.Left, (left, right) => left.x < right.x],
+    [Direction.Right, (left, right) => left.x > right.x],
+    [Direction.Up, (left, right) => left.y < right.y],
+    [Direction.Down, (left, right) => left.y > right.y],
+  ]);
+
+  moveRobotInDirection(robot: Robot, direction: Direction, nextRobotsPositionEntries: NextPositionEntriesMap = this.getNextRobotsPositionEntries()): Game {
+    const nextPositionEntry = this.getRobotMoveInDirection(robot, direction, nextRobotsPositionEntries);
+    if (!nextPositionEntry) {
+      return this;
+    }
+    return this.moveRobot(robot, nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
+  }
+
+  getRobotMoveInDirection(robot: Robot, direction: Direction, nextRobotsPositionEntries: NextPositionEntriesMap = this.getNextRobotsPositionEntries()): NextPositionEntry | null {
+    const nextRobotPositionEntries = nextRobotsPositionEntries.get(robot.index)!;
+    const directionFilter = Game.directionFilterMap.get(direction)!;
+    const nextPositionEntry = nextRobotPositionEntries.find(({nextPosition}) => directionFilter(nextPosition, robot.position));
+    if (!nextPositionEntry) {
+      return null;
+    }
+    return nextPositionEntry;
+  }
+
+  undoMoveRobot(): Game {
+    if (!this.path.length) {
+      return this;
+    }
+    const {previousPosition, robotIndex} = this.path[this.path.length - 1];
+    return this.moveRobot(this.robots[robotIndex], previousPosition, true);
+  }
+
+  resetRobots(robotPositions: { x: number; y: number }[]): Game {
+    if (robotPositions.length !== this.robots.length) {
+      throw new Error("Cannot reset robots: robot count mismatch");
+    }
+    return this.change({
+      robots: this.robots.map((robot, index) => robot.moveTo(robotPositions[index])),
+      path: [],
+    });
+  }
+
+  addRobots(newPositions: Position[]): any {
+    return this.change({robots: [...this.robots, ...newPositions.map((position, index) => new Robot(position, this.robots.length + index))]});
+  }
+
+  removeRobots(count: number): any {
+    return this.change({robots: this.robots.slice(0, this.robots.length - count), path: []});
   }
 
   calculateReachableRobotPositions(robot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>): PositionMap<number> {
