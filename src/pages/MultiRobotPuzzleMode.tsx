@@ -5,13 +5,15 @@ import { DGame } from "../components";
 import { Position } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
+const TargetDistance = 10;
+
 export function MultiRobotPuzzleMode() {
   const [game, setGame]: [Game, any] = useState(makeGame);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const [targetPosition, targetDistance] = useMemo(() => {
     const distanceMap = game.calculateReachableMultiRobotPositions(game.robots[0]);
     return Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance >= 10)
+      .filter(([, distance]) => distance >= TargetDistance)
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
   }, [game.field]);
   const onRobotResetClick = useCallback(() => {
@@ -49,5 +51,5 @@ export function MultiRobotPuzzleMode() {
 }
 
 function makeGame(): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]).pickRandomCrossedWalls(30, 10, true);
+  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]).pickRandomCrossedWalls(30, TargetDistance, true);
 }
