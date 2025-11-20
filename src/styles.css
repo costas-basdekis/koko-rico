@@ -43,30 +43,30 @@ svg {
   fill: var(--robot-1-colour);
 }
 .robot.index-2 {
-  fill: var(--robot-1-colour);
+  fill: var(--robot-2-colour);
 }
 .robot.index-3 {
   fill: var(--robot-3-colour);
 }
 
 .robot:not(.selected) {
-  stroke-width: 3px;
+  stroke-width: 5px;
 }
 .robot.index-0:not(.selected) {
   stroke: var(--robot-0-colour);
-  fill: transparent;
+  fill: white;
 }
 .robot.index-1:not(.selected) {
   stroke: var(--robot-1-colour);
-  fill: transparent;
+  fill: white;
 }
 .robot.index-2:not(.selected) {
   stroke: var(--robot-2-colour);
-  fill: transparent;
+  fill: white;
 }
 .robot.index-3:not(.selected) {
   stroke: var(--robot-3-colour);
-  fill: transparent;
+  fill: white;
 }
 
 .grid-square.robot-next-position {
@@ -138,27 +138,27 @@ svg {
 
 .next-position-arrow.index-0:not(.selected):not(.undo) {
   stroke: var(--robot-0-colour);
-  fill: transparent;
+  fill: white;
 }
 
 .next-position-arrow.index-1:not(.selected):not(.undo) {
   stroke: var(--robot-1-colour);
-  fill: transparent;
+  fill: white;
 }
 
 .next-position-arrow.index-2:not(.selected):not(.undo) {
   stroke: var(--robot-2-colour);
-  fill: transparent;
+  fill: white;
 }
 
 .next-position-arrow.index-3:not(.selected):not(.undo) {
   stroke: var(--robot-3-colour);
-  fill: transparent;
+  fill: white;
 }
 
 .next-position-arrow.undo:not(.selected) {
   stroke: orange;
-  fill: transparent;
+  fill: white;
 }
 
 .next-position-arrow.undo.selected {
