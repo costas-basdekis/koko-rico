@@ -5,12 +5,14 @@ import { DGame } from "../components";
 import { Position, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
+const TargetDistance = 10;
+
 export function SingleRobotPuzzleMode() {
   const [game, setGame]: [Game, any] = useState(makeGame);
   const [targetPositions, targetDistance] = useMemo(() => {
     const distanceMap = game.calculateReachableSingleRobotPositions(game.robots[0]);
     const [, targetDistance] = Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance >= 10)
+      .filter(([, distance]) => distance >= TargetDistance)
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
     const targetPositions = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance === targetDistance)
@@ -62,5 +64,5 @@ export function SingleRobotPuzzleMode() {
 }
 
 function makeGame(): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]).pickRandomCrossedWalls(20, 10);
+  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]).pickRandomCrossedWalls(20, TargetDistance);
 }
