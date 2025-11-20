@@ -13,6 +13,8 @@ export interface DGameProps {
   onGhostWallClick?: (position: Position, type: WallType) => void;
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
   showRobotControls?: boolean;
+  selectedRobotIndex?: number;
+  onSelectedRobotIndexChange?: (index: number) => void;
   onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
   targetPosition?: Position;
 }
@@ -38,6 +40,8 @@ export function DGame({
   onGhostWallClick,
   onDistanceMapChange,
   showRobotControls = false,
+  selectedRobotIndex = 0,
+  onSelectedRobotIndexChange,
   onRobotMoveClick,
   targetPosition,
 }: DGameProps) {
@@ -49,11 +53,11 @@ export function DGame({
       return null;
     }
     if (game.robots.length === 1) {
-      return game.calculateReachableSingleRobotPositions(game.robots[0]);
+      return game.calculateReachableSingleRobotPositions(game.robots[selectedRobotIndex]);
     } else {
-      return game.calculateReachableMultiRobotPositions(game.robots[0]);
+      return game.calculateReachableMultiRobotPositions(game.robots[selectedRobotIndex]);
     }
-  }, [game, showDistances]);
+  }, [game, showDistances, selectedRobotIndex]);
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);
   }, [distanceMap]);
@@ -76,24 +80,29 @@ export function DGame({
     if (!onRobotMoveClick) {
       return;
     }
-    if (!game.robots[0]) {
+    if (!game.robots[selectedRobotIndex]) {
       return;
     }
-    const nextRobotPositionEntry = game.getRobotMoveInDirection(game.robots[0], direction, nextRobotsPositionEntries);
+    const nextRobotPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction, nextRobotsPositionEntries);
     if (!nextRobotPositionEntry) {
       return;
     }
-    onRobotMoveClick?.(game.robots[0], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
-  }, [game, nextRobotsPositionEntries, onRobotMoveClick]);
-  useHotkeys(['left', 'right', 'up', 'down'], (e, {hotkey}) => {
+    onRobotMoveClick?.(game.robots[selectedRobotIndex], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
+  }, [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex]);
+  useHotkeys(['left', 'right', 'up', 'down', 'r'], (e, {hotkey}) => {
     e.preventDefault();
-    onDirectionKeyPress(hotkeyDirectionMap.get(hotkey)!);
-  }, [onDirectionKeyPress]);
+    if (hotkey === 'r') {
+      onSelectedRobotIndexChange?.((selectedRobotIndex + 1) % game.robots.length);
+    } else {
+      onDirectionKeyPress?.(hotkeyDirectionMap.get(hotkey)!);
+    }
+  }, [onDirectionKeyPress, onSelectedRobotIndexChange]);
   return (
     <g className={"game"}>
       <DField
         field={game.field}
         robots={game.robots}
+        selectedRobotIndex={selectedRobotIndex}
         path={game.path}
         showGhostWalls={showGhostWalls}
         onGhostWallClick={onGhostWallClick}
@@ -107,7 +116,7 @@ export function DGame({
       ) : null}
       <g className={"robots"}>
         {game.robots.map((robot) => (
-          <DRobot key={robot.index} robot={robot} />
+          <DRobot key={robot.index} robot={robot} isSelected={robot.index === selectedRobotIndex} />
         ))}
       </g>
     </g>

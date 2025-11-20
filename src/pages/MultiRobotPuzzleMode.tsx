@@ -7,6 +7,7 @@ import { SvgContainer } from "../SvgContainer";
 
 export function MultiRobotPuzzleMode() {
   const [game, setGame]: [Game, any] = useState(makeGame);
+  const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const [targetPosition, targetDistance] = useMemo(() => {
     const distanceMap = game.calculateReachableMultiRobotPositions(game.robots[0]);
     return Array.from(distanceMap.entries())
@@ -37,6 +38,8 @@ export function MultiRobotPuzzleMode() {
         <DGame
           game={game}
           showRobotControls
+          selectedRobotIndex={selectedRobotIndex}
+          onSelectedRobotIndexChange={setSelectedRobotIndex}
           onRobotMoveClick={onRobotMoveClick}
           targetPosition={targetPosition}
         />

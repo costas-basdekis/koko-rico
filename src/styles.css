@@ -1,3 +1,10 @@
+:root {
+  --robot-0-colour: red;
+  --robot-1-colour: green;
+  --robot-2-colour: blue;
+  --robot-3-colour: yellow;
+}
+
 .App {
   font-family: sans-serif;
   text-align: center;
@@ -30,25 +37,45 @@ svg {
   stroke: black;
 }
 .robot.index-0 {
-  fill: red;
+  fill: var(--robot-0-colour);
 }
 .robot.index-1 {
-  fill: green;
+  fill: var(--robot-1-colour);
 }
 .robot.index-2 {
-  fill: blue;
+  fill: var(--robot-1-colour);
 }
 .robot.index-3 {
-  fill: yellow;
+  fill: var(--robot-3-colour);
+}
+
+.robot:not(.selected) {
+  stroke-width: 3px;
+}
+.robot.index-0:not(.selected) {
+  stroke: var(--robot-0-colour);
+  fill: transparent;
+}
+.robot.index-1:not(.selected) {
+  stroke: var(--robot-1-colour);
+  fill: transparent;
+}
+.robot.index-2:not(.selected) {
+  stroke: var(--robot-2-colour);
+  fill: transparent;
+}
+.robot.index-3:not(.selected) {
+  stroke: var(--robot-3-colour);
+  fill: transparent;
 }
 
 .grid-square.robot-next-position {
-  fill: green;
+  fill: var(--robot-1-colour);
   cursor: pointer;
 }
 
 .grid-square.target-position {
-  fill: yellow;
+  fill: var(--robot-3-colour);
 }
 
 .grid-square.robot-next-position.target-position {
@@ -68,23 +95,19 @@ svg {
 }
 
 .robot-path-item.index-0 {
-  stroke: red;
-  fill: red;
+  stroke: var(--robot-0-colour);
 }
 
 .robot-path-item.index-1 {
-  stroke: green;
-  fill: green;
+  stroke: var(--robot-1-colour);
 }
 
 .robot-path-item.index-2 {
-  stroke: blue;
-  fill: blue;
+  stroke: var(--robot-2-colour);
 }
 
 .robot-path-item.index-3 {
-  stroke: yellow;
-  fill: yellow;
+  stroke: var(--robot-3-colour);
 }
 
 .next-position-hitbox {
@@ -98,21 +121,46 @@ svg {
 }
 
 .next-position-arrow.index-0 {
-  fill: red;
+  fill: var(--robot-0-colour);
 }
 
 .next-position-arrow.index-1 {
-  fill: green;
+  fill: var(--robot-1-colour);
 }
 
 .next-position-arrow.index-2 {
-  fill: blue;
+  fill: var(--robot-2-colour);
 }
 
 .next-position-arrow.index-3 {
-  fill: yellow;
+  fill: var(--robot-3-colour);
 }
 
-.next-position-arrow.undo {
+.next-position-arrow.index-0:not(.selected):not(.undo) {
+  stroke: var(--robot-0-colour);
+  fill: transparent;
+}
+
+.next-position-arrow.index-1:not(.selected):not(.undo) {
+  stroke: var(--robot-1-colour);
+  fill: transparent;
+}
+
+.next-position-arrow.index-2:not(.selected):not(.undo) {
+  stroke: var(--robot-2-colour);
+  fill: transparent;
+}
+
+.next-position-arrow.index-3:not(.selected):not(.undo) {
+  stroke: var(--robot-3-colour);
+  fill: transparent;
+}
+
+.next-position-arrow.undo:not(.selected) {
+  stroke: orange;
+  fill: transparent;
+}
+
+.next-position-arrow.undo.selected {
   fill: orange;
 }

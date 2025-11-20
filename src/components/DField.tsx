@@ -13,6 +13,7 @@ export const NextPositionArrowUp = makeAndRegisterSvgDef("next-position-arrow-up
 export interface DFieldProps {
   field: Field;
   robots?: Robot[];
+  selectedRobotIndex: number;
   path?: RobotPath;
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
@@ -25,6 +26,7 @@ export interface DFieldProps {
 export function DField({
   field,
   robots,
+  selectedRobotIndex,
   path,
   showGhostWalls = false,
   onGhostWallClick,
@@ -48,15 +50,26 @@ export function DField({
     }
     return new Map(robots.map((robot) => [robot.index, path.filter(entry => entry.robotIndex === robot.index)]));
   }, [path, robots]);
+  const sortOnSelectedRobotFirst = useCallback(([left]: [number, any], [right]: [number, any]): number => {
+    return left === selectedRobotIndex ? 1 : right === selectedRobotIndex ? -1 : left - right;
+  }, [selectedRobotIndex]);
   return (
     <g className={"field"}>
       <DGrid field={field} targetPosition={targetPosition} />
-      {path ? Array.from(robotPathsByIndex.entries()).map(([index, robotPath]) => <DRobotPath key={index} robot={robots![index]} robotPath={robotPath} />) : null}
+      {Array.from(robotPathsByIndex.entries()).sort(sortOnSelectedRobotFirst).map(([index, robotPath]) => (
+        <DRobotPath
+          key={index}
+          robot={robots![index]}
+          isSelected={index === selectedRobotIndex}
+          robotPath={robotPath}
+        />
+      ))}
       <g className={"next-positions"}>
-        {Array.from(nextRobotsPositionEntries?.entries() || []).flatMap(([index, nextRobotPositionEntries]) => nextRobotPositionEntries.map(({nextPosition, isUndo}) => (
+        {Array.from(nextRobotsPositionEntries?.entries() || []).sort(sortOnSelectedRobotFirst).flatMap(([index, nextRobotPositionEntries]) => nextRobotPositionEntries.map(({nextPosition, isUndo}) => (
           <DNextPosition 
             key={`${index}|${getPositionKey(nextPosition)}`}
             robot={robots![index]}
+            isSelected={index === selectedRobotIndex}
             position={robots![index].position}
             nextPosition={nextPosition}
             isUndo={isUndo}
@@ -86,13 +99,14 @@ export function DField({
 
 export interface DNextPositionProps {
   robot: Robot;
+  isSelected: boolean;
   position: Position;
   nextPosition: Position;
   isUndo: boolean;
   onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
 }
 
-export function DNextPosition({robot, position, nextPosition, isUndo, onRobotMoveClick}: DNextPositionProps) {
+export function DNextPosition({robot, isSelected, position, nextPosition, isUndo, onRobotMoveClick}: DNextPositionProps) {
   const drawSettings = DrawSettings.use();
   const transform = useMemo(() => {
     const rotation = (
@@ -122,7 +136,7 @@ export function DNextPosition({robot, position, nextPosition, isUndo, onRobotMov
         onTouchStart={onClick}
       />
       <NextPositionArrowUp
-        className={`next-position-arrow index-${robot.index} ${isUndo ? "undo" : ""}`}
+        className={`next-position-arrow index-${robot.index} ${isUndo ? "undo" : ""} ${isSelected ? "selected" : ""}`}
         transform={transform}
       />
     </>
