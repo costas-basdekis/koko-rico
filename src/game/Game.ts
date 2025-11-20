@@ -91,8 +91,14 @@ export class Game {
   }
 
   getNextRobotPositionEntries(robot: Robot): NextPositionEntries {
-    const nextPositionEntries: {nextPosition: Position, isUndo: boolean}[] = 
-      new SingleRobotDistanceEvaluator(this, robot).getNextPositions(robot.position).map(nextPosition => ({nextPosition, isUndo: false}));
+    let nextPositionEntries: {nextPosition: Position, isUndo: boolean}[]; 
+    if (this.robots.length === 1) {
+      nextPositionEntries = new SingleRobotDistanceEvaluator(this, robot).getNextPositions(robot.position).map(nextPosition => ({nextPosition, isUndo: false}));
+    } else if (this.robots.length > 1) {
+      nextPositionEntries = new MultiRobotDistanceEvaluator(this, robot).getNextPositions(robot.position, this.robots.filter(other => other !== robot).map(other => other.position)).map(nextPosition => ({nextPosition, isUndo: false}));
+    } else {
+      nextPositionEntries = [];
+    }
     if (this.path.length) {
       const {previousPosition, robotIndex} = this.path[this.path.length - 1];
       if (robotIndex === robot.index) {
