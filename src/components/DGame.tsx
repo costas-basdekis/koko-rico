@@ -91,14 +91,19 @@ export function DGame({
     }
     onRobotMoveClick?.(game.robots[selectedRobotIndex], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
   }, [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex]);
-  useHotkeys(['left', 'right', 'up', 'down', 'r'], (e, {hotkey}) => {
+  useHotkeys(['left', 'right', 'up', 'down', 'r', 'u'], (e, {hotkey}) => {
     e.preventDefault();
     if (hotkey === 'r') {
       onSelectedRobotIndexChange?.((selectedRobotIndex + 1) % game.robots.length);
+    } else if (hotkey === 'u') {
+      if (game.path.length) {
+        const {robotIndex, previousPosition} = game.path[game.path.length - 1];
+        onRobotMoveClick?.(game.robots[robotIndex], previousPosition, true);
+      }
     } else {
       onDirectionKeyPress?.(hotkeyDirectionMap.get(hotkey)!);
     }
-  }, [onDirectionKeyPress, onSelectedRobotIndexChange]);
+  }, [onDirectionKeyPress, onSelectedRobotIndexChange, onRobotMoveClick]);
   return (
     <g className={"game"}>
       <DField
