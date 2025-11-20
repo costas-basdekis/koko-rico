@@ -6,11 +6,9 @@ import { Position } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
 export function SingleRobotPuzzleMode() {
-  const [game, setGame]: [Game, any] = useState(
-    Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]).pickRandomCrossedWalls(20, 10)
-  );
+  const [game, setGame]: [Game, any] = useState(makeGame);
   const [targetPosition, targetDistance] = useMemo(() => {
-    const distanceMap = game.calculateReachableRobotPositions(game.robots[0]);
+    const distanceMap = game.calculateReachableSingleRobotPositions(game.robots[0]);
     return Array.from(distanceMap.entries())
       .filter(([, distance]) => distance >= 10)
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
@@ -25,8 +23,8 @@ export function SingleRobotPuzzleMode() {
     setGame(game.moveRobot(robot, nextPosition, isUndo));
   }, [game, setGame]);
   const onRandomCrossedWallsClick = useCallback(() => {
-    setGame(game.pickRandomCrossedWalls(30, 10));
-  }, [game]);
+    setGame(makeGame);
+  }, [setGame]);
   return (
     <>
       <div>
@@ -45,4 +43,8 @@ export function SingleRobotPuzzleMode() {
       </SvgContainer>
     </>
   );
+}
+
+function makeGame(): Game {
+  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]).pickRandomCrossedWalls(20, 10);
 }

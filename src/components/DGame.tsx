@@ -48,7 +48,11 @@ export function DGame({
     if (!game.robots.length) {
       return null;
     }
-    return game.calculateReachableRobotPositions(game.robots[0]);
+    if (game.robots.length === 1) {
+      return game.calculateReachableSingleRobotPositions(game.robots[0]);
+    } else {
+      return game.calculateReachableMultiRobotPositions(game.robots[0]);
+    }
   }, [game, showDistances]);
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);

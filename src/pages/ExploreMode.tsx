@@ -6,7 +6,7 @@ import { Position, PositionMap, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
 export default function ExploreMode() {
-  const [game, setGame]: [Game, any] = useState(
+  const [game, setGame]: [Game, any] = useState(() =>
     Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
   );
   const onGhostWallClick = useCallback(

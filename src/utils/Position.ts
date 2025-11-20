@@ -8,5 +8,5 @@ export function getPositionKey(position: Position): string {
 }
 
 export function positionsEqual(left: Position, right: Position): boolean {
-  return left.x === right.x && left.y === right.y;
+  return (left === right) || (left.x === right.x && left.y === right.y);
 }
