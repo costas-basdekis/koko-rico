@@ -2,17 +2,18 @@ import _ from "underscore";
 import { Field } from "../game";
 import { DrawSettings } from "./DrawSettings";
 import { Position, positionsEqual } from "../utils";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export interface DGridProps {
   field: Field;
   nextRobotPositions?: Position[];
   onlyNextRobotPositions?: boolean,
   onRobotMoveClick?: (nextPosition: Position) => void;
-  targetPosition?: Position;
+  targetPositions?: Position[];
+  completedTargetPositions?: Position[];
 }
 
-export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = false, onRobotMoveClick, targetPosition }: DGridProps) {
+export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = false, onRobotMoveClick, targetPositions, completedTargetPositions }: DGridProps) {
   return (
     <g className={"grid"}>
       {_.range(field.width).map((x) =>
@@ -28,7 +29,8 @@ export function DGrid({ field, nextRobotPositions, onlyNextRobotPositions = fals
               y={y}
               showRobotControls={showRobotControls}
               onRobotMoveClick={onRobotMoveClick}
-              isTarget={targetPosition ? positionsEqual({x, y}, targetPosition) : false}
+              targetPositions={targetPositions}
+              completedTargetPositions={completedTargetPositions}
             />
           );
         })
@@ -42,18 +44,28 @@ export interface DGridCellProps {
   y: number;
   showRobotControls?: boolean;
   onRobotMoveClick?: (nextPosition: Position) => void;
-  isTarget?: boolean;
+  targetPositions?: Position[];
+  completedTargetPositions?: Position[];
 }
 
-export function DGridCell({ x, y, showRobotControls, onRobotMoveClick, isTarget = false }: DGridCellProps) {
+export function DGridCell({ x, y, showRobotControls, onRobotMoveClick, targetPositions, completedTargetPositions }: DGridCellProps) {
   const onClick = useCallback(() => {
     onRobotMoveClick?.({x, y});
   }, [x, y, onRobotMoveClick]);
   const drawSettings = DrawSettings.use();
+  const isTarget = useMemo(() => {
+    return targetPositions?.some(target => positionsEqual({x, y}, target)) ?? false;
+  }, [x, y, targetPositions]);
+  const isTargetCompleted = useMemo(() => {
+    if (!isTarget) {
+      return false;
+    }
+    return completedTargetPositions?.some(completedTarget => positionsEqual({x, y}, completedTarget)) ?? false;
+  }, [x, y, completedTargetPositions, isTarget]);
   return (
     <rect
       key={`${x},${y}`}
-      className={`grid-square ${showRobotControls ? "robot-next-position" : ""} ${isTarget ? "target-position" : ""}`}
+      className={`grid-square ${showRobotControls ? "robot-next-position" : ""} ${isTarget ? "target-position" : ""} ${isTargetCompleted ? "completed-target-position" : "" }`}
       x={drawSettings.xOffset + drawSettings.width * x}
       y={drawSettings.yOffset + drawSettings.height * y}
       width={drawSettings.width}

@@ -1,8 +1,8 @@
 import _ from "underscore";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, Robot } from "../game";
 import { DGame } from "../components";
-import { Position } from "../utils";
+import { Position, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 
 const TargetDistance = 10;
@@ -10,12 +10,20 @@ const TargetDistance = 10;
 export function MultiRobotPuzzleMode() {
   const [game, setGame]: [Game, any] = useState(makeGame);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
-  const [targetPosition, targetDistance] = useMemo(() => {
+  const [targetPositions, targetDistance] = useMemo(() => {
     const distanceMap = game.calculateReachableMultiRobotPositions(game.robots[0]);
-    return Array.from(distanceMap.entries())
+    const [, targetDistance] = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance >= TargetDistance)
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
+    const targetPositions = Array.from(distanceMap.entries())
+      .filter(([, distance]) => distance === targetDistance)
+      .map(([position]) => position);
+    return [targetPositions, targetDistance];
   }, [game.field]);
+  const [completedTargetPositions, setCompletedTargetPositions] = useState<Position[]>([]);
+  useEffect(() => {
+    setCompletedTargetPositions([]);
+  }, [targetPositions]);
   const onRobotResetClick = useCallback(() => {
     setGame(game.resetRobots([{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]));
   }, [game, setGame]);
@@ -23,7 +31,14 @@ export function MultiRobotPuzzleMode() {
     setGame(game.undoMoveRobot());
   }, [game, setGame]);
   const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
-    setGame(game.moveRobot(robot, nextPosition, isUndo));
+    const newGame = game.moveRobot(robot, nextPosition, isUndo);
+    setGame(newGame);
+    if (!isUndo && robot.index === 0 && newGame.path.length === targetDistance) {
+      const completedTargetPosition = targetPositions.find(targetPosition => positionsEqual(nextPosition, targetPosition));
+      if (completedTargetPosition && !completedTargetPositions.includes(completedTargetPosition)) {
+        setCompletedTargetPositions([...completedTargetPositions, completedTargetPosition]);
+      }
+    }
   }, [game, setGame]);
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(makeGame());
@@ -35,7 +50,7 @@ export function MultiRobotPuzzleMode() {
         <button onClick={onUndoRobotMove} disabled={!game.path.length}>Undo move</button>
         <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
       </div>
-      <div>Current moves: {game.path.length}/{targetDistance}</div>
+      <div>Current moves: {game.path.length}/{targetDistance}, {completedTargetPositions.length}/{targetPositions.length} completed</div>
       <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
         <DGame
           game={game}
@@ -43,7 +58,8 @@ export function MultiRobotPuzzleMode() {
           selectedRobotIndex={selectedRobotIndex}
           onSelectedRobotIndexChange={setSelectedRobotIndex}
           onRobotMoveClick={onRobotMoveClick}
-          targetPosition={targetPosition}
+          targetPositions={targetPositions}
+          completedTargetPositions={completedTargetPositions}
         />
       </SvgContainer>
     </>

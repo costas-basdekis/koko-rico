@@ -20,7 +20,8 @@ export interface DFieldProps {
   robotPositions?: Map<number, Position>,
   nextRobotsPositionEntries?: Map<number, {nextPosition: Position, isUndo: boolean}[]>;
   onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
-  targetPosition?: Position;
+  targetPositions?: Position[];
+  completedTargetPositions?: Position[];
 }
 
 export function DField({
@@ -33,7 +34,8 @@ export function DField({
   nextRobotsPositionEntries,
   robotPositions,
   onRobotMoveClick,
-  targetPosition,
+  targetPositions,
+  completedTargetPositions,
 }: DFieldProps) {
   if (path && !robots) {
     throw new Error("DGame cannot accept robotPaths prop without robots prop.");
@@ -55,7 +57,7 @@ export function DField({
   }, [selectedRobotIndex]);
   return (
     <g className={"field"}>
-      <DGrid field={field} targetPosition={targetPosition} />
+      <DGrid field={field} targetPositions={targetPositions} completedTargetPositions={completedTargetPositions} />
       {Array.from(robotPathsByIndex.entries()).sort(sortOnSelectedRobotFirst).map(([index, robotPath]) => (
         <DRobotPath
           key={index}

@@ -70,16 +70,16 @@ svg {
 }
 
 .grid-square.robot-next-position {
-  fill: var(--robot-1-colour);
+  fill: green;
   cursor: pointer;
 }
 
 .grid-square.target-position {
-  fill: var(--robot-3-colour);
+  fill: yellow;
 }
 
-.grid-square.robot-next-position.target-position {
-  fill: purple;
+.grid-square.target-position.completed-target-position {
+  fill: green;
 }
 
 .distance-map-item {
