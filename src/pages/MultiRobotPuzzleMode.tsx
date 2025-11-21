@@ -6,21 +6,29 @@ import { Position, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions } from "../UsageInstructions";
 
-const TargetDistance = 10;
+const DefaultDesiredTargetDistance = 5;
 
 export function MultiRobotPuzzleMode() {
-  const [game, setGame]: [Game, any] = useState(makeGame);
+  const [desiredTargetDistance, setDesiredTargetDistance] = useState(DefaultDesiredTargetDistance);
+  const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(desiredTargetDistance);
+  const [game, setGame]: [Game, any] = useState(() => {
+    return makeGame(desiredTargetDistance);
+  });
+  useEffect(() => {
+    setEffectiveTargetDistance(desiredTargetDistance);
+    setGame(makeGame(desiredTargetDistance));
+  }, [desiredTargetDistance, setEffectiveTargetDistance, setGame]);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const [targetPositions, targetDistance] = useMemo(() => {
     const distanceMap = game.calculateReachableMultiRobotPositions(game.robots[0]);
     const [, targetDistance] = Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance >= TargetDistance)
+      .filter(([, distance]) => distance >= effectiveTargetDistance)
       .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
     const targetPositions = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance === targetDistance)
       .map(([position]) => position);
     return [targetPositions, targetDistance];
-  }, [game.field]);
+  }, [game.field, effectiveTargetDistance]);
   const [completedTargetPositions, setCompletedTargetPositions] = useState<Position[]>([]);
   useEffect(() => {
     setCompletedTargetPositions([]);
@@ -42,14 +50,22 @@ export function MultiRobotPuzzleMode() {
     }
   }, [game, setGame]);
   const onRandomCrossedWallsClick = useCallback(() => {
-    setGame(makeGame());
+    setGame(makeGame(effectiveTargetDistance));
   }, [setGame]);
+  const onDesiredTargetDistanceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseInt(e.target.value, 10);
+    setDesiredTargetDistance(newValue);
+  }, [setDesiredTargetDistance]);
   return (
     <>
       <div>
         <button onClick={onRobotResetClick}>Reset robots</button>
         <button onClick={onUndoRobotMove} disabled={!game.path.length}>Undo move</button>
         <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
+      </div>
+      <div>
+        Desired target distance:
+        <input type={"number"} value={desiredTargetDistance} onChange={onDesiredTargetDistanceChange} min={1} max={20} />
       </div>
       <div>Current moves: {game.path.length}/{targetDistance}, {completedTargetPositions.length}/{targetPositions.length} completed</div>
       <UsageInstructions />
@@ -68,6 +84,6 @@ export function MultiRobotPuzzleMode() {
   );
 }
 
-function makeGame(): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]).pickRandomCrossedWalls(30, TargetDistance, true);
+function makeGame(desiredTargetDistance: number): Game {
+  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]).pickRandomCrossedWalls(30, desiredTargetDistance, true);
 }
