@@ -4,6 +4,7 @@ import { Game, WallType, Robot } from "../game";
 import { DGame } from "../components";
 import { Position, PositionMap, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
+import { UsageInstructions } from "../UsageInstructions";
 
 export default function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(() =>
@@ -70,6 +71,7 @@ export default function ExploreMode() {
         <label><input type={"radio"} value={"3"} onChange={onRobotCountChange} checked={game.robots.length === 3} />3 robots</label>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
       </div>
+      <UsageInstructions />
       <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
         <DGame
           game={game}

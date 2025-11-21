@@ -4,6 +4,7 @@ import { Game, Robot } from "../game";
 import { DGame } from "../components";
 import { Position, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
+import { UsageInstructions } from "../UsageInstructions";
 
 const TargetDistance = 10;
 
@@ -50,6 +51,7 @@ export function SingleRobotPuzzleMode() {
         <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
       </div>
       <div>Current moves: {game.path.length}/{targetDistance}, {completedTargetPositions.length}/{targetPositions.length} completed</div>
+      <UsageInstructions />
       <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
         <DGame
           game={game}
