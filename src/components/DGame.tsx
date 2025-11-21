@@ -91,10 +91,12 @@ export function DGame({
     }
     onRobotMoveClick?.(game.robots[selectedRobotIndex], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
   }, [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex]);
-  useHotkeys(['left', 'right', 'up', 'down', 'r', 'u'], (e, {hotkey}) => {
+  useHotkeys(['left', 'right', 'up', 'down', 'r', 'shift+r', 'u'], (e, {hotkey}) => {
     e.preventDefault();
     if (hotkey === 'r') {
       onSelectedRobotIndexChange?.((selectedRobotIndex + 1) % game.robots.length);
+    } else if (hotkey === 'shift+r') {
+      onSelectedRobotIndexChange?.((selectedRobotIndex - 1 + game.robots.length) % game.robots.length);
     } else if (hotkey === 'u') {
       if (game.path.length) {
         const {robotIndex, previousPosition} = game.path[game.path.length - 1];
