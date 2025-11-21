@@ -25,7 +25,7 @@ export function SingleRobotPuzzleMode() {
     setCompletedTargetPositions([]);
   }, [targetPositions]);
   const onRobotResetClick = useCallback(() => {
-    setGame(game.resetRobots([{ x: 10, y: 10 }]));
+    setGame(game.resetRobots());
   }, [game, setGame]);
   const onUndoRobotMove = useCallback(() => {
     setGame(game.undoMoveRobot());

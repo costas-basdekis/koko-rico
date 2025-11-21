@@ -26,6 +26,7 @@ export type NextPositionEntriesMap = Map<number, NextPositionEntries>;
 export class Game {
   field: Field;
   robots: Robot[];
+  initialRobots: Robot[];
   path: RobotPath;
   singleRobotDistanceMap?: PositionMap<number> = undefined;
   multiRobotDistanceMap?: PositionMap<number> = undefined;
@@ -35,16 +36,19 @@ export class Game {
     height: number,
     robotPositions: { x: number; y: number }[],
   ): Game {
+    const robots = robotPositions.map((position, index) => new Robot(position, index));
     return new Game(
       Field.makeForSize(width, height),
-      robotPositions.map((position, index) => new Robot(position, index)),
+      robots,
+      robots,
       [],
     );
   }
 
-  constructor(field: Field, robots: Robot[], path: RobotPath) {
+  constructor(field: Field, robots: Robot[], initialRobots: Robot[], path: RobotPath) {
     this.field = field;
     this.robots = robots;
+    this.initialRobots = initialRobots;
     this.path = path;
   }
 
@@ -57,7 +61,7 @@ export class Game {
     robots?: Robot[];
     path?: RobotPath;
   }) {
-    return new Game(field, robots, path);
+    return new Game(field, robots, this.initialRobots, path);
   }
 
   toggleWall(position: Position, type: WallType): Game {
@@ -84,6 +88,10 @@ export class Game {
       robots: this.robots.map(oldRobot => oldRobot === robot ? oldRobot.moveTo(newPosition) : oldRobot),
       path: isUndo ? this.path.slice(0, this.path.length - 1) : [...this.path, {previousPosition: robot.position, position: newPosition, robotIndex: robot.index}],
     });
+  }
+
+  resetRobots(): Game {
+    return this.change({robots: this.initialRobots, path: []});
   }
 
   getNextRobotsPositionEntries(): NextPositionEntriesMap{
@@ -146,16 +154,6 @@ export class Game {
     }
     const {previousPosition, robotIndex} = this.path[this.path.length - 1];
     return this.moveRobot(this.robots[robotIndex], previousPosition, true);
-  }
-
-  resetRobots(robotPositions: { x: number; y: number }[]): Game {
-    if (robotPositions.length !== this.robots.length) {
-      throw new Error("Cannot reset robots: robot count mismatch");
-    }
-    return this.change({
-      robots: this.robots.map((robot, index) => robot.moveTo(robotPositions[index])),
-      path: [],
-    });
   }
 
   addRobots(newPositions: Position[]): any {
