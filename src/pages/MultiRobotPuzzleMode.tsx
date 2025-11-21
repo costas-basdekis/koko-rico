@@ -33,6 +33,16 @@ export function MultiRobotPuzzleMode() {
   useEffect(() => {
     setCompletedTargetPositions([]);
   }, [targetPositions]);
+  const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
+  const visibleTargetPositions = useMemo(() => {
+    if (!showOnlyOneTarget) {
+      return targetPositions;
+    }
+    return [
+      ...targetPositions.filter(target => completedTargetPositions.includes(target)),
+      ...targetPositions.filter(target => !completedTargetPositions.includes(target)).slice(0, 1),
+    ];
+  }, [targetPositions, completedTargetPositions, showOnlyOneTarget]);
   const onRobotResetClick = useCallback(() => {
     setGame(game.resetRobots());
   }, [game, setGame]);
@@ -56,6 +66,9 @@ export function MultiRobotPuzzleMode() {
     const newValue = parseInt(e.target.value, 10);
     setDesiredTargetDistance(newValue);
   }, [setDesiredTargetDistance]);
+  const onShowOnlyOneTargetChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowOnlyOneTarget(e.target.checked);
+  }, [setShowOnlyOneTarget]);
   return (
     <>
       <div>
@@ -66,6 +79,7 @@ export function MultiRobotPuzzleMode() {
       <div>
         Desired target distance:
         <input type={"number"} value={desiredTargetDistance} onChange={onDesiredTargetDistanceChange} min={1} max={20} />
+        <label><input type={"checkbox"} checked={showOnlyOneTarget} onChange={onShowOnlyOneTargetChange} />Show only one target</label>
       </div>
       <div>Current moves: {game.path.length}/{targetDistance}, {completedTargetPositions.length}/{targetPositions.length} completed</div>
       <UsageInstructions />
@@ -76,7 +90,7 @@ export function MultiRobotPuzzleMode() {
           selectedRobotIndex={selectedRobotIndex}
           onSelectedRobotIndexChange={setSelectedRobotIndex}
           onRobotMoveClick={onRobotMoveClick}
-          targetPositions={targetPositions}
+          targetPositions={visibleTargetPositions}
           completedTargetPositions={completedTargetPositions}
         />
       </SvgContainer>
