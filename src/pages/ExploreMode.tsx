@@ -1,15 +1,18 @@
 import _ from "underscore";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, WallType, Robot, Direction } from "../game";
 import { DGame } from "../components";
-import { Position, PositionMap, positionsEqual } from "../utils";
+import { loadGameFromLocalStorage, Position, PositionMap, positionsEqual, saveGameToLocalStorage } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
 
 export default function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(() =>
-    Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
+    loadGameFromLocalStorage("exploreGame") ?? Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
   );
+  useEffect(() => {
+    saveGameToLocalStorage("exploreGame", game);
+  }, [game]);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {

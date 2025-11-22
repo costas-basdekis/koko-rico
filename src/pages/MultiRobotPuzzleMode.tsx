@@ -1,23 +1,16 @@
 import _ from "underscore";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
 import { DGame } from "../components";
-import { Position } from "../utils";
+import { Position, useSavedGame } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
 
 const DefaultDesiredTargetDistance = 5;
 
 export function MultiRobotPuzzleMode() {
-  const [desiredTargetDistance, setDesiredTargetDistance] = useState(DefaultDesiredTargetDistance);
-  const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(desiredTargetDistance);
-  const [game, setGame]: [Game, any] = useState(() => {
-    return makeGame(desiredTargetDistance);
-  });
-  useEffect(() => {
-    setEffectiveTargetDistance(desiredTargetDistance);
-    setGame(makeGame(desiredTargetDistance));
-  }, [desiredTargetDistance, setEffectiveTargetDistance, setGame]);
+  const {game, setGame, desiredTargetDistance, setDesiredTargetDistance, effectiveTargetDistance} =
+    useSavedGame("multiRobotPuzzleGame", makeGame, DefaultDesiredTargetDistance);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
   const visibleTargetPositions = useMemo(() => {

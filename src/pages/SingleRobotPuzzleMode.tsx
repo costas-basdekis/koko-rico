@@ -1,23 +1,16 @@
 import _ from "underscore";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
 import { DGame } from "../components";
-import { Position } from "../utils";
+import { Position, useSavedGame } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
 
 const DefaultDesiredTargetDistance = 5;
 
 export function SingleRobotPuzzleMode() {
-  const [desiredTargetDistance, setDesiredTargetDistance] = useState(DefaultDesiredTargetDistance);
-  const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(desiredTargetDistance);
-  const [game, setGame]: [Game, any] = useState(() => {
-    return makeGame(desiredTargetDistance);
-  });
-  useEffect(() => {
-    setEffectiveTargetDistance(desiredTargetDistance);
-    setGame(makeGame(desiredTargetDistance));
-  }, [desiredTargetDistance, setEffectiveTargetDistance, setGame]);
+  const {game, setGame, desiredTargetDistance, setDesiredTargetDistance, effectiveTargetDistance} =
+    useSavedGame("singleRobotPuzzleGame", makeGame, DefaultDesiredTargetDistance);
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
@@ -88,5 +81,8 @@ export function SingleRobotPuzzleMode() {
 }
 
 function makeGame(desiredTargetDistance: number): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]).pickRandomCrossedWalls(20, desiredTargetDistance);
+  return Game
+    .makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
+    .pickRandomCrossedWalls(20, desiredTargetDistance)
+    .pickTargets(desiredTargetDistance);
 }

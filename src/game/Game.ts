@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { getPositionKey, Position, PositionMap, positionsEqual } from "../utils";
+import { Position, PositionMap, positionsEqual } from "../utils";
 import { Direction } from "./Direction";
 import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
@@ -51,6 +51,18 @@ export class Game {
     );
   }
 
+  static deserialise({field, robots, initialRobots, path, targetDistance, targetPositions, completedTargetPositions}: ReturnType<Game["serialise"]>): Game {
+    return new Game(
+      Field.deserialise(field), 
+      robots.map(robot => Robot.deserialise(robot)),
+      initialRobots.map(robot => Robot.deserialise(robot)),
+      path,
+      targetDistance,
+      targetPositions,
+      completedTargetPositions,
+    );
+  }
+
   constructor(field: Field, robots: Robot[], initialRobots: Robot[], path: RobotPath, targetDistance: number, targetPositions: Position[], completedTargetPositions: Position[]) {
     this.field = field;
     this.robots = robots;
@@ -59,6 +71,26 @@ export class Game {
     this.targetDistance = targetDistance;
     this.targetPositions = targetPositions;
     this.completedTargetPositions = completedTargetPositions;
+  }
+
+  serialise(): {
+    field: ReturnType<Field["serialise"]>
+    robots: ReturnType<Robot["serialise"]>[];
+    initialRobots: ReturnType<Robot["serialise"]>[];
+    path: RobotPath;
+    targetDistance: number;
+    targetPositions: Position[];
+    completedTargetPositions: Position[];
+  } {
+    return {
+      field: this.field.serialise(),
+      robots: this.robots.map(robot => robot.serialise()),
+      initialRobots: this.initialRobots.map(robot => robot.serialise()),
+      path: this.path,
+      targetDistance: this.targetDistance,
+      targetPositions: this.targetPositions,
+      completedTargetPositions: this.completedTargetPositions,
+    };
   }
 
   change({

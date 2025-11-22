@@ -32,6 +32,20 @@ export class Field {
     );
   }
 
+  static deserialise({
+    width,
+    height,
+    topWalls,
+    leftWalls,
+  }: ReturnType<Field["serialise"]>): Field {
+    return new Field(
+      width,
+      height,
+      PositionMap.deserialise<boolean>(topWalls),
+      PositionMap.deserialise<boolean>(leftWalls),
+    );
+  }
+
   constructor(
     width: number,
     height: number,
@@ -42,6 +56,20 @@ export class Field {
     this.height = height;
     this.topWalls = topWalls;
     this.leftWalls = leftWalls;
+  }
+
+  serialise(): {
+    width: number;
+    height: number;
+    topWalls: ReturnType<PositionMap<boolean>["serialise"]>;
+    leftWalls: ReturnType<PositionMap<boolean>["serialise"]>;
+  } {
+    return {
+      width: this.width,
+      height: this.height,
+      topWalls: this.topWalls.serialise(),
+      leftWalls: this.leftWalls.serialise(),
+    }
   }
 
   private _change({

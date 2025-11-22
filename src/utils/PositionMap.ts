@@ -7,11 +7,19 @@ export type PositionMapLine<T> = Map<number, T>;
 export class PositionMap<T> {
   lines: PositionMapLines<T>;
 
+  static deserialise<T>(serialised: ReturnType<PositionMap<T>["serialise"]>): PositionMap<T> {
+    return new PositionMap(serialised);
+  }
+
   constructor(entriesOrMap?: [Position, T][] | PositionMap<T>) {
     this.lines = new Map();
     if (entriesOrMap) {
       this.add(entriesOrMap);
     }
+  }
+
+  serialise(): [Position, T][] {
+    return Array.from(this.entries());
   }
 
   add(entriesOrMap: [Position, T][] | PositionMap<T>): this {
