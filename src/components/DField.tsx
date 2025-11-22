@@ -135,7 +135,7 @@ export function DNextPosition({robot, isSelected, position, nextPosition, isUndo
         width={drawSettings.width}
         height={drawSettings.height}
         onClick={onClick}
-        onTouchStart={onClick}
+        onTouchEnd={onClick}
       />
       <NextPositionArrowUp
         className={`next-position-arrow index-${robot.index} ${isUndo ? "undo" : ""} ${isSelected ? "selected" : ""}`}
