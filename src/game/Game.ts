@@ -28,6 +28,9 @@ export class Game {
   robots: Robot[];
   initialRobots: Robot[];
   path: RobotPath;
+  targetDistance: number;
+  targetPositions: Position[];
+  completedTargetPositions: Position[];
   singleRobotDistanceMap?: PositionMap<number> = undefined;
   multiRobotDistanceMap?: PositionMap<number> = undefined;
 
@@ -42,26 +45,31 @@ export class Game {
       robots,
       robots,
       [],
+      0,
+      [],
+      [],
     );
   }
 
-  constructor(field: Field, robots: Robot[], initialRobots: Robot[], path: RobotPath) {
+  constructor(field: Field, robots: Robot[], initialRobots: Robot[], path: RobotPath, targetDistance: number, targetPositions: Position[], completedTargetPositions: Position[]) {
     this.field = field;
     this.robots = robots;
     this.initialRobots = initialRobots;
     this.path = path;
+    this.targetDistance = targetDistance;
+    this.targetPositions = targetPositions;
+    this.completedTargetPositions = completedTargetPositions;
   }
 
   change({
     field = this.field,
     robots = this.robots,
     path = this.path,
-  }: {
-    field?: Field;
-    robots?: Robot[];
-    path?: RobotPath;
-  }) {
-    return new Game(field, robots, this.initialRobots, path);
+    targetDistance = this.targetDistance,
+    targetPositions: targets = this.targetPositions,
+    completedTargetPositions: completedTargets = this.completedTargetPositions,
+  }: Partial<Pick<Game, "field" | "robots" | "path" | "targetDistance" | "targetPositions" | "completedTargetPositions">>) {
+    return new Game(field, robots, this.initialRobots, path, targetDistance, targets, completedTargets);
   }
 
   toggleWall(position: Position, type: WallType): Game {
@@ -84,10 +92,17 @@ export class Game {
         throw new Error(`Cannot undo robot #${robot.index} as the last robot move was by #${robotIndex}`);
       }
     }
-    return this.change({
+    let newGame = this.change({
       robots: this.robots.map(oldRobot => oldRobot === robot ? oldRobot.moveTo(newPosition) : oldRobot),
       path: isUndo ? this.path.slice(0, this.path.length - 1) : [...this.path, {previousPosition: robot.position, position: newPosition, robotIndex: robot.index}],
     });
+    if (!isUndo && robot.index === 0 && newGame.path.length === this.targetDistance) {
+      const completedTargetPosition = this.targetPositions.find(targetPosition => positionsEqual(newPosition, targetPosition));
+      if (completedTargetPosition && !this.completedTargetPositions.includes(completedTargetPosition)) {
+        newGame = newGame.change({completedTargetPositions: [...this.completedTargetPositions, completedTargetPosition]});
+      }
+    }
+    return newGame;
   }
 
   resetRobots(): Game {
@@ -193,7 +208,6 @@ export class Game {
         if (type === "left") {
           position.x = _.random(1, this.field.width - 1);
           position.y = _.random(0, this.field.width - 1);
-          console.log(type, position);
           if (newField.leftWalls.get(position)) {
             continue;
           }
@@ -202,7 +216,6 @@ export class Game {
         } else {
           position.x = _.random(0, this.field.width - 1);
           position.y = _.random(1, this.field.width - 1);
-          console.log(type, position);
           if (newField.topWalls.get(position)) {
             continue;
           }
@@ -258,5 +271,19 @@ export class Game {
       }
     }
     return newGame;
+  }
+
+  pickTargets(desiredTargetDistance: number = this.targetDistance, count: number | null = null): Game {
+    const distanceMap = this.calculateReachableMultiRobotPositions(this.robots[0]);
+    const [, targetDistance] = Array.from(distanceMap.entries())
+      .filter(([, distance]) => distance >= desiredTargetDistance)
+      .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
+    const targetPositions = Array.from(distanceMap.entries())
+      .filter(([, distance]) => distance === targetDistance)
+      .map(([position]) => position);
+    if (count !== null) {
+      targetPositions.splice(count);
+    }
+    return this.change({targetDistance, targetPositions, completedTargetPositions: []});
   }
 }

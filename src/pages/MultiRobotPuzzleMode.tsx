@@ -2,7 +2,7 @@ import _ from "underscore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
 import { DGame } from "../components";
-import { Position, positionsEqual } from "../utils";
+import { Position } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
 
@@ -19,30 +19,16 @@ export function MultiRobotPuzzleMode() {
     setGame(makeGame(desiredTargetDistance));
   }, [desiredTargetDistance, setEffectiveTargetDistance, setGame]);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
-  const [targetPositions, targetDistance] = useMemo(() => {
-    const distanceMap = game.calculateReachableMultiRobotPositions(game.robots[0]);
-    const [, targetDistance] = Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance >= effectiveTargetDistance)
-      .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
-    const targetPositions = Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance === targetDistance)
-      .map(([position]) => position);
-    return [targetPositions, targetDistance];
-  }, [game.field, effectiveTargetDistance]);
-  const [completedTargetPositions, setCompletedTargetPositions] = useState<Position[]>([]);
-  useEffect(() => {
-    setCompletedTargetPositions([]);
-  }, [targetPositions]);
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
-      return targetPositions;
+      return game.targetPositions;
     }
     return [
-      ...targetPositions.filter(target => completedTargetPositions.includes(target)),
-      ...targetPositions.filter(target => !completedTargetPositions.includes(target)).slice(0, 1),
+      ...game.targetPositions.filter(target => game.completedTargetPositions.includes(target)),
+      ...game.targetPositions.filter(target => !game.completedTargetPositions.includes(target)).slice(0, 1),
     ];
-  }, [targetPositions, completedTargetPositions, showOnlyOneTarget]);
+  }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
   const onRobotResetClick = useCallback(() => {
     setGame(game.resetRobots());
   }, [game, setGame]);
@@ -50,14 +36,7 @@ export function MultiRobotPuzzleMode() {
     setGame(game.undoMoveRobot());
   }, [game, setGame]);
   const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
-    const newGame = game.moveRobot(robot, nextPosition, isUndo);
-    setGame(newGame);
-    if (!isUndo && robot.index === 0 && newGame.path.length === targetDistance) {
-      const completedTargetPosition = targetPositions.find(targetPosition => positionsEqual(nextPosition, targetPosition));
-      if (completedTargetPosition && !completedTargetPositions.includes(completedTargetPosition)) {
-        setCompletedTargetPositions([...completedTargetPositions, completedTargetPosition]);
-      }
-    }
+    setGame(game.moveRobot(robot, nextPosition, isUndo));
   }, [game, setGame]);
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(makeGame(effectiveTargetDistance));
@@ -89,7 +68,7 @@ export function MultiRobotPuzzleMode() {
         <input type={"number"} value={desiredTargetDistance} onChange={onDesiredTargetDistanceChange} min={1} max={20} />
         <label><input type={"checkbox"} checked={showOnlyOneTarget} onChange={onShowOnlyOneTargetChange} />Show only one target</label>
       </div>
-      <div>Current moves: {game.path.length}/{targetDistance}, {completedTargetPositions.length}/{targetPositions.length} completed</div>
+      <div>Current moves: {game.path.length}/{game.targetDistance}, {game.completedTargetPositions.length}/{game.targetPositions.length} completed</div>
       <UsageInstructions showMoveInterpreter={showMoveInterpreter} onChangeShowMoveInterpreter={setShowMoveInterpreter} />
       <SvgContainer
         gridWidth={game.field.width} 
@@ -105,7 +84,6 @@ export function MultiRobotPuzzleMode() {
           onSelectedRobotIndexChange={setSelectedRobotIndex}
           onRobotMoveClick={onRobotMoveClick}
           targetPositions={visibleTargetPositions}
-          completedTargetPositions={completedTargetPositions}
         />
       </SvgContainer>
     </>
@@ -113,5 +91,8 @@ export function MultiRobotPuzzleMode() {
 }
 
 function makeGame(desiredTargetDistance: number): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}]).pickRandomCrossedWalls(30, desiredTargetDistance, true);
+  return Game
+    .makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}])
+    .pickRandomCrossedWalls(30, desiredTargetDistance, true)
+    .pickTargets(desiredTargetDistance);
 }

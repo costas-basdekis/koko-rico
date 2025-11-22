@@ -17,7 +17,6 @@ export interface DGameProps {
   onSelectedRobotIndexChange?: (index: number) => void;
   onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
   targetPositions?: Position[];
-  completedTargetPositions?: Position[];
 }
 
 const directionFilterMap: Map<Direction, (left: Position, right: Position) => boolean> = new Map([
@@ -44,8 +43,7 @@ export function DGame({
   selectedRobotIndex = 0,
   onSelectedRobotIndexChange,
   onRobotMoveClick,
-  targetPositions,
-  completedTargetPositions,
+  targetPositions = game.targetPositions,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances) {
@@ -122,7 +120,7 @@ export function DGame({
         nextRobotsPositionEntries={showRobotControls ? nextRobotsPositionEntries : undefined}
         onRobotMoveClick={onRobotNextPositionClick}
         targetPositions={targetPositions}
-        completedTargetPositions={completedTargetPositions}
+        completedTargetPositions={game.completedTargetPositions}
       />
       {distanceMap ? (
         <DFieldDistances field={game.field} distanceMap={distanceMap} />
