@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Direction } from "../game";
 import { MoveInterpreter, RingMoveInterpreter } from "./MoveInterpreter";
-import { Position } from "./Position";
+import { Position, positionDistance } from "./Position";
 
 export class SingleTouchManager {
   moveInterpreter: MoveInterpreter;
@@ -61,8 +61,6 @@ export class SingleTouchManager {
     this.identifier = changedTouch.identifier;
     this.x = changedTouch.pageX;
     this.y = changedTouch.pageY;
-    const clientRect = (e.currentTarget as SVGElement).getBoundingClientRect();
-    this.onArrowChange?.({x: this.x - clientRect.left, y: this.y - clientRect.top}, {x: this.x - clientRect.left, y: this.y - clientRect.top});
   };
 
   onTouchMove = (e: React.TouchEvent<SVGElement> | TouchEvent) => {
@@ -78,14 +76,17 @@ export class SingleTouchManager {
     const dX = changedTouch.pageX - this.x;
     const dY = changedTouch.pageY - this.y;
     const nextMove = this.moveInterpreter.getNextMove(dX, dY);
+    const clientRect = (e.currentTarget as SVGElement).getBoundingClientRect();
+    const arrowStart = { x: this.x - clientRect.left, y: this.y - clientRect.top };
+    const arrowEnd = { x: changedTouch.pageX - clientRect.left, y: changedTouch.pageY - clientRect.top };
     if (!nextMove) {
-      const clientRect = (e.currentTarget as SVGElement).getBoundingClientRect();
-      this.onArrowChange?.({x: this.x - clientRect.left, y: this.y - clientRect.top}, {x: changedTouch.pageX - clientRect.left, y: changedTouch.pageY - clientRect.top});
+      if (positionDistance(arrowStart, arrowEnd) > 2) {
+        this.onArrowChange?.(arrowStart, arrowEnd);
+      }
       return;
     }
     this.onTouchScreenMove?.(nextMove as Direction);
-    const clientRect = (e.currentTarget as SVGElement).getBoundingClientRect();
-    this.onArrowFinish?.({x: this.x - clientRect.left, y: this.y - clientRect.top}, {x: changedTouch.pageX - clientRect.left, y: changedTouch.pageY - clientRect.top});
+    this.onArrowFinish?.(arrowStart, arrowEnd);
     this.x = changedTouch.pageX;
     this.y = changedTouch.pageY;
   }
