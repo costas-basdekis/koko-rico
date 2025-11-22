@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Game, Robot } from "../game";
+import { Direction, Game, Robot } from "../game";
 import { DGame } from "../components";
 import { Position, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
@@ -69,6 +69,14 @@ export function MultiRobotPuzzleMode() {
   const onShowOnlyOneTargetChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setShowOnlyOneTarget(e.target.checked);
   }, [setShowOnlyOneTarget]);
+  const [showMoveInterpreter, setShowMoveInterpreter] = useState(true);
+  const onTouchScreenMove = useCallback((direction: Direction) => {
+    const nextPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction);
+    if (!nextPositionEntry) {
+      return;
+    }
+    onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
+  }, [game, selectedRobotIndex, onRobotMoveClick]);
   return (
     <>
       <div>
@@ -82,8 +90,14 @@ export function MultiRobotPuzzleMode() {
         <label><input type={"checkbox"} checked={showOnlyOneTarget} onChange={onShowOnlyOneTargetChange} />Show only one target</label>
       </div>
       <div>Current moves: {game.path.length}/{targetDistance}, {completedTargetPositions.length}/{targetPositions.length} completed</div>
-      <UsageInstructions />
-      <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
+      <UsageInstructions showMoveInterpreter={showMoveInterpreter} onChangeShowMoveInterpreter={setShowMoveInterpreter} />
+      <SvgContainer
+        gridWidth={game.field.width} 
+        gridHeight={game.field.height} 
+        ensureFitsInWindow 
+        onTouchScreenMove={onTouchScreenMove}
+        showMoveInterpreter={showMoveInterpreter}
+      >
         <DGame
           game={game}
           showRobotControls

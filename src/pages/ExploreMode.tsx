@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
-import { Game, WallType, Robot } from "../game";
+import { Game, WallType, Robot, Direction } from "../game";
 import { DGame } from "../components";
 import { Position, PositionMap, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
@@ -10,6 +10,7 @@ export default function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(() =>
     Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
   );
+  const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {
       const newGame = game.toggleWall(position, type);
@@ -59,6 +60,14 @@ export default function ExploreMode() {
       setGame(game.addRobots(newPositions));
     }
   }, [game, setGame]);
+  const [showMoveInterpreter, setShowMoveInterpreter] = useState(true);
+  const onTouchScreenMove = useCallback((direction: Direction) => {
+    const nextPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction);
+    if (!nextPositionEntry) {
+      return;
+    }
+    onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
+  }, [game, selectedRobotIndex, onRobotMoveClick]);
   return (
     <>
       <div>
@@ -71,8 +80,14 @@ export default function ExploreMode() {
         <label><input type={"radio"} value={"3"} onChange={onRobotCountChange} checked={game.robots.length === 3} />3 robots</label>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
       </div>
-      <UsageInstructions />
-      <SvgContainer gridWidth={game.field.width} gridHeight={game.field.height} ensureFitsInWindow >
+      <UsageInstructions showMoveInterpreter={showMoveInterpreter} onChangeShowMoveInterpreter={setShowMoveInterpreter} />
+      <SvgContainer
+        gridWidth={game.field.width}
+        gridHeight={game.field.height}
+        ensureFitsInWindow
+        onTouchScreenMove={onTouchScreenMove}
+        showMoveInterpreter={showMoveInterpreter}
+      >
         <DGame
           game={game}
           showDistances
