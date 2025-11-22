@@ -95,6 +95,8 @@ export default function ExploreMode() {
           onGhostWallClick={onGhostWallClick}
           onDistanceMapChange={onDistanceMapChange}
           showRobotControls
+          selectedRobotIndex={selectedRobotIndex}
+          onSelectedRobotIndexChange={setSelectedRobotIndex}
           onRobotMoveClick={onRobotMoveClick}
         />
       </SvgContainer>

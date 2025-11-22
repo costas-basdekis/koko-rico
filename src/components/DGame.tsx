@@ -106,6 +106,9 @@ export function DGame({
       onDirectionKeyPress?.(hotkeyDirectionMap.get(hotkey)!);
     }
   }, [onDirectionKeyPress, onSelectedRobotIndexChange, onRobotMoveClick]);
+  const onRobotSelect = useCallback((robot: Robot) => {
+    onSelectedRobotIndexChange?.(robot.index);
+  }, []);
   return (
     <g className={"game"}>
       <DField
@@ -126,7 +129,12 @@ export function DGame({
       ) : null}
       <g className={"robots"}>
         {game.robots.map((robot) => (
-          <DRobot key={robot.index} robot={robot} isSelected={robot.index === selectedRobotIndex} />
+          <DRobot
+            key={robot.index}
+            robot={robot}
+            isSelected={robot.index === selectedRobotIndex}
+            onSelect={onSelectedRobotIndexChange ? onRobotSelect : undefined}
+          />
         ))}
       </g>
     </g>
