@@ -4,7 +4,7 @@ import { Game, WallType, Robot, Direction } from "../game";
 import { DGame } from "../components";
 import { Position, PositionMap, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
-import { UsageInstructions } from "../UsageInstructions";
+import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
 
 export default function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(() =>
@@ -60,7 +60,7 @@ export default function ExploreMode() {
       setGame(game.addRobots(newPositions));
     }
   }, [game, setGame]);
-  const [showMoveInterpreter, setShowMoveInterpreter] = useState(true);
+  const [showMoveInterpreter, setShowMoveInterpreter] = useShowMoveInterpreter();
   const onTouchScreenMove = useCallback((direction: Direction) => {
     const nextPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction);
     if (!nextPositionEntry) {

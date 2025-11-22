@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { isTouchDevice as checkIsTouchDevice } from "./utils";
 
 export interface UsageInstructionsProps {
@@ -12,7 +12,14 @@ export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveI
   }, []);
   const innerOnChangeShowMoveInterpreter = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     onChangeShowMoveInterpreter?.(e.target.checked);
+    localStorage.setItem("showMoveInterpreter", e.target.checked ? "true" : "false");
   }, [onChangeShowMoveInterpreter]);
+  useEffect(() => {
+    const savedShowMoveInterpreter = getSavedShowMoveInterpreter();
+    if (savedShowMoveInterpreter !== showMoveInterpreter) {
+      onChangeShowMoveInterpreter?.(savedShowMoveInterpreter);
+    }
+  }, []);
   return (
     <div className="usage-instructions">
       <ul>
@@ -30,4 +37,16 @@ export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveI
       </ul>
     </div>
   );
+}
+
+export function getSavedShowMoveInterpreter(defaultValue: boolean = true): boolean {
+  const savedShowMoveInterpreterStr = localStorage.getItem("showMoveInterpreter");
+  if (!savedShowMoveInterpreterStr) {
+    return defaultValue;
+  }
+  return savedShowMoveInterpreterStr === "true";
+}
+
+export function useShowMoveInterpreter() {
+  return useState(getSavedShowMoveInterpreter());
 }

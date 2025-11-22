@@ -4,7 +4,7 @@ import { Direction, Game, Robot } from "../game";
 import { DGame } from "../components";
 import { Position, positionsEqual } from "../utils";
 import { SvgContainer } from "../SvgContainer";
-import { UsageInstructions } from "../UsageInstructions";
+import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
 
 const DefaultDesiredTargetDistance = 5;
 
@@ -68,7 +68,7 @@ export function SingleRobotPuzzleMode() {
   const onShowOnlyOneTargetChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setShowOnlyOneTarget(e.target.checked);
   }, [setShowOnlyOneTarget]);
-  const [showMoveInterpreter, setShowMoveInterpreter] = useState(true);
+  const [showMoveInterpreter, setShowMoveInterpreter] = useShowMoveInterpreter();
   const onTouchScreenMove = useCallback((direction: Direction) => {
     const nextPositionEntry = game.getRobotMoveInDirection(game.robots[0], direction);
     if (!nextPositionEntry) {
