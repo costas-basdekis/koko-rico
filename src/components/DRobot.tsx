@@ -21,7 +21,7 @@ export function DRobot({ robot, isSelected, onSelect }: DRobotProps) {
       cy={drawSettings.getXPosition(robot.position.y + 0.5)}
       r={drawSettings.width / 2 - 5}
       onClick={onSelect ? onClick : undefined}
-      onTouchEnd={onSelect ? onClick : undefined}
+      onTouchStart={onSelect ? onClick : undefined}
     />
   );
 }
