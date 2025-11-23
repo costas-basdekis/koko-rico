@@ -34,7 +34,7 @@ export function MultiRobotPuzzleMode() {
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(makeGame(effectiveTargetDistance));
   }, [setGame]);
-  const onDesiredTargetDistanceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const onDesiredTargetDistanceChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = parseInt(e.target.value, 10);
     setDesiredTargetDistance(newValue);
   }, [setDesiredTargetDistance]);
@@ -70,8 +70,14 @@ export function MultiRobotPuzzleMode() {
         <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
       </div>
       <div>
-        Desired target distance:
-        <input type={"number"} value={desiredTargetDistance} onChange={onDesiredTargetDistanceChange} min={1} max={20} />
+        <label>
+          Desired target distance:
+          <select value={desiredTargetDistance} onChange={onDesiredTargetDistanceChange}>
+            {_.range(1, 21).map(value => (
+              <option key={value} value={value}>{value}{value === 5 ? " - Default" : value === 10 ? " - Might take too long" : ""}</option>
+            ))}
+          </select>
+        </label>
         <label><input type={"checkbox"} checked={showOnlyOneTarget} onChange={onShowOnlyOneTargetChange} />Show only one target</label>
       </div>
       <div>Current moves: {game.path.length}/{game.targetDistance}, {game.completedTargetPositions.length}/{game.targetPositions.length} completed</div>
