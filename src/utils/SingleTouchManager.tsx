@@ -9,6 +9,7 @@ export class SingleTouchManager {
   x: number = 0;
   y: number = 0;
   onTouchScreenMove: ((move: Direction) => void) | undefined = undefined;
+  restrictTouchScreenMovesTo?: {[key in Direction]?: boolean};
   svgRef: React.RefObject<SVGElement> | undefined = undefined;
   onArrowChange?: (source: Position, target: Position) => void;
   onArrowFinish?: (source: Position, target: Position) => void;
@@ -83,6 +84,9 @@ export class SingleTouchManager {
       if (positionDistance(arrowStart, arrowEnd) > 2) {
         this.onArrowChange?.(arrowStart, arrowEnd);
       }
+      return;
+    }
+    if (this.restrictTouchScreenMovesTo && !this.restrictTouchScreenMovesTo[nextMove]) {
       return;
     }
     this.onTouchScreenMove?.(nextMove as Direction);

@@ -50,6 +50,13 @@ export function MultiRobotPuzzleMode() {
     onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
   }, [game, selectedRobotIndex, onRobotMoveClick]);
   const drawSettings = DrawSettings.use();
+  const restrictTouchScreenMovesTo = useMemo(() => {
+    const robot = game.robots[selectedRobotIndex];
+    if (!robot) {
+      return {};
+    }
+    return Object.fromEntries(game.getNextRobotPositionEntries(robot).map(({direction}) => [direction, true]));
+  }, [game, selectedRobotIndex]);
   const moveInterpreterProps = useMemo(() => {
     return {
       stroke: drawSettings.robotColours[selectedRobotIndex],
@@ -76,6 +83,7 @@ export function MultiRobotPuzzleMode() {
         onTouchScreenMove={onTouchScreenMove}
         showMoveInterpreter={showMoveInterpreter}
         moveInterpreterProps={moveInterpreterProps}
+        restrictTouchScreenMovesTo={restrictTouchScreenMovesTo}
       >
         <DGame
           game={game}

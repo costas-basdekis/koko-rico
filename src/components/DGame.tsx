@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { Direction, Game, Robot, WallType } from "../game";
+import { Direction, Game, NextPositionEntriesMap, Robot, WallType } from "../game";
 import { Position, PositionMap } from "../utils";
 import { DField } from "./DField";
 import { DFieldDistances } from "./DFieldDistances";
@@ -61,7 +61,7 @@ export function DGame({
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);
   }, [distanceMap]);
-  const nextRobotsPositionEntries: Map<number, {nextPosition: Position, isUndo: boolean}[]> = useMemo(() => {
+  const nextRobotsPositionEntries: NextPositionEntriesMap = useMemo(() => {
     if (!showRobotControls) {
       return new Map();
     }

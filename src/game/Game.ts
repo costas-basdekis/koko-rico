@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { Position, PositionMap, positionsEqual } from "../utils";
-import { Direction } from "./Direction";
+import { Direction, getPositionsDirection } from "./Direction";
 import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
 import { SingleRobotDistanceEvaluator } from "./SingleRobotDistanceEvaluator";
@@ -16,6 +16,7 @@ export type RobotPath = RobotPathEntry[];
 
 export interface NextPositionEntry {
   nextPosition: Position;
+  direction: Direction;
   isUndo: boolean;
 }
 
@@ -146,24 +147,33 @@ export class Game {
   }
 
   getNextRobotPositionEntries(robot: Robot): NextPositionEntries {
-    let nextPositionEntries: {nextPosition: Position, isUndo: boolean}[]; 
+    let nextPositionEntries: NextPositionEntries; 
     if (this.robots.length === 1) {
-      nextPositionEntries = new SingleRobotDistanceEvaluator(this, robot).getNextPositions(robot.position).map(nextPosition => ({nextPosition, isUndo: false}));
+      nextPositionEntries = new SingleRobotDistanceEvaluator(this, robot)
+        .getNextPositions(robot.position).map(nextPosition => ({
+          nextPosition,
+          direction: getPositionsDirection(robot.position, nextPosition)!,
+          isUndo: false,
+        }));
     } else if (this.robots.length > 1) {
-      nextPositionEntries = new MultiRobotDistanceEvaluator(this, robot).getNextPositions(robot.position, this.robots.filter(other => other !== robot).map(other => other.position)).map(nextPosition => ({nextPosition, isUndo: false}));
+      nextPositionEntries = new MultiRobotDistanceEvaluator(this, robot)
+        .getNextPositions(robot.position, this.robots.filter(other => other !== robot).map(other => other.position))
+        .map(nextPosition => ({
+          nextPosition,
+          direction: getPositionsDirection(robot.position, nextPosition)!,
+          isUndo: false,
+        }));
     } else {
       nextPositionEntries = [];
     }
     if (this.path.length) {
       const {previousPosition, robotIndex} = this.path[this.path.length - 1];
+      const previousDirection = getPositionsDirection(robot.position, previousPosition)!;
       if (robotIndex === robot.index) {
-        const directionFilter = Array.from(Game.directionFilterMap.values()).find(filter => filter(previousPosition, robot.position));
-        if (directionFilter) {
-          const nextPositionEntry = nextPositionEntries.find(nextPositionEntry => directionFilter(nextPositionEntry.nextPosition, robot.position));
-          if (nextPositionEntry) {
-            nextPositionEntry.nextPosition = previousPosition
-            nextPositionEntry.isUndo = true;
-          }
+        const nextPositionEntry = nextPositionEntries.find(({direction}) => direction === previousDirection);
+        if (nextPositionEntry) {
+          nextPositionEntry.nextPosition = previousPosition
+          nextPositionEntry.isUndo = true;
         }
       }
     }

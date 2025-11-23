@@ -4,6 +4,7 @@ import { Position } from ".";
 
 export interface VisualiseProps {
   start: Position;
+  restrictTouchScreenMovesTo?: {[key in Direction]?: boolean};
   stroke?: string;
   fill?: string;
 }
@@ -42,9 +43,9 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
     return null;
   }
 
-  Visualise = ({start, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
+  Visualise = ({start, restrictTouchScreenMovesTo, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
     return <>
-      <rect
+      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Right] ? <rect
         x={(start.x + this.minOffset)}
         y={(start.y - this.maxVerticalOffset)}
         width={10000}
@@ -52,8 +53,8 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
         stroke={stroke}
         strokeWidth={2}
         fill={fill}
-      />
-      <rect
+      /> : null}
+      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Down] ? <rect
         x={(start.x - this.maxVerticalOffset)}
         y={(start.y + this.minOffset)}
         width={this.maxVerticalOffset * 2}
@@ -61,8 +62,8 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
         stroke={stroke}
         strokeWidth={2}
         fill={fill}
-      />
-      <rect
+      /> : null}
+      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Left] ? <rect
         x={(-10000)}
         y={(start.y - this.maxVerticalOffset)}
         width={10000 + (start.x - this.minOffset)}
@@ -70,8 +71,8 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
         stroke={stroke}
         strokeWidth={2}
         fill={fill}
-      />
-      <rect
+      /> : null}
+      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Up] ? <rect
         x={(start.x - this.maxVerticalOffset)}
         y={(-10000)}
         width={this.maxVerticalOffset * 2}
@@ -79,7 +80,7 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
         stroke={stroke}
         strokeWidth={2}
         fill={fill}
-      />
+      /> : null}
     </>;
   }
 }
@@ -124,7 +125,7 @@ export class RingMoveInterpreter implements MoveInterpreter {
     return null;
   }
 
-  Visualise = ({start, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
+  Visualise = ({start, restrictTouchScreenMovesTo, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
     const pathDAndDirections = useMemo(() => {
       return RingMoveInterpreter.anglesDirectionMap.map(({startAngle, endAngle, direction}) => ({
         direction, 
@@ -141,7 +142,7 @@ export class RingMoveInterpreter implements MoveInterpreter {
       return `translate(${start.x},${start.y})`;
     }, [start.x, start.y]);
     return <>
-      {pathDAndDirections.map(({direction, d}) => (
+      {pathDAndDirections.filter(({direction}) => !restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[direction]).map(({direction, d}) => (
         <path
           key={direction}
           d={d}

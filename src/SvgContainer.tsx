@@ -13,13 +13,14 @@ export interface SvgContainerProps {
   children?: ReactNode;
   ensureFitsInWindow?: boolean;
   onTouchScreenMove?: (move: Direction) => void;
+  restrictTouchScreenMovesTo?: {[key in Direction]?: boolean};
   moveInterpreter?: MoveInterpreter;
   showMoveInterpreter?: boolean;
   debugMoves?: boolean
   moveInterpreterProps?: Partial<VisualiseProps>;
 }
 
-export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindow = false, onTouchScreenMove, moveInterpreter, showMoveInterpreter = true, debugMoves = false, moveInterpreterProps}: SvgContainerProps) {
+export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindow = false, onTouchScreenMove, restrictTouchScreenMovesTo, moveInterpreter, showMoveInterpreter = true, debugMoves = false, moveInterpreterProps}: SvgContainerProps) {
   const [drawSettings, setDrawSettings] = useState(new DrawSettings());
   const svgRef = useRef<SVGSVGElement>(null);
   useWindowSize((windowWidth: number, windowHeight: number) => {
@@ -58,6 +59,7 @@ export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindo
   }, []);
   touchManager.useUpdateProps(onTouchScreenMove, svgRef);
   touchManager.useAttachToSvg();
+  touchManager.restrictTouchScreenMovesTo = restrictTouchScreenMovesTo;
   touchManager.onArrowChange = onArrowChange;
   touchManager.onArrowFinish = onArrowFinish;
   touchManager.onArrowStop = onArrowStop;
@@ -91,7 +93,13 @@ export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindo
           strokeWidth={5}
         />
       )) : null}
-      {showMoveInterpreter && arrow ? <touchManager.moveInterpreter.Visualise {...moveInterpreterProps} start={arrow.source} /> : null}
+      {showMoveInterpreter && arrow ? (
+        <touchManager.moveInterpreter.Visualise
+          {...moveInterpreterProps}
+          start={arrow.source}
+          restrictTouchScreenMovesTo={restrictTouchScreenMovesTo}
+        />
+      ) : null}
     </svg>
   </>);
 }

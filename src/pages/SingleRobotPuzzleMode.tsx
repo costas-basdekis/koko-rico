@@ -48,6 +48,13 @@ export function SingleRobotPuzzleMode() {
     }
     onRobotMoveClick(game.robots[0], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
   }, [game, onRobotMoveClick]);
+  const restrictTouchScreenMovesTo = useMemo(() => {
+    const robot = game.robots[0];
+    if (!robot) {
+      return {};
+    }
+    return Object.fromEntries(game.getNextRobotPositionEntries(robot).map(({direction}) => [direction, true]));
+  }, [game]);
   return (
     <>
       <div>
@@ -68,6 +75,7 @@ export function SingleRobotPuzzleMode() {
         ensureFitsInWindow
         onTouchScreenMove={onTouchScreenMove}
         showMoveInterpreter={showMoveInterpreter}
+        restrictTouchScreenMovesTo={restrictTouchScreenMovesTo}
       >
         <DGame
           game={game}

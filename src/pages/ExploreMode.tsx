@@ -72,6 +72,13 @@ export default function ExploreMode() {
     onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
   }, [game, selectedRobotIndex, onRobotMoveClick]);
   const drawSettings = DrawSettings.use();
+  const restrictTouchScreenMovesTo = useMemo(() => {
+    const robot = game.robots[selectedRobotIndex];
+    if (!robot) {
+      return {};
+    }
+    return Object.fromEntries(game.getNextRobotPositionEntries(robot).map(({direction}) => [direction, true]));
+  }, [game, selectedRobotIndex]);
   const moveInterpreterProps = useMemo(() => {
     return {
       stroke: drawSettings.robotColours[selectedRobotIndex],
@@ -97,6 +104,7 @@ export default function ExploreMode() {
         onTouchScreenMove={onTouchScreenMove}
         showMoveInterpreter={showMoveInterpreter}
         moveInterpreterProps={moveInterpreterProps}
+        restrictTouchScreenMovesTo={restrictTouchScreenMovesTo}
       >
         <DGame
           game={game}
