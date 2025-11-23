@@ -7,6 +7,7 @@ import { DrawSettings } from "./DrawSettings";
 import { DRobotPath } from "./DRobotPath";
 import { DWalls } from "./DWalls";
 import { ReactComponent as RawNextPositionArrowUp } from "./next-position-arrow-up.svg";
+import { TapHandler } from "../utils/TapHandler";
 
 export const NextPositionArrowUp = makeAndRegisterSvgDef("next-position-arrow-up", <RawNextPositionArrowUp />);
 
@@ -126,6 +127,7 @@ export function DNextPosition({robot, isSelected, position, nextPosition, isUndo
   const onClick = useCallback(() => {
     onRobotMoveClick?.(robot, nextPosition, isUndo);
   }, [nextPosition, onRobotMoveClick]);
+  const tapHandler = TapHandler.use(onClick);
   return (
     <>
       <rect
@@ -135,7 +137,7 @@ export function DNextPosition({robot, isSelected, position, nextPosition, isUndo
         width={drawSettings.width}
         height={drawSettings.height}
         onClick={onClick}
-        onTouchEnd={onClick}
+        {...onRobotMoveClick ? tapHandler.touchProps : null}
       />
       <NextPositionArrowUp
         className={`next-position-arrow index-${robot.index} ${isUndo ? "undo" : ""} ${isSelected ? "selected" : ""}`}
