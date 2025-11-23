@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, WallType, Robot, Direction } from "../game";
-import { DGame } from "../components";
+import { DGame, DrawSettings } from "../components";
 import { loadGameFromLocalStorage, Position, PositionMap, positionsEqual, saveGameToLocalStorage } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
@@ -71,6 +71,12 @@ export default function ExploreMode() {
     }
     onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
   }, [game, selectedRobotIndex, onRobotMoveClick]);
+  const drawSettings = DrawSettings.use();
+  const moveInterpreterProps = useMemo(() => {
+    return {
+      stroke: drawSettings.robotColours[selectedRobotIndex],
+    };
+  }, [drawSettings, selectedRobotIndex]);
   return (
     <>
       <div>
@@ -90,6 +96,7 @@ export default function ExploreMode() {
         ensureFitsInWindow
         onTouchScreenMove={onTouchScreenMove}
         showMoveInterpreter={showMoveInterpreter}
+        moveInterpreterProps={moveInterpreterProps}
       >
         <DGame
           game={game}

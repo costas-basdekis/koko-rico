@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
-import { DGame } from "../components";
+import { DGame, DrawSettings } from "../components";
 import { Position, useSavedGame } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
@@ -49,6 +49,12 @@ export function MultiRobotPuzzleMode() {
     }
     onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
   }, [game, selectedRobotIndex, onRobotMoveClick]);
+  const drawSettings = DrawSettings.use();
+  const moveInterpreterProps = useMemo(() => {
+    return {
+      stroke: drawSettings.robotColours[selectedRobotIndex],
+    };
+  }, [drawSettings, selectedRobotIndex]);
   return (
     <>
       <div>
@@ -69,6 +75,7 @@ export function MultiRobotPuzzleMode() {
         ensureFitsInWindow 
         onTouchScreenMove={onTouchScreenMove}
         showMoveInterpreter={showMoveInterpreter}
+        moveInterpreterProps={moveInterpreterProps}
       >
         <DGame
           game={game}

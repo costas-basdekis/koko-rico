@@ -2,9 +2,15 @@ import { useMemo } from "react";
 import { Direction } from "../game";
 import { Position } from ".";
 
+export interface VisualiseProps {
+  start: Position;
+  stroke?: string;
+  fill?: string;
+}
+
 export interface MoveInterpreter {
   getNextMove(dX: number, dY: number): Direction | null;
-  Visualise(props: {start: Position}): JSX.Element;
+  Visualise(props: VisualiseProps): JSX.Element;
 }
 
 export class SimpleMoveInterpreter implements MoveInterpreter {
@@ -36,43 +42,43 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
     return null;
   }
 
-  Visualise = ({start}: {start: Position}): JSX.Element => {
+  Visualise = ({start, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
     return <>
       <rect
         x={(start.x + this.minOffset)}
         y={(start.y - this.maxVerticalOffset)}
         width={10000}
         height={this.maxVerticalOffset * 2}
-        stroke={"red"}
+        stroke={stroke}
         strokeWidth={2}
-        fill={"none"}
+        fill={fill}
       />
       <rect
         x={(start.x - this.maxVerticalOffset)}
         y={(start.y + this.minOffset)}
         width={this.maxVerticalOffset * 2}
         height={10000}
-        stroke={"red"}
+        stroke={stroke}
         strokeWidth={2}
-        fill={"none"}
+        fill={fill}
       />
       <rect
         x={(-10000)}
         y={(start.y - this.maxVerticalOffset)}
         width={10000 + (start.x - this.minOffset)}
         height={this.maxVerticalOffset * 2}
-        stroke={"red"}
+        stroke={stroke}
         strokeWidth={2}
-        fill={"none"}
+        fill={fill}
       />
       <rect
         x={(start.x - this.maxVerticalOffset)}
         y={(-10000)}
         width={this.maxVerticalOffset * 2}
         height={10000 + (start.y - this.minOffset)}
-        stroke={"red"}
+        stroke={stroke}
         strokeWidth={2}
-        fill={"none"}
+        fill={fill}
       />
     </>;
   }
@@ -118,7 +124,7 @@ export class RingMoveInterpreter implements MoveInterpreter {
     return null;
   }
 
-  Visualise = ({start}: { start: Position; }): JSX.Element => {
+  Visualise = ({start, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
     const pathDAndDirections = useMemo(() => {
       return RingMoveInterpreter.anglesDirectionMap.map(({startAngle, endAngle, direction}) => ({
         direction, 
@@ -140,9 +146,9 @@ export class RingMoveInterpreter implements MoveInterpreter {
           key={direction}
           d={d}
           transform={transform}
-          stroke={"red"}
+          stroke={stroke}
           strokeWidth={2}
-          fill={"none"}
+          fill={fill}
         />
       ))}
     </>;

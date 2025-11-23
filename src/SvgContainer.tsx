@@ -3,7 +3,7 @@ import { SvgDefs } from "./SvgDefs";
 import { DrawSettings } from "./components";
 import { useWindowSize } from "./hooks";
 import { Direction } from "./game";
-import { getPositionKey, Position } from "./utils";
+import { getPositionKey, Position, VisualiseProps } from "./utils";
 import { MoveInterpreter, RingMoveInterpreter } from "./utils";
 import { SingleTouchManager } from "./utils/SingleTouchManager";
 
@@ -16,9 +16,10 @@ export interface SvgContainerProps {
   moveInterpreter?: MoveInterpreter;
   showMoveInterpreter?: boolean;
   debugMoves?: boolean
+  moveInterpreterProps?: Partial<VisualiseProps>;
 }
 
-export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindow = false, onTouchScreenMove, moveInterpreter, showMoveInterpreter = true, debugMoves = false}: SvgContainerProps) {
+export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindow = false, onTouchScreenMove, moveInterpreter, showMoveInterpreter = true, debugMoves = false, moveInterpreterProps}: SvgContainerProps) {
   const [drawSettings, setDrawSettings] = useState(new DrawSettings());
   const svgRef = useRef<SVGSVGElement>(null);
   useWindowSize((windowWidth: number, windowHeight: number) => {
@@ -90,7 +91,7 @@ export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindo
           strokeWidth={5}
         />
       )) : null}
-      {showMoveInterpreter && arrow ? <touchManager.moveInterpreter.Visualise start={arrow.source} /> : null}
+      {showMoveInterpreter && arrow ? <touchManager.moveInterpreter.Visualise {...moveInterpreterProps} start={arrow.source} /> : null}
     </svg>
   </>);
 }
