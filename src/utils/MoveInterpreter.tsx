@@ -90,7 +90,7 @@ export class RingMoveInterpreter implements MoveInterpreter {
   maxRadius: number;
   angleSizeReduction: number;
 
-  constructor({minRadius = 150, maxRadius = 300, angleSizeReduction = Math.PI / 8}: {minRadius?: number, maxRadius?: number, angleSizeReduction?: number} = {}) {
+  constructor({minRadius = 75, maxRadius = 200, angleSizeReduction = Math.PI / 8}: {minRadius?: number, maxRadius?: number, angleSizeReduction?: number} = {}) {
     this.minRadius = minRadius;
     this.maxRadius = maxRadius;
     this.angleSizeReduction = angleSizeReduction;

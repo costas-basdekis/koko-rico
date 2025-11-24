@@ -21,7 +21,7 @@ svg {
 
 .grid-wall {
   stroke: black;
-  stroke-width: 6px;
+  stroke-width: 3px;
   stroke-linecap: square;
 }
 
@@ -35,6 +35,7 @@ svg {
 
 .robot {
   stroke: black;
+  stroke-width: 3px;
 }
 .robot.index-0 {
   fill: var(--robot-0-colour);
@@ -49,9 +50,6 @@ svg {
   fill: var(--robot-3-colour);
 }
 
-.robot:not(.selected) {
-  stroke-width: 5px;
-}
 .robot.index-0:not(.selected) {
   stroke: var(--robot-0-colour);
   fill: white;
