@@ -31,9 +31,10 @@ export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindo
       if ($container) {
         const containerRect = $container.getBoundingClientRect();
         const svgRect = svgRef.current.getBoundingClientRect();
-        // TODO: Why do we need the +2 here to avoid scrollbars?
-        // TOOD: Why is this different for X and Y?
+        // Because the width will always be smaller than the App width
+        // we need to have a static padding
         // extraPaddingX = containerRect.width - svgRect.width + 2;
+        extraPaddingX = 10;
         extraPaddingY = containerRect.height - svgRect.height + 2;
       }
     }

@@ -25,8 +25,9 @@ export class DrawSettings {
   }
 
   constructor(
-    width: number = 40,
-    height: number = 40,
+    // Use very small sizes so that we can detect actual window width on mobile
+    width: number = 1,
+    height: number = 1,
     xOffset: number = 10,
     yOffset: number = 10,
     robotColours: string[] = ["red", "green", "blue", "yellow"]
