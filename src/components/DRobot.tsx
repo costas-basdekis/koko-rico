@@ -19,7 +19,7 @@ export function DRobot({ robot, isSelected, onSelect }: DRobotProps) {
       className={`robot index-${robot.index} ${isSelected ? "selected" : ""}`}
       cx={drawSettings.getXPosition(robot.position.x + 0.5)}
       cy={drawSettings.getXPosition(robot.position.y + 0.5)}
-      r={Math.max(1, drawSettings.width / 2 - 2)}
+      r={Math.max(1, drawSettings.width / 2 - 0.15 * drawSettings.width)}
       onClick={onSelect ? onClick : undefined}
       onTouchStart={onSelect ? onClick : undefined}
     />

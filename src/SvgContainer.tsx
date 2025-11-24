@@ -68,12 +68,18 @@ export function SvgContainer({children, gridWidth, gridHeight, ensureFitsInWindo
   const touchEventProps = useMemo(() => {
     return onTouchScreenMove ? touchManager.getTouchEventProps() : {};
   }, []);
+  const drawSettingsStyle = useMemo(() => {
+    return {
+      "--draw-size": drawSettings.width,
+    } as React.CSSProperties;
+  }, [drawSettings]);
   return (<>
     <svg 
       {...touchEventProps}
       ref={svgRef} 
       width={drawSettings.getDisplayWidth(gridWidth)} 
       height={drawSettings.getDisplayHeight(gridHeight)}
+      style={drawSettingsStyle}
     >
       <SvgDefs />
       <DrawSettings.ContextProvider value={drawSettings}>

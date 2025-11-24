@@ -22,6 +22,7 @@ svg {
 .grid-wall {
   stroke: black;
   stroke-width: 3px;
+  stroke-width: calc(0.15px * var(--draw-size));
   stroke-linecap: square;
 }
 
@@ -36,6 +37,7 @@ svg {
 .robot {
   stroke: black;
   stroke-width: 3px;
+  stroke-width: calc(0.15px * var(--draw-size));
 }
 .robot.index-0 {
   fill: var(--robot-0-colour);
@@ -90,6 +92,7 @@ svg {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 10;
+  stroke-width: calc(0.33px * var(--draw-size));
 }
 
 .robot-path-item.index-0 {
