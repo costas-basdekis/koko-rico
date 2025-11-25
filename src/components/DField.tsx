@@ -1,15 +1,12 @@
 import { useCallback, useMemo } from "react";
-import { Field, Robot, RobotPath, WallType } from "../game";
-import { makeAndRegisterSvgDef } from "../SvgDefs";
+import { Field, getPositionsDirection, Robot, RobotPath, WallType } from "../game";
 import { getPositionKey, Position } from "../utils";
 import { DGrid } from "./DGrid";
 import { DrawSettings } from "./DrawSettings";
 import { DRobotPath } from "./DRobotPath";
 import { DWalls } from "./DWalls";
-import { ReactComponent as RawNextPositionArrowUp } from "./next-position-arrow-up.svg";
 import { TapHandler } from "../utils/TapHandler";
-
-export const NextPositionArrowUp = makeAndRegisterSvgDef("next-position-arrow-up", <RawNextPositionArrowUp />);
+import { NextPositionArrowUp } from "./NextPositionArrowUp";
 
 export interface DFieldProps {
   field: Field;
@@ -111,19 +108,9 @@ export interface DNextPositionProps {
 
 export function DNextPosition({robot, isSelected, position, nextPosition, isUndo, onRobotMoveClick}: DNextPositionProps) {
   const drawSettings = DrawSettings.use();
-  const transform = useMemo(() => {
-    const rotation = (
-      nextPosition.x > position.x ? 90
-      : nextPosition.x < position.x ? 270
-      : nextPosition.y > position.y ? 180
-      : 0
-    )
-    return (
-      `translate(${drawSettings.getXPosition(nextPosition.x) + drawSettings.width / 2} ${drawSettings.getYPosition(nextPosition.y) + drawSettings.height / 2})`
-      + ` scale(${drawSettings.width / 20})`
-      + ` rotate(${rotation})`
-    );
-  }, [drawSettings, position, nextPosition]);
+  const direction = useMemo(() => {
+    return getPositionsDirection(position, nextPosition);
+  }, [position, nextPosition]);
   const onClick = useCallback(() => {
     onRobotMoveClick?.(robot, nextPosition, isUndo);
   }, [nextPosition, onRobotMoveClick]);
@@ -140,8 +127,12 @@ export function DNextPosition({robot, isSelected, position, nextPosition, isUndo
         {...onRobotMoveClick ? tapHandler.touchProps : null}
       />
       <NextPositionArrowUp
-        className={`next-position-arrow index-${robot.index} ${isUndo ? "undo" : ""} ${isSelected ? "selected" : ""}`}
-        transform={transform}
+        size={drawSettings.width}
+        direction={direction!}
+        drawPosition={nextPosition}
+        robotIndex={robot.index}
+        isUndo={isUndo}
+        isSelected={isSelected}
       />
     </>
   );

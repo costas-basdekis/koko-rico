@@ -16,6 +16,8 @@ export interface DGameProps {
   selectedRobotIndex?: number;
   onSelectedRobotIndexChange?: (index: number) => void;
   onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
+  onRobotResetClick?: () => void;
+  onNewGameClick?: () => void;
   targetPositions?: Position[];
 }
 
@@ -43,6 +45,8 @@ export function DGame({
   selectedRobotIndex = 0,
   onSelectedRobotIndexChange,
   onRobotMoveClick,
+  onRobotResetClick,
+  onNewGameClick,
   targetPositions = game.targetPositions,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
@@ -89,7 +93,7 @@ export function DGame({
     }
     onRobotMoveClick?.(game.robots[selectedRobotIndex], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
   }, [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex]);
-  useHotkeys(['left', 'right', 'up', 'down', 'r', 'shift+r', 'u'], (e, {hotkey}) => {
+  useHotkeys(['left', 'right', 'up', 'down', 'r', 'shift+r', 'u', 't', 'n'], (e, {hotkey}) => {
     e.preventDefault();
     if (hotkey === 'r') {
       onSelectedRobotIndexChange?.((selectedRobotIndex + 1) % game.robots.length);
@@ -100,6 +104,10 @@ export function DGame({
         const {robotIndex, previousPosition} = game.path[game.path.length - 1];
         onRobotMoveClick?.(game.robots[robotIndex], previousPosition, true);
       }
+    } else if (hotkey === 't') {
+      onRobotResetClick?.();
+    } else if (hotkey === 'n') {
+      onNewGameClick?.();
     } else {
       onDirectionKeyPress?.(hotkeyDirectionMap.get(hotkey)!);
     }

@@ -12,6 +12,7 @@ export interface VisualiseProps {
 export interface MoveInterpreter {
   getNextMove(dX: number, dY: number): Direction | null;
   Visualise(props: VisualiseProps): JSX.Element;
+  fitIn(size: number): MoveInterpreter;
 }
 
 export class SimpleMoveInterpreter implements MoveInterpreter {
@@ -83,6 +84,11 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
       /> : null}
     </>;
   }
+
+  fitIn(size: number): MoveInterpreter {
+    const ratio = size / (this.minOffset * 2);
+    return new SimpleMoveInterpreter({minOffset: this.minOffset * ratio, maxVerticalOffset: this.maxVerticalOffset * ratio});
+  }
 }
 
 export class RingMoveInterpreter implements MoveInterpreter {
@@ -153,5 +159,10 @@ export class RingMoveInterpreter implements MoveInterpreter {
         />
       ))}
     </>;
+  }
+
+  fitIn(size: number): MoveInterpreter {
+    const ratio = size / (this.maxRadius * 2 * 1.2);
+    return new RingMoveInterpreter({minRadius: this.minRadius * ratio, maxRadius: this.maxRadius * ratio, angleSizeReduction: this.angleSizeReduction});
   }
 }

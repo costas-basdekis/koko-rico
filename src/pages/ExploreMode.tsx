@@ -14,6 +14,9 @@ export default function ExploreMode() {
     saveGameToLocalStorage("exploreGame", game);
   }, [game]);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
+  const onSelectedRobotIndexChange = useCallback((index: number) => {
+    setSelectedRobotIndex((index + game.robots.length) % game.robots.length);
+  }, [setSelectedRobotIndex, game.robots.length]);
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {
       const newGame = game.toggleWall(position, type);
@@ -87,16 +90,21 @@ export default function ExploreMode() {
   return (
     <>
       <div>
-        <button onClick={onRobotResetClick}>Reset robot</button>
-        <button onClick={onUndoRobotMove} disabled={!game.path.length}>Undo move</button>
-        <button onClick={onRandomWallsClick}>Randomly pick 20 walls</button>
-        <button onClick={onRandomCrossedWallsClick}>Randomly pick 30 crossed walls</button>
         <label><input type={"radio"} value={"1"} onChange={onRobotCountChange} checked={game.robots.length === 1} />1 robot</label>
         <label><input type={"radio"} value={"2"} onChange={onRobotCountChange} checked={game.robots.length === 2} />2 robots</label>
         <label><input type={"radio"} value={"3"} onChange={onRobotCountChange} checked={game.robots.length === 3} />3 robots</label>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
       </div>
-      <UsageInstructions showMoveInterpreter={showMoveInterpreter} onChangeShowMoveInterpreter={setShowMoveInterpreter} />
+      <UsageInstructions
+        showMoveInterpreter={showMoveInterpreter}
+        onChangeShowMoveInterpreter={setShowMoveInterpreter}
+        selectedRobotIndex={selectedRobotIndex}
+        onSelectedRobotIndexChange={game.robots.length > 1 ? onSelectedRobotIndexChange : undefined}
+        onRobotMove={onTouchScreenMove}
+        onRobotReset={onRobotResetClick}
+        onUndoRobotMove={onUndoRobotMove}
+        onNewPuzzle={onRandomCrossedWallsClick}
+      />
       <SvgContainer
         gridWidth={game.field.width}
         gridHeight={game.field.height}
@@ -115,6 +123,8 @@ export default function ExploreMode() {
           showRobotControls
           selectedRobotIndex={selectedRobotIndex}
           onSelectedRobotIndexChange={setSelectedRobotIndex}
+          onRobotResetClick={onRobotResetClick}
+          onNewGameClick={onRandomCrossedWallsClick}
           onRobotMoveClick={onRobotMoveClick}
         />
       </SvgContainer>

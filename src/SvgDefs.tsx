@@ -1,8 +1,8 @@
-import { cloneElement, isValidElement, ReactElement } from "react";
+import { cloneElement, isValidElement, ReactElement, useMemo } from "react";
 
 export const SvgDefinitionMap: Map<string, ReactElement> = new Map();
 
-export function registerSvgDef(name: string, element: ReactElement, createGroup: boolean = true) {
+export function registerSvgDef(name: string, element: ReactElement, createGroup: boolean = true): ReactElement {
   if (createGroup) {
     element = <g id={name}>{element}</g>;
   }
@@ -12,20 +12,31 @@ export function registerSvgDef(name: string, element: ReactElement, createGroup:
     element = <g key={name}>{element}</g>
   }
   SvgDefinitionMap.set(name, element);
+  return element;
 }
 
-export function makeAndRegisterSvgDef(name: string, element: ReactElement, createGroup: boolean = true) {
-  registerSvgDef(name, element, createGroup);
+export type SvgUseWithDef = {
+    (props: React.SVGProps<SVGUseElement>): JSX.Element;
+    SvgDef: ReactElement;
+};
+
+export function makeAndRegisterSvgDef(name: string, element: ReactElement, createGroup: boolean = true): SvgUseWithDef {
+  const svgDef = registerSvgDef(name, element, createGroup);
   const href = `#${name}`;
-  return function UseElement(props: React.SVGProps<SVGUseElement>) {
+  function UseElement(props: React.SVGProps<SVGUseElement>) {
     return <use href={href} {...props} />;
   }
+  UseElement.SvgDef = svgDef;
+  return UseElement;
 }
 
 export function SvgDefs() {
+  const defs = useMemo(() => {
+    return Array.from(SvgDefinitionMap.values());
+  }, []);
   return (
     <defs>
-      {Array.from(SvgDefinitionMap.values())}
+      {defs}
     </defs>
   );
 }

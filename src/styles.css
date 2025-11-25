@@ -165,3 +165,36 @@ svg {
 .next-position-arrow.undo.selected {
   fill: orange;
 }
+
+.button-row { 
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.control-button .button-hotkey {
+  font-size: 26px;
+}
+
+.button-like {
+  font-size: 26px;
+  border: 2px outset black;
+  background-color: rgb(239, 239, 239);
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.button-like .subtitle {
+  font-size: initial;
+}
+
+.moves-counter.fewer-moves {
+  background-color: yellow;
+}
+
+.moves-counter.exact-moves {
+  background-color: green;
+}
+
+.moves-counter.more-moves {
+  background-color: red;
+}

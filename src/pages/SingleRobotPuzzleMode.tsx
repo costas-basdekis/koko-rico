@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
-import { DGame } from "../components";
+import { DGame, MovesCounter, TargetsCounter } from "../components";
 import { Position, useSavedGame } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
@@ -33,13 +33,6 @@ export function SingleRobotPuzzleMode() {
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(makeGame(effectiveTargetDistance));
   }, [setGame]);
-  const onDesiredTargetDistanceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(e.target.value, 10);
-    setDesiredTargetDistance(newValue);
-  }, [setDesiredTargetDistance]);
-  const onShowOnlyOneTargetChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setShowOnlyOneTarget(e.target.checked);
-  }, [setShowOnlyOneTarget]);
   const [showMoveInterpreter, setShowMoveInterpreter] = useShowMoveInterpreter();
   const onTouchScreenMove = useCallback((direction: Direction) => {
     const nextPositionEntry = game.getRobotMoveInDirection(game.robots[0], direction);
@@ -57,18 +50,24 @@ export function SingleRobotPuzzleMode() {
   }, [game]);
   return (
     <>
+      <UsageInstructions
+        showMoveInterpreter={showMoveInterpreter}
+        onChangeShowMoveInterpreter={setShowMoveInterpreter}
+        onRobotMove={onTouchScreenMove}
+        onRobotReset={onRobotResetClick}
+        onUndoRobotMove={onUndoRobotMove}
+        onNewPuzzle={onRandomCrossedWallsClick}
+      />
       <div>
-        <button onClick={onRobotResetClick}>Reset robot</button>
-        <button onClick={onUndoRobotMove} disabled={!game.path.length}>Undo move</button>
-        <button onClick={onRandomCrossedWallsClick}>New Puzzle</button>
+        <MovesCounter game={game} />
+        <TargetsCounter
+          game={game}
+          showOnlyOneTarget={showOnlyOneTarget}
+          onShowOnlyOneTargetChange={setShowOnlyOneTarget}
+          desiredTargetDistance={desiredTargetDistance}
+          onDesiredTargetDistanceChange={setDesiredTargetDistance}
+        />
       </div>
-      <div>
-        Desired target distance:
-        <input type={"number"} value={desiredTargetDistance} onChange={onDesiredTargetDistanceChange} min={1} max={20} />
-        <label><input type={"checkbox"} checked={showOnlyOneTarget} onChange={onShowOnlyOneTargetChange} />Show only one target</label>
-      </div>
-      <div>Current moves: {game.path.length}/{game.targetDistance}, {game.completedTargetPositions.length}/{game.targetPositions.length} completed</div>
-      <UsageInstructions showMoveInterpreter={showMoveInterpreter} onChangeShowMoveInterpreter={setShowMoveInterpreter} />
       <SvgContainer
         gridWidth={game.field.width}
         gridHeight={game.field.height}
@@ -81,6 +80,8 @@ export function SingleRobotPuzzleMode() {
           game={game}
           showRobotControls
           onRobotMoveClick={onRobotMoveClick}
+          onRobotResetClick={onRobotResetClick}
+          onNewGameClick={onRandomCrossedWallsClick}
           targetPositions={visibleTargetPositions}
         />
       </SvgContainer>

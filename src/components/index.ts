@@ -6,3 +6,6 @@ export * from "./DrawSettings";
 export * from "./DRobot";
 export * from "./DRobotPath";
 export * from "./DWalls";
+export * from "./MovesCounter";
+export * from "./NextPositionArrowUp";
+export * from "./TargetsCounter";

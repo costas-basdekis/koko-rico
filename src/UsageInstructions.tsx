@@ -1,42 +1,147 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { isTouchDevice as checkIsTouchDevice } from "./utils";
+import { isTouchDevice as checkIsTouchDevice, MoveInterpreter, RingMoveInterpreter } from "./utils";
+import { DrawSettings, NextPositionArrowUp } from "./components";
+import { Direction } from "./game";
 
 export interface UsageInstructionsProps {
   showMoveInterpreter?: boolean;
   onChangeShowMoveInterpreter?: (showMoveInterpreter: boolean) => void;
+  moveInterpreter?: MoveInterpreter;
+  selectedRobotIndex?: number;
+  onSelectedRobotIndexChange?: (index: number) => void;
+  onRobotMove?: (direction: Direction) => void;
+  onRobotReset?: () => void;
+  onUndoRobotMove?: () => void;
+  onNewPuzzle?: () => void;
 }
 
-export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveInterpreter}: UsageInstructionsProps) {
+export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveInterpreter, moveInterpreter = new RingMoveInterpreter(), selectedRobotIndex, onSelectedRobotIndexChange, onRobotMove, onRobotReset, onUndoRobotMove, onNewPuzzle}: UsageInstructionsProps) {
   const isTouchDevice = useMemo(() => {
     return checkIsTouchDevice();
   }, []);
-  const innerOnChangeShowMoveInterpreter = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeShowMoveInterpreter?.(e.target.checked);
-    localStorage.setItem("showMoveInterpreter", e.target.checked ? "true" : "false");
-  }, [onChangeShowMoveInterpreter]);
+  const toggleShowMoveInterpreter = useCallback(() => {
+    onChangeShowMoveInterpreter?.(!showMoveInterpreter);
+  }, [showMoveInterpreter, onChangeShowMoveInterpreter]);
+  const onNextRobotClick = useCallback(() => {
+    if (selectedRobotIndex === undefined) {
+      return;
+    }
+    onSelectedRobotIndexChange?.(selectedRobotIndex + 1);
+  }, [onSelectedRobotIndexChange, selectedRobotIndex]);
+  const onPreviousRobotClick = useCallback(() => {
+    if (selectedRobotIndex === undefined) {
+      return;
+    }
+    onSelectedRobotIndexChange?.(selectedRobotIndex - 1);
+  }, [onSelectedRobotIndexChange, selectedRobotIndex]);
   useEffect(() => {
     const savedShowMoveInterpreter = getSavedShowMoveInterpreter();
     if (savedShowMoveInterpreter !== showMoveInterpreter) {
       onChangeShowMoveInterpreter?.(savedShowMoveInterpreter);
     }
   }, []);
-  return (
-    <div className="usage-instructions">
-      <ul>
-        {isTouchDevice ? <>
-          <li>Tap on the arrows to move the robots.</li>
-          <li>Tap on the robots to change the selected robot and drag to move it.</li>
-          {onChangeShowMoveInterpreter ? (
-            <li><label><input type={"checkbox"} checked={showMoveInterpreter} onChange={innerOnChangeShowMoveInterpreter} />Show move interpreter</label></li>
-          ) : null}
-        </> : <>
-          <li>Use arrow keys to move the selected robot.</li>
-          <li>Press R/Shift+R to switch to the next/previous robot.</li>
-          <li>Press U to undo the last move.</li>
-        </>}
-      </ul>
+  const drawSettings = DrawSettings.use();
+  const buttonSize = 50;
+  const buttonPosition = useMemo(() => ({x: buttonSize / 2, y: buttonSize / 2}), [buttonSize]);
+  const moveInterpreterProps = useMemo(() => ({
+    start: {x: buttonSize / 2, y: buttonSize / 2},
+    stroke: showMoveInterpreter ? (selectedRobotIndex !== undefined ? drawSettings.robotColours[selectedRobotIndex] : undefined) : "grey",
+  }), [buttonSize, showMoveInterpreter, drawSettings, selectedRobotIndex]);
+  const adjustedMoveInterpreter = useMemo(() => moveInterpreter.fitIn(buttonSize), [moveInterpreter, buttonSize]);
+  const onLeftClick = useCallback(() => onRobotMove?.(Direction.Left), [onRobotMove]);
+  const onRightClick = useCallback(() => onRobotMove?.(Direction.Right), [onRobotMove]);
+  const onUpClick = useCallback(() => onRobotMove?.(Direction.Up), [onRobotMove]);
+  const onDownClick = useCallback(() => onRobotMove?.(Direction.Down), [onRobotMove]);
+  return <>
+    <div className={"button-row"}>
+      <button className={"control-button"} disabled={!onRobotMove} onClick={onLeftClick}>
+        <svg width={buttonSize} height={buttonSize}>
+          <NextPositionArrowUp
+            size={buttonSize}
+            direction={Direction.Left}
+            position={buttonPosition}
+            robotIndex={selectedRobotIndex}
+          />
+        </svg>
+        <br/>
+        {isTouchDevice ? "Drag " : ""}Left
+      </button>
+      <button className={"control-button"} disabled={!onRobotMove} onClick={onRightClick}>
+        <svg width={buttonSize} height={buttonSize}>
+          <NextPositionArrowUp
+            size={buttonSize}
+            direction={Direction.Right}
+            position={buttonPosition}
+            robotIndex={selectedRobotIndex}
+          />
+        </svg>
+        <br/>
+        {isTouchDevice ? "Drag " : ""}Right
+      </button>
+      <button className={"control-button"} disabled={!onRobotMove} onClick={onUpClick}>
+        <svg width={buttonSize} height={buttonSize}>
+          <NextPositionArrowUp
+            size={buttonSize}
+            direction={Direction.Up}
+            position={buttonPosition}
+            robotIndex={selectedRobotIndex}
+          />
+        </svg>
+        <br/>
+        {isTouchDevice ? "Drag " : ""}Up
+      </button>
+      <button className={"control-button"} disabled={!onRobotMove} onClick={onDownClick}>
+        <svg width={buttonSize} height={buttonSize}>
+          <NextPositionArrowUp
+            size={buttonSize}
+            direction={Direction.Down}
+            position={buttonPosition}
+            robotIndex={selectedRobotIndex}
+          />
+        </svg>
+        <br/>
+        {isTouchDevice ? "Drag " : ""}Down
+      </button>
+      {isTouchDevice ? <>
+        <button className={"control-button"} disabled={!onChangeShowMoveInterpreter} onClick={toggleShowMoveInterpreter}>
+          <svg width={buttonSize} height={buttonSize}>
+            <g>
+              {adjustedMoveInterpreter.Visualise(moveInterpreterProps)}
+            </g>
+          </svg>
+          <br/>
+          {showMoveInterpreter ? "Hide" : "Show"}
+        </button>
+      </> : null}
     </div>
-  );
+    <div className={"button-row"}>
+      <button className={"control-button"} disabled={!onSelectedRobotIndexChange} onClick={onNextRobotClick}>
+        <span className={"button-hotkey"}>R</span>
+        <br/>
+        Next robot
+      </button>
+      <button className={"control-button"} disabled={!onSelectedRobotIndexChange} onClick={onPreviousRobotClick}>
+        <span className={"button-hotkey"}>Shift+R</span>
+        <br/>
+        Previous robot
+      </button>
+      <button className={"control-button"} disabled={!onRobotReset} onClick={onRobotReset}>
+        <span className={"button-hotkey"}>T</span>
+        <br/>
+        Reset robots
+      </button>
+      <button className={"control-button"} disabled={!onUndoRobotMove} onClick={onUndoRobotMove}>
+        <span className={"button-hotkey"}>U</span>
+        <br/>
+        Undo
+      </button>
+      <button className={"control-button"} disabled={!onNewPuzzle} onClick={onNewPuzzle}>
+        <span className={"button-hotkey"}>N</span>
+        <br/>
+        New Puzzle
+      </button>
+    </div>
+  </>;
 }
 
 export function getSavedShowMoveInterpreter(defaultValue: boolean = true): boolean {
