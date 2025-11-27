@@ -33,10 +33,10 @@ export function TargetsCounter({
     [onDesiredTargetDistanceChange],
   );
   const options = useMemo(() => {
-    return _.range(1, maxDesiredTargetDistance + 1).map((value) => (
+    return _.range(2, maxDesiredTargetDistance + 1).map((value) => (
       <option key={value} value={value}>
         {value}
-        {value === 5 ? " - Default" : value === 10 ? " - " : ""}
+        {value === 5 ? " - Default" : value === 10 ? " - Slow" : ""}
       </option>
     ));
   }, [maxDesiredTargetDistance]);
