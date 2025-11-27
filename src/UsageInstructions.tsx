@@ -13,9 +13,10 @@ export interface UsageInstructionsProps {
   onRobotReset?: () => void;
   onUndoRobotMove?: () => void;
   onNewPuzzle?: () => void;
+  askForNewPuzzleConfirmation?: boolean;
 }
 
-export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveInterpreter, moveInterpreter = new RingMoveInterpreter(), selectedRobotIndex, onSelectedRobotIndexChange, onRobotMove, onRobotReset, onUndoRobotMove, onNewPuzzle}: UsageInstructionsProps) {
+export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveInterpreter, moveInterpreter = new RingMoveInterpreter(), selectedRobotIndex, onSelectedRobotIndexChange, onRobotMove, onRobotReset, onUndoRobotMove, onNewPuzzle, askForNewPuzzleConfirmation = true}: UsageInstructionsProps) {
   const isTouchDevice = useMemo(() => {
     return checkIsTouchDevice();
   }, []);
@@ -52,6 +53,12 @@ export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveI
   const onRightClick = useCallback(() => onRobotMove?.(Direction.Right), [onRobotMove]);
   const onUpClick = useCallback(() => onRobotMove?.(Direction.Up), [onRobotMove]);
   const onDownClick = useCallback(() => onRobotMove?.(Direction.Down), [onRobotMove]);
+  const innerOnNewPuzzle = useCallback(() => {
+    if (askForNewPuzzleConfirmation && !confirm("Are you sure you want to create a new puzzle?")) {
+      return;
+    }
+    onNewPuzzle?.();
+  }, [onNewPuzzle, askForNewPuzzleConfirmation]);
   return <>
     <div className={"button-row"}>
       <button className={"control-button"} disabled={!onRobotMove} onClick={onLeftClick}>
@@ -135,7 +142,7 @@ export function UsageInstructions({showMoveInterpreter = true, onChangeShowMoveI
         <br/>
         Undo
       </button>
-      <button className={"control-button"} disabled={!onNewPuzzle} onClick={onNewPuzzle}>
+      <button className={"control-button"} disabled={!onNewPuzzle} onClick={innerOnNewPuzzle}>
         <span className={"button-hotkey"}>N</span>
         <br/>
         New Puzzle

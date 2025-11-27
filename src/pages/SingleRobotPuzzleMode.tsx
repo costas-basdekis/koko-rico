@@ -57,6 +57,7 @@ export function SingleRobotPuzzleMode() {
         onRobotReset={onRobotResetClick}
         onUndoRobotMove={onUndoRobotMove}
         onNewPuzzle={onRandomCrossedWallsClick}
+        askForNewPuzzleConfirmation={game.completedTargetPositions.length !== game.targetPositions.length}
       />
       <div>
         <MovesCounter game={game} />

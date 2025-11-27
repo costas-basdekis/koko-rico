@@ -69,6 +69,7 @@ export function MultiRobotPuzzleMode() {
         onRobotReset={onRobotResetClick}
         onUndoRobotMove={onUndoRobotMove}
         onNewPuzzle={onRandomCrossedWallsClick}
+        askForNewPuzzleConfirmation={game.completedTargetPositions.length !== game.targetPositions.length}
       />
       <div className={"button-row"}>
         <MovesCounter game={game} />
