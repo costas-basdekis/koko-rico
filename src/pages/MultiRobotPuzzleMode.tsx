@@ -66,8 +66,8 @@ export function MultiRobotPuzzleMode() {
         selectedRobotIndex={selectedRobotIndex}
         onSelectedRobotIndexChange={onSelectedRobotIndexChange}
         onRobotMove={onTouchScreenMove}
-        onRobotReset={onRobotResetClick}
-        onUndoRobotMove={onUndoRobotMove}
+        onRobotReset={game.path.length ? onRobotResetClick : undefined}
+        onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
         onNewPuzzle={onRandomCrossedWallsClick}
         askForNewPuzzleConfirmation={game.completedTargetPositions.length !== game.targetPositions.length}
       />

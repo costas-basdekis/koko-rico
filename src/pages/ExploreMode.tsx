@@ -101,8 +101,8 @@ export default function ExploreMode() {
         selectedRobotIndex={selectedRobotIndex}
         onSelectedRobotIndexChange={game.robots.length > 1 ? onSelectedRobotIndexChange : undefined}
         onRobotMove={onTouchScreenMove}
-        onRobotReset={onRobotResetClick}
-        onUndoRobotMove={onUndoRobotMove}
+        onRobotReset={game.path.length ? onRobotResetClick : undefined}
+        onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
         onNewPuzzle={onRandomCrossedWallsClick}
       />
       <SvgContainer
