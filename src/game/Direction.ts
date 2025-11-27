@@ -7,7 +7,10 @@ export enum Direction {
   Down = "down",
 }
 
-export function getPositionsDirection(from: Position, to: Position): Direction | null {
+export function getPositionsDirection(
+  from: Position,
+  to: Position,
+): Direction | null {
   if (from.x < to.x) {
     return Direction.Right;
   } else if (from.x > to.x) {

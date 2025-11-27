@@ -11,14 +11,24 @@ export class SingleRobotDistanceEvaluator {
   topWallsCrossed?: PositionMap<boolean>;
   nextMoveEvaluator: NextMoveEvaluator;
 
-  constructor(game: Game, robot?: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>) {
+  constructor(
+    game: Game,
+    robot?: Robot,
+    leftWallsCrossed?: PositionMap<boolean>,
+    topWallsCrossed?: PositionMap<boolean>,
+  ) {
     this.game = game;
     this.robot = robot || game.robots[0];
-    this.otherRobots = game.robots.filter(other => other !== this.robot);
+    this.otherRobots = game.robots.filter((other) => other !== this.robot);
     this.robot = game.robots[0];
     this.leftWallsCrossed = leftWallsCrossed;
     this.topWallsCrossed = topWallsCrossed;
-    this.nextMoveEvaluator = new NextMoveEvaluator(game, this.robot, leftWallsCrossed, topWallsCrossed);
+    this.nextMoveEvaluator = new NextMoveEvaluator(
+      game,
+      this.robot,
+      leftWallsCrossed,
+      topWallsCrossed,
+    );
   }
 
   evaluate(): PositionMap<number> {

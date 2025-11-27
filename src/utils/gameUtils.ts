@@ -1,16 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { Game } from "../game";
 
-export function useSavedGame(key: string, makeGame: (targetDistance: number) => Game, defaultTargetDistance: number): {
-  game: Game, setGame: React.Dispatch<React.SetStateAction<Game>>, 
-  desiredTargetDistance: number, setDesiredTargetDistance: React.Dispatch<React.SetStateAction<number>>,
-  effectiveTargetDistance: number, setEffectiveTargetDistance: React.Dispatch<React.SetStateAction<number>>,
+export function useSavedGame(
+  key: string,
+  makeGame: (targetDistance: number) => Game,
+  defaultTargetDistance: number,
+): {
+  game: Game;
+  setGame: React.Dispatch<React.SetStateAction<Game>>;
+  desiredTargetDistance: number;
+  setDesiredTargetDistance: React.Dispatch<React.SetStateAction<number>>;
+  effectiveTargetDistance: number;
+  setEffectiveTargetDistance: React.Dispatch<React.SetStateAction<number>>;
 } {
   const savedGame = useMemo(() => {
     return loadGameFromLocalStorage(key);
   }, []);
-  const [desiredTargetDistance, setDesiredTargetDistance] = useState(savedGame?.targetDistance ?? defaultTargetDistance);
-  const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(desiredTargetDistance);
+  const [desiredTargetDistance, setDesiredTargetDistance] = useState(
+    savedGame?.targetDistance ?? defaultTargetDistance,
+  );
+  const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(
+    desiredTargetDistance,
+  );
   const [game, setGame]: [Game, any] = useState(() => {
     if (savedGame) {
       return savedGame;
@@ -23,11 +34,23 @@ export function useSavedGame(key: string, makeGame: (targetDistance: number) => 
     }
     setEffectiveTargetDistance(desiredTargetDistance);
     setGame(makeGame(desiredTargetDistance));
-  }, [desiredTargetDistance, effectiveTargetDistance, setEffectiveTargetDistance, setGame]);
+  }, [
+    desiredTargetDistance,
+    effectiveTargetDistance,
+    setEffectiveTargetDistance,
+    setGame,
+  ]);
   useEffect(() => {
     saveGameToLocalStorage(key, game);
   }, [game]);
-  return {game, setGame, desiredTargetDistance, setDesiredTargetDistance, effectiveTargetDistance, setEffectiveTargetDistance};
+  return {
+    game,
+    setGame,
+    desiredTargetDistance,
+    setDesiredTargetDistance,
+    effectiveTargetDistance,
+    setEffectiveTargetDistance,
+  };
 }
 
 export function saveGameToLocalStorage(key: string, game: Game) {

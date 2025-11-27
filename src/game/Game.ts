@@ -40,7 +40,9 @@ export class Game {
     height: number,
     robotPositions: { x: number; y: number }[],
   ): Game {
-    const robots = robotPositions.map((position, index) => new Robot(position, index));
+    const robots = robotPositions.map(
+      (position, index) => new Robot(position, index),
+    );
     return new Game(
       Field.makeForSize(width, height),
       robots,
@@ -52,11 +54,19 @@ export class Game {
     );
   }
 
-  static deserialise({field, robots, initialRobots, path, targetDistance, targetPositions, completedTargetPositions}: ReturnType<Game["serialise"]>): Game {
+  static deserialise({
+    field,
+    robots,
+    initialRobots,
+    path,
+    targetDistance,
+    targetPositions,
+    completedTargetPositions,
+  }: ReturnType<Game["serialise"]>): Game {
     return new Game(
-      Field.deserialise(field), 
-      robots.map(robot => Robot.deserialise(robot)),
-      initialRobots.map(robot => Robot.deserialise(robot)),
+      Field.deserialise(field),
+      robots.map((robot) => Robot.deserialise(robot)),
+      initialRobots.map((robot) => Robot.deserialise(robot)),
       path,
       targetDistance,
       targetPositions,
@@ -64,7 +74,15 @@ export class Game {
     );
   }
 
-  constructor(field: Field, robots: Robot[], initialRobots: Robot[], path: RobotPath, targetDistance: number, targetPositions: Position[], completedTargetPositions: Position[]) {
+  constructor(
+    field: Field,
+    robots: Robot[],
+    initialRobots: Robot[],
+    path: RobotPath,
+    targetDistance: number,
+    targetPositions: Position[],
+    completedTargetPositions: Position[],
+  ) {
     this.field = field;
     this.robots = robots;
     this.initialRobots = initialRobots;
@@ -75,7 +93,7 @@ export class Game {
   }
 
   serialise(): {
-    field: ReturnType<Field["serialise"]>
+    field: ReturnType<Field["serialise"]>;
     robots: ReturnType<Robot["serialise"]>[];
     initialRobots: ReturnType<Robot["serialise"]>[];
     path: RobotPath;
@@ -85,8 +103,8 @@ export class Game {
   } {
     return {
       field: this.field.serialise(),
-      robots: this.robots.map(robot => robot.serialise()),
-      initialRobots: this.initialRobots.map(robot => robot.serialise()),
+      robots: this.robots.map((robot) => robot.serialise()),
+      initialRobots: this.initialRobots.map((robot) => robot.serialise()),
       path: this.path,
       targetDistance: this.targetDistance,
       targetPositions: this.targetPositions,
@@ -101,8 +119,26 @@ export class Game {
     targetDistance = this.targetDistance,
     targetPositions: targets = this.targetPositions,
     completedTargetPositions: completedTargets = this.completedTargetPositions,
-  }: Partial<Pick<Game, "field" | "robots" | "path" | "targetDistance" | "targetPositions" | "completedTargetPositions">>) {
-    return new Game(field, robots, this.initialRobots, path, targetDistance, targets, completedTargets);
+  }: Partial<
+    Pick<
+      Game,
+      | "field"
+      | "robots"
+      | "path"
+      | "targetDistance"
+      | "targetPositions"
+      | "completedTargetPositions"
+    >
+  >) {
+    return new Game(
+      field,
+      robots,
+      this.initialRobots,
+      path,
+      targetDistance,
+      targets,
+      completedTargets,
+    );
   }
 
   toggleWall(position: Position, type: WallType): Game {
@@ -117,48 +153,88 @@ export class Game {
       if (this.path.length === 0) {
         throw new Error("Cannot undo move: no moves in path");
       }
-      const {previousPosition, robotIndex} = this.path[this.path.length - 1];
+      const { previousPosition, robotIndex } = this.path[this.path.length - 1];
       if (!positionsEqual(previousPosition, newPosition)) {
-        throw new Error(`Cannot undo ${JSON.stringify(newPosition)} as it doesn't match previous position ${JSON.stringify(previousPosition)}`);
+        throw new Error(
+          `Cannot undo ${JSON.stringify(newPosition)} as it doesn't match previous position ${JSON.stringify(previousPosition)}`,
+        );
       }
       if (robotIndex !== robot.index) {
-        throw new Error(`Cannot undo robot #${robot.index} as the last robot move was by #${robotIndex}`);
+        throw new Error(
+          `Cannot undo robot #${robot.index} as the last robot move was by #${robotIndex}`,
+        );
       }
     }
     let newGame = this.change({
-      robots: this.robots.map(oldRobot => oldRobot === robot ? oldRobot.moveTo(newPosition) : oldRobot),
-      path: isUndo ? this.path.slice(0, this.path.length - 1) : [...this.path, {previousPosition: robot.position, position: newPosition, robotIndex: robot.index}],
+      robots: this.robots.map((oldRobot) =>
+        oldRobot === robot ? oldRobot.moveTo(newPosition) : oldRobot,
+      ),
+      path: isUndo
+        ? this.path.slice(0, this.path.length - 1)
+        : [
+            ...this.path,
+            {
+              previousPosition: robot.position,
+              position: newPosition,
+              robotIndex: robot.index,
+            },
+          ],
     });
-    if (!isUndo && robot.index === 0 && newGame.path.length === this.targetDistance) {
-      const completedTargetPosition = this.targetPositions.find(targetPosition => positionsEqual(newPosition, targetPosition));
-      if (completedTargetPosition && !this.completedTargetPositions.includes(completedTargetPosition)) {
-        newGame = newGame.change({completedTargetPositions: [...this.completedTargetPositions, completedTargetPosition]});
+    if (
+      !isUndo &&
+      robot.index === 0 &&
+      newGame.path.length === this.targetDistance
+    ) {
+      const completedTargetPosition = this.targetPositions.find(
+        (targetPosition) => positionsEqual(newPosition, targetPosition),
+      );
+      if (
+        completedTargetPosition &&
+        !this.completedTargetPositions.includes(completedTargetPosition)
+      ) {
+        newGame = newGame.change({
+          completedTargetPositions: [
+            ...this.completedTargetPositions,
+            completedTargetPosition,
+          ],
+        });
       }
     }
     return newGame;
   }
 
   resetRobots(): Game {
-    return this.change({robots: this.initialRobots, path: []});
+    return this.change({ robots: this.initialRobots, path: [] });
   }
 
-  getNextRobotsPositionEntries(): NextPositionEntriesMap{
-    return new Map(this.robots.map(robot => [robot.index, this.getNextRobotPositionEntries(robot)]));
+  getNextRobotsPositionEntries(): NextPositionEntriesMap {
+    return new Map(
+      this.robots.map((robot) => [
+        robot.index,
+        this.getNextRobotPositionEntries(robot),
+      ]),
+    );
   }
 
   getNextRobotPositionEntries(robot: Robot): NextPositionEntries {
-    let nextPositionEntries: NextPositionEntries; 
+    let nextPositionEntries: NextPositionEntries;
     if (this.robots.length === 1) {
       nextPositionEntries = new SingleRobotDistanceEvaluator(this, robot)
-        .getNextPositions(robot.position).map(nextPosition => ({
+        .getNextPositions(robot.position)
+        .map((nextPosition) => ({
           nextPosition,
           direction: getPositionsDirection(robot.position, nextPosition)!,
           isUndo: false,
         }));
     } else if (this.robots.length > 1) {
       nextPositionEntries = new MultiRobotDistanceEvaluator(this, robot)
-        .getNextPositions(robot.position, this.robots.filter(other => other !== robot).map(other => other.position))
-        .map(nextPosition => ({
+        .getNextPositions(
+          robot.position,
+          this.robots
+            .filter((other) => other !== robot)
+            .map((other) => other.position),
+        )
+        .map((nextPosition) => ({
           nextPosition,
           direction: getPositionsDirection(robot.position, nextPosition)!,
           isUndo: false,
@@ -167,12 +243,17 @@ export class Game {
       nextPositionEntries = [];
     }
     if (this.path.length) {
-      const {previousPosition, robotIndex} = this.path[this.path.length - 1];
-      const previousDirection = getPositionsDirection(robot.position, previousPosition)!;
+      const { previousPosition, robotIndex } = this.path[this.path.length - 1];
+      const previousDirection = getPositionsDirection(
+        robot.position,
+        previousPosition,
+      )!;
       if (robotIndex === robot.index) {
-        const nextPositionEntry = nextPositionEntries.find(({direction}) => direction === previousDirection);
+        const nextPositionEntry = nextPositionEntries.find(
+          ({ direction }) => direction === previousDirection,
+        );
         if (nextPositionEntry) {
-          nextPositionEntry.nextPosition = previousPosition
+          nextPositionEntry.nextPosition = previousPosition;
           nextPositionEntry.isUndo = true;
         }
       }
@@ -180,25 +261,48 @@ export class Game {
     return nextPositionEntries;
   }
 
-  static directionFilterMap: Map<Direction, (left: Position, right: Position) => boolean> = new Map([
+  static directionFilterMap: Map<
+    Direction,
+    (left: Position, right: Position) => boolean
+  > = new Map([
     [Direction.Left, (left, right) => left.x < right.x],
     [Direction.Right, (left, right) => left.x > right.x],
     [Direction.Up, (left, right) => left.y < right.y],
     [Direction.Down, (left, right) => left.y > right.y],
   ]);
 
-  moveRobotInDirection(robot: Robot, direction: Direction, nextRobotsPositionEntries: NextPositionEntriesMap = this.getNextRobotsPositionEntries()): Game {
-    const nextPositionEntry = this.getRobotMoveInDirection(robot, direction, nextRobotsPositionEntries);
+  moveRobotInDirection(
+    robot: Robot,
+    direction: Direction,
+    nextRobotsPositionEntries: NextPositionEntriesMap = this.getNextRobotsPositionEntries(),
+  ): Game {
+    const nextPositionEntry = this.getRobotMoveInDirection(
+      robot,
+      direction,
+      nextRobotsPositionEntries,
+    );
     if (!nextPositionEntry) {
       return this;
     }
-    return this.moveRobot(robot, nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
+    return this.moveRobot(
+      robot,
+      nextPositionEntry.nextPosition,
+      nextPositionEntry.isUndo,
+    );
   }
 
-  getRobotMoveInDirection(robot: Robot, direction: Direction, nextRobotsPositionEntries: NextPositionEntriesMap = this.getNextRobotsPositionEntries()): NextPositionEntry | null {
-    const nextRobotPositionEntries = nextRobotsPositionEntries.get(robot.index)!;
+  getRobotMoveInDirection(
+    robot: Robot,
+    direction: Direction,
+    nextRobotsPositionEntries: NextPositionEntriesMap = this.getNextRobotsPositionEntries(),
+  ): NextPositionEntry | null {
+    const nextRobotPositionEntries = nextRobotsPositionEntries.get(
+      robot.index,
+    )!;
     const directionFilter = Game.directionFilterMap.get(direction)!;
-    const nextPositionEntry = nextRobotPositionEntries.find(({nextPosition}) => directionFilter(nextPosition, robot.position));
+    const nextPositionEntry = nextRobotPositionEntries.find(
+      ({ nextPosition }) => directionFilter(nextPosition, robot.position),
+    );
     if (!nextPositionEntry) {
       return null;
     }
@@ -209,34 +313,63 @@ export class Game {
     if (!this.path.length) {
       return this;
     }
-    const {previousPosition, robotIndex} = this.path[this.path.length - 1];
+    const { previousPosition, robotIndex } = this.path[this.path.length - 1];
     return this.moveRobot(this.robots[robotIndex], previousPosition, true);
   }
 
   addRobots(newPositions: Position[]): any {
-    return this.change({robots: [...this.robots, ...newPositions.map((position, index) => new Robot(position, this.robots.length + index))]});
+    return this.change({
+      robots: [
+        ...this.robots,
+        ...newPositions.map(
+          (position, index) => new Robot(position, this.robots.length + index),
+        ),
+      ],
+    });
   }
 
   removeRobots(count: number): any {
-    return this.change({robots: this.robots.slice(0, this.robots.length - count), path: []});
+    return this.change({
+      robots: this.robots.slice(0, this.robots.length - count),
+      path: [],
+    });
   }
 
-  calculateReachableSingleRobotPositions(robot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>): PositionMap<number> {
+  calculateReachableSingleRobotPositions(
+    robot: Robot,
+    leftWallsCrossed?: PositionMap<boolean>,
+    topWallsCrossed?: PositionMap<boolean>,
+  ): PositionMap<number> {
     if (leftWallsCrossed || topWallsCrossed) {
       this.singleRobotDistanceMap = undefined;
     }
     if (!this.singleRobotDistanceMap) {
-      this.singleRobotDistanceMap = new SingleRobotDistanceEvaluator(this, robot, leftWallsCrossed, topWallsCrossed).evaluate();
+      this.singleRobotDistanceMap = new SingleRobotDistanceEvaluator(
+        this,
+        robot,
+        leftWallsCrossed,
+        topWallsCrossed,
+      ).evaluate();
     }
     return this.singleRobotDistanceMap;
   }
 
-  calculateReachableMultiRobotPositions(robot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>, distanceLimit?: number): PositionMap<number> {
+  calculateReachableMultiRobotPositions(
+    robot: Robot,
+    leftWallsCrossed?: PositionMap<boolean>,
+    topWallsCrossed?: PositionMap<boolean>,
+    distanceLimit?: number,
+  ): PositionMap<number> {
     if (leftWallsCrossed || topWallsCrossed) {
       this.multiRobotDistanceMap = undefined;
     }
     if (!this.multiRobotDistanceMap) {
-      this.multiRobotDistanceMap = new MultiRobotDistanceEvaluator(this, robot, leftWallsCrossed, topWallsCrossed).evaluate(distanceLimit);
+      this.multiRobotDistanceMap = new MultiRobotDistanceEvaluator(
+        this,
+        robot,
+        leftWallsCrossed,
+        topWallsCrossed,
+      ).evaluate(distanceLimit);
     }
     return this.multiRobotDistanceMap;
   }
@@ -266,28 +399,49 @@ export class Game {
         }
       }
     }
-    return this.change({field: newField});
+    return this.change({ field: newField });
   }
 
-  pickRandomCrossedWalls(count: number, minMaxMoveCount?: number, multiRobot: boolean = false): Game {
-    let newGame = this.change({field: Field.makeForSize(this.field.width, this.field.height), path: []});
+  pickRandomCrossedWalls(
+    count: number,
+    minMaxMoveCount?: number,
+    multiRobot: boolean = false,
+  ): Game {
+    let newGame = this.change({
+      field: Field.makeForSize(this.field.width, this.field.height),
+      path: [],
+    });
     while (true) {
       for (const _i of _.range(count)) {
         const leftWallsCrossed = new PositionMap<boolean>();
         const topWallsCrossed = new PositionMap<boolean>();
         if (multiRobot) {
-          newGame.calculateReachableMultiRobotPositions(newGame.robots[0], leftWallsCrossed, topWallsCrossed, minMaxMoveCount);
+          newGame.calculateReachableMultiRobotPositions(
+            newGame.robots[0],
+            leftWallsCrossed,
+            topWallsCrossed,
+            minMaxMoveCount,
+          );
         } else {
-          newGame.calculateReachableSingleRobotPositions(newGame.robots[0], leftWallsCrossed, topWallsCrossed);
+          newGame.calculateReachableSingleRobotPositions(
+            newGame.robots[0],
+            leftWallsCrossed,
+            topWallsCrossed,
+          );
         }
         const wallsCrossed: [WallType, Position][] = [
-          ...Array.from(leftWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["left", position] as [WallType, Position]),
-          ...Array.from(topWallsCrossed.entries()).filter(([, contains]) => contains).map(([position]) => ["top", position] as [WallType, Position]),
+          ...Array.from(leftWallsCrossed.entries())
+            .filter(([, contains]) => contains)
+            .map(([position]) => ["left", position] as [WallType, Position]),
+          ...Array.from(topWallsCrossed.entries())
+            .filter(([, contains]) => contains)
+            .map(([position]) => ["top", position] as [WallType, Position]),
         ];
         if (!wallsCrossed.length) {
           break;
         }
-        const [wallType, position] = wallsCrossed[_.random(0, wallsCrossed.length - 1)];
+        const [wallType, position] =
+          wallsCrossed[_.random(0, wallsCrossed.length - 1)];
         newGame = newGame.toggleWall(position, wallType);
       }
       if (minMaxMoveCount === undefined) {
@@ -298,9 +452,16 @@ export class Game {
       }
       let distanceMap: PositionMap<number>;
       if (multiRobot) {
-        distanceMap = newGame.calculateReachableMultiRobotPositions(newGame.robots[0], undefined, undefined, minMaxMoveCount);
+        distanceMap = newGame.calculateReachableMultiRobotPositions(
+          newGame.robots[0],
+          undefined,
+          undefined,
+          minMaxMoveCount,
+        );
       } else {
-        distanceMap = newGame.calculateReachableSingleRobotPositions(newGame.robots[0]);
+        distanceMap = newGame.calculateReachableSingleRobotPositions(
+          newGame.robots[0],
+        );
       }
       const maxMoveCount = Math.max(...distanceMap.values());
       if (maxMoveCount >= minMaxMoveCount) {
@@ -315,17 +476,28 @@ export class Game {
     return newGame;
   }
 
-  pickTargets(desiredTargetDistance: number = this.targetDistance, count: number | null = null): Game {
-    const distanceMap = this.calculateReachableMultiRobotPositions(this.robots[0]);
+  pickTargets(
+    desiredTargetDistance: number = this.targetDistance,
+    count: number | null = null,
+  ): Game {
+    const distanceMap = this.calculateReachableMultiRobotPositions(
+      this.robots[0],
+    );
     const [, targetDistance] = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance >= desiredTargetDistance)
-      .sort(([, leftDistance], [, rightDistance]) => leftDistance - rightDistance)[0];
+      .sort(
+        ([, leftDistance], [, rightDistance]) => leftDistance - rightDistance,
+      )[0];
     const targetPositions = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance === targetDistance)
       .map(([position]) => position);
     if (count !== null) {
       targetPositions.splice(count);
     }
-    return this.change({targetDistance, targetPositions, completedTargetPositions: []});
+    return this.change({
+      targetDistance,
+      targetPositions,
+      completedTargetPositions: [],
+    });
   }
 }

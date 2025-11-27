@@ -11,25 +11,50 @@ export class MultiRobotDistanceEvaluator {
   topWallsCrossed?: PositionMap<boolean>;
   nextMoveEvaluator: NextMoveEvaluator;
 
-  constructor(game: Game, robot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>) {
+  constructor(
+    game: Game,
+    robot: Robot,
+    leftWallsCrossed?: PositionMap<boolean>,
+    topWallsCrossed?: PositionMap<boolean>,
+  ) {
     this.game = game;
     this.robot = robot;
     this.robot = game.robots[0];
     this.leftWallsCrossed = leftWallsCrossed;
     this.topWallsCrossed = topWallsCrossed;
-    this.nextMoveEvaluator = new NextMoveEvaluator(game, robot, leftWallsCrossed, topWallsCrossed);
+    this.nextMoveEvaluator = new NextMoveEvaluator(
+      game,
+      robot,
+      leftWallsCrossed,
+      topWallsCrossed,
+    );
   }
 
   evaluate(distanceLimit: number = 10): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
     const distanceMapByKey: Map<string, number> = new Map();
-    const initialOtherPositions = this.game.robots.filter(other => other !== this.robot).map(other => other.position);
-    distanceMapByKey.set(this.getPositionsKey(this.robot.position, initialOtherPositions), 0);
-    const queue: {position: Position, otherPositions: Position[], distance: number}[] = [{position: this.robot.position, otherPositions: initialOtherPositions, distance: 0}];
+    const initialOtherPositions = this.game.robots
+      .filter((other) => other !== this.robot)
+      .map((other) => other.position);
+    distanceMapByKey.set(
+      this.getPositionsKey(this.robot.position, initialOtherPositions),
+      0,
+    );
+    const queue: {
+      position: Position;
+      otherPositions: Position[];
+      distance: number;
+    }[] = [
+      {
+        position: this.robot.position,
+        otherPositions: initialOtherPositions,
+        distance: 0,
+      },
+    ];
     const otherPositionIndexes = _.range(initialOtherPositions.length);
     while (queue.length) {
-      const [{position, otherPositions, distance}] = queue.splice(0, 1);
+      const [{ position, otherPositions, distance }] = queue.splice(0, 1);
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position, otherPositions);
       for (const nextPosition of nextPositions) {
@@ -42,14 +67,21 @@ export class MultiRobotDistanceEvaluator {
           distanceMap.set(nextPosition, nextDistance);
         }
         if (nextDistance < distanceLimit) {
-          queue.push({position: nextPosition, otherPositions, distance: nextDistance});
+          queue.push({
+            position: nextPosition,
+            otherPositions,
+            distance: nextDistance,
+          });
         }
       }
       for (const otherPositionIndex of otherPositionIndexes) {
         const otherPosition = otherPositions[otherPositionIndex];
         const otherPositionsForNextPositions = Array.from(otherPositions);
         otherPositionsForNextPositions[otherPositionIndex] = position;
-        const nextPositions = this.getNextPositions(otherPosition, otherPositionsForNextPositions);
+        const nextPositions = this.getNextPositions(
+          otherPosition,
+          otherPositionsForNextPositions,
+        );
         for (const nextOtherPosition of nextPositions) {
           const nextOtherPositions = Array.from(otherPositionsForNextPositions);
           nextOtherPositions[otherPositionIndex] = nextOtherPosition;
@@ -59,7 +91,11 @@ export class MultiRobotDistanceEvaluator {
           }
           distanceMapByKey.set(nextKey, nextDistance);
           if (nextDistance < distanceLimit) {
-            queue.push({position, otherPositions: nextOtherPositions, distance: nextDistance});
+            queue.push({
+              position,
+              otherPositions: nextOtherPositions,
+              distance: nextDistance,
+            });
           }
         }
       }
@@ -75,7 +111,15 @@ export class MultiRobotDistanceEvaluator {
     return key;
   }
 
-  getNextPositions(position: Position, otherPositions: Position[], otherPositionsWalls?: OtherPositionsWalls): Position[] {
-    return this.nextMoveEvaluator.getNextPositions(position, otherPositions, otherPositionsWalls);
+  getNextPositions(
+    position: Position,
+    otherPositions: Position[],
+    otherPositionsWalls?: OtherPositionsWalls,
+  ): Position[] {
+    return this.nextMoveEvaluator.getNextPositions(
+      position,
+      otherPositions,
+      otherPositionsWalls,
+    );
   }
 }

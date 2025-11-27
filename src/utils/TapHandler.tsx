@@ -9,7 +9,10 @@ export class TapHandler {
   startY: number = 0;
 
   static use(onClick: () => void, threshold?: number) {
-    return useMemo(() => new TapHandler(onClick, threshold), [onClick, threshold]);
+    return useMemo(
+      () => new TapHandler(onClick, threshold),
+      [onClick, threshold],
+    );
   }
 
   constructor(onClick: () => void, threshold: number = 2) {
@@ -41,7 +44,9 @@ export class TapHandler {
     if (!this.active) {
       return;
     }
-    const touch = Array.from(e.changedTouches).find(t => t.identifier === this.identifier);
+    const touch = Array.from(e.changedTouches).find(
+      (t) => t.identifier === this.identifier,
+    );
     if (!touch) {
       return;
     }
@@ -58,7 +63,9 @@ export class TapHandler {
     if (this.identifier === null) {
       return;
     }
-    const touch = Array.from(e.changedTouches).find(t => t.identifier === this.identifier);
+    const touch = Array.from(e.changedTouches).find(
+      (t) => t.identifier === this.identifier,
+    );
     if (!touch) {
       return;
     }
@@ -74,7 +81,9 @@ export class TapHandler {
     if (this.identifier === null) {
       return;
     }
-    const touch = Array.from(e.changedTouches).find(t => t.identifier === this.identifier);
+    const touch = Array.from(e.changedTouches).find(
+      (t) => t.identifier === this.identifier,
+    );
     if (!touch) {
       return;
     }

@@ -19,29 +19,45 @@ export default function App() {
   return (
     <div className="App">
       <h1>Koko Rico</h1>
-      {(
-        mode === "multi-robot-puzzle" ? <MultiRobotPuzzleMode /> :
-        mode === "signle-robot-puzzle" ? <SingleRobotPuzzleMode /> :
-        mode === "explore" ? <ExploreMode /> :
-        null
-      )}
+      {mode === "multi-robot-puzzle" ? (
+        <MultiRobotPuzzleMode />
+      ) : mode === "signle-robot-puzzle" ? (
+        <SingleRobotPuzzleMode />
+      ) : mode === "explore" ? (
+        <ExploreMode />
+      ) : null}
       <div>
         <button className={"control-button"} onClick={onSetMultiobotPuzzleMode}>
-          <input type={"radio"} onChange={onSetMultiobotPuzzleMode} checked={mode === "multi-robot-puzzle"} />
+          <input
+            type={"radio"}
+            onChange={onSetMultiobotPuzzleMode}
+            checked={mode === "multi-robot-puzzle"}
+          />
           <span className={"button-hotkey"}>Multi</span>
-          <br/>
+          <br />
           Robot Puzzle
         </button>
-        <button className={"control-button"} onClick={onSetSingleRobotPuzzleMode}>
-          <input type={"radio"} onChange={onSetSingleRobotPuzzleMode} checked={mode === "signle-robot-puzzle"} />
+        <button
+          className={"control-button"}
+          onClick={onSetSingleRobotPuzzleMode}
+        >
+          <input
+            type={"radio"}
+            onChange={onSetSingleRobotPuzzleMode}
+            checked={mode === "signle-robot-puzzle"}
+          />
           <span className={"button-hotkey"}>Single</span>
-          <br/>
+          <br />
           Robot Puzzle
         </button>
         <button className={"control-button"} onClick={onSetExplorationMode}>
-          <input type={"radio"} onChange={onSetExplorationMode} checked={mode === "explore"} />
+          <input
+            type={"radio"}
+            onChange={onSetExplorationMode}
+            checked={mode === "explore"}
+          />
           <span className={"button-hotkey"}>Explore</span>
-          <br/>
+          <br />
           Mode
         </button>
       </div>

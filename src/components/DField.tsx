@@ -1,5 +1,11 @@
 import { useCallback, useMemo } from "react";
-import { Field, getPositionsDirection, Robot, RobotPath, WallType } from "../game";
+import {
+  Field,
+  getPositionsDirection,
+  Robot,
+  RobotPath,
+  WallType,
+} from "../game";
 import { getPositionKey, Position } from "../utils";
 import { DGrid } from "./DGrid";
 import { DrawSettings } from "./DrawSettings";
@@ -15,9 +21,16 @@ export interface DFieldProps {
   path?: RobotPath;
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
-  robotPositions?: Map<number, Position>,
-  nextRobotsPositionEntries?: Map<number, {nextPosition: Position, isUndo: boolean}[]>;
-  onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
+  robotPositions?: Map<number, Position>;
+  nextRobotsPositionEntries?: Map<
+    number,
+    { nextPosition: Position; isUndo: boolean }[]
+  >;
+  onRobotMoveClick?: (
+    robot: Robot,
+    nextPosition: Position,
+    isUndo: boolean,
+  ) => void;
   targetPositions?: Position[];
   completedTargetPositions?: Position[];
 }
@@ -39,43 +52,69 @@ export function DField({
     throw new Error("DGame cannot accept robotPaths prop without robots prop.");
   }
   if (nextRobotsPositionEntries && !robots) {
-    throw new Error("DField cannot accept nextRobotsPositionEntries prop without robots prop.");
+    throw new Error(
+      "DField cannot accept nextRobotsPositionEntries prop without robots prop.",
+    );
   }
   if (robotPositions && !robots) {
-    throw new Error("DField cannot accept robotPositions prop without robots prop.");
+    throw new Error(
+      "DField cannot accept robotPositions prop without robots prop.",
+    );
   }
   const robotPathsByIndex = useMemo(() => {
     if (!path || !robots) {
       return new Map();
     }
-    return new Map(robots.map((robot) => [robot.index, path.filter(entry => entry.robotIndex === robot.index)]));
+    return new Map(
+      robots.map((robot) => [
+        robot.index,
+        path.filter((entry) => entry.robotIndex === robot.index),
+      ]),
+    );
   }, [path, robots]);
-  const sortOnSelectedRobotFirst = useCallback(([left]: [number, any], [right]: [number, any]): number => {
-    return left === selectedRobotIndex ? 1 : right === selectedRobotIndex ? -1 : left - right;
-  }, [selectedRobotIndex]);
+  const sortOnSelectedRobotFirst = useCallback(
+    ([left]: [number, any], [right]: [number, any]): number => {
+      return left === selectedRobotIndex
+        ? 1
+        : right === selectedRobotIndex
+          ? -1
+          : left - right;
+    },
+    [selectedRobotIndex],
+  );
   return (
     <g className={"field"}>
-      <DGrid field={field} targetPositions={targetPositions} completedTargetPositions={completedTargetPositions} />
-      {Array.from(robotPathsByIndex.entries()).sort(sortOnSelectedRobotFirst).map(([index, robotPath]) => (
-        <DRobotPath
-          key={index}
-          robot={robots![index]}
-          isSelected={index === selectedRobotIndex}
-          robotPath={robotPath}
-        />
-      ))}
-      <g className={"next-positions"}>
-        {Array.from(nextRobotsPositionEntries?.entries() || []).sort(sortOnSelectedRobotFirst).flatMap(([index, nextRobotPositionEntries]) => nextRobotPositionEntries.map(({nextPosition, isUndo}) => (
-          <DNextPosition 
-            key={`${index}|${getPositionKey(nextPosition)}`}
+      <DGrid
+        field={field}
+        targetPositions={targetPositions}
+        completedTargetPositions={completedTargetPositions}
+      />
+      {Array.from(robotPathsByIndex.entries())
+        .sort(sortOnSelectedRobotFirst)
+        .map(([index, robotPath]) => (
+          <DRobotPath
+            key={index}
             robot={robots![index]}
             isSelected={index === selectedRobotIndex}
-            position={robots![index].position}
-            nextPosition={nextPosition}
-            isUndo={isUndo}
-            onRobotMoveClick={onRobotMoveClick}
+            robotPath={robotPath}
           />
-        )))}
+        ))}
+      <g className={"next-positions"}>
+        {Array.from(nextRobotsPositionEntries?.entries() || [])
+          .sort(sortOnSelectedRobotFirst)
+          .flatMap(([index, nextRobotPositionEntries]) =>
+            nextRobotPositionEntries.map(({ nextPosition, isUndo }) => (
+              <DNextPosition
+                key={`${index}|${getPositionKey(nextPosition)}`}
+                robot={robots![index]}
+                isSelected={index === selectedRobotIndex}
+                position={robots![index].position}
+                nextPosition={nextPosition}
+                isUndo={isUndo}
+                onRobotMoveClick={onRobotMoveClick}
+              />
+            )),
+          )}
       </g>
       <DWalls
         key={"top"}
@@ -103,10 +142,21 @@ export interface DNextPositionProps {
   position: Position;
   nextPosition: Position;
   isUndo: boolean;
-  onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
+  onRobotMoveClick?: (
+    robot: Robot,
+    nextPosition: Position,
+    isUndo: boolean,
+  ) => void;
 }
 
-export function DNextPosition({robot, isSelected, position, nextPosition, isUndo, onRobotMoveClick}: DNextPositionProps) {
+export function DNextPosition({
+  robot,
+  isSelected,
+  position,
+  nextPosition,
+  isUndo,
+  onRobotMoveClick,
+}: DNextPositionProps) {
   const drawSettings = DrawSettings.use();
   const direction = useMemo(() => {
     return getPositionsDirection(position, nextPosition);
@@ -124,7 +174,7 @@ export function DNextPosition({robot, isSelected, position, nextPosition, isUndo
         width={drawSettings.width}
         height={drawSettings.height}
         onClick={onClick}
-        {...onRobotMoveClick ? tapHandler.touchProps : null}
+        {...(onRobotMoveClick ? tapHandler.touchProps : null)}
       />
       <NextPositionArrowUp
         size={drawSettings.width}

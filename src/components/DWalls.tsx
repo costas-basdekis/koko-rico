@@ -29,7 +29,7 @@ export function DWalls({
           clickable={
             showGhosts &&
             !unclickableIndexes.includes(
-              type === "left" ? position.x : position.y
+              type === "left" ? position.x : position.y,
             )
           }
           type={type}
@@ -70,10 +70,10 @@ function DWallCell({
       }`}
       points={`${drawSettings.getXYPositionStr(
         x,
-        y
+        y,
       )} ${drawSettings.getXYPositionStr(
         x + (type === "top" ? 1 : 0),
-        y + (type === "left" ? 1 : 0)
+        y + (type === "left" ? 1 : 0),
       )}`}
       onClick={clickable ? onClick : undefined}
       onTouchEnd={clickable ? onClick : undefined}

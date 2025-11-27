@@ -1,28 +1,52 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
-import { DGame, DrawSettings, MovesCounter, TargetsCounter } from "../components";
+import {
+  DGame,
+  DrawSettings,
+  MovesCounter,
+  TargetsCounter,
+} from "../components";
 import { Position, useSavedGame } from "../utils";
 import { SvgContainer } from "../SvgContainer";
-import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
+import {
+  UsageInstructions,
+  useShowMoveInterpreter,
+} from "../UsageInstructions";
 
 const DefaultDesiredTargetDistance = 5;
 
 export function MultiRobotPuzzleMode() {
-  const {game, setGame, desiredTargetDistance, setDesiredTargetDistance, effectiveTargetDistance} =
-    useSavedGame("multiRobotPuzzleGame", makeGame, DefaultDesiredTargetDistance);
+  const {
+    game,
+    setGame,
+    desiredTargetDistance,
+    setDesiredTargetDistance,
+    effectiveTargetDistance,
+  } = useSavedGame(
+    "multiRobotPuzzleGame",
+    makeGame,
+    DefaultDesiredTargetDistance,
+  );
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
-  const onSelectedRobotIndexChange = useCallback((index: number) => {
-    setSelectedRobotIndex((index + game.robots.length) % game.robots.length);
-  }, [setSelectedRobotIndex, game.robots.length]);
+  const onSelectedRobotIndexChange = useCallback(
+    (index: number) => {
+      setSelectedRobotIndex((index + game.robots.length) % game.robots.length);
+    },
+    [setSelectedRobotIndex, game.robots.length],
+  );
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
       return game.targetPositions;
     }
     return [
-      ...game.targetPositions.filter(target => game.completedTargetPositions.includes(target)),
-      ...game.targetPositions.filter(target => !game.completedTargetPositions.includes(target)).slice(0, 1),
+      ...game.targetPositions.filter((target) =>
+        game.completedTargetPositions.includes(target),
+      ),
+      ...game.targetPositions
+        .filter((target) => !game.completedTargetPositions.includes(target))
+        .slice(0, 1),
     ];
   }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
   const onRobotResetClick = useCallback(() => {
@@ -31,27 +55,45 @@ export function MultiRobotPuzzleMode() {
   const onUndoRobotMove = useCallback(() => {
     setGame(game.undoMoveRobot());
   }, [game, setGame]);
-  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
-    setGame(game.moveRobot(robot, nextPosition, isUndo));
-  }, [game, setGame]);
+  const onRobotMoveClick = useCallback(
+    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
+      setGame(game.moveRobot(robot, nextPosition, isUndo));
+    },
+    [game, setGame],
+  );
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(makeGame(effectiveTargetDistance));
   }, [setGame]);
-  const [showMoveInterpreter, setShowMoveInterpreter] = useShowMoveInterpreter();
-  const onTouchScreenMove = useCallback((direction: Direction) => {
-    const nextPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction);
-    if (!nextPositionEntry) {
-      return;
-    }
-    onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
-  }, [game, selectedRobotIndex, onRobotMoveClick]);
+  const [showMoveInterpreter, setShowMoveInterpreter] =
+    useShowMoveInterpreter();
+  const onTouchScreenMove = useCallback(
+    (direction: Direction) => {
+      const nextPositionEntry = game.getRobotMoveInDirection(
+        game.robots[selectedRobotIndex],
+        direction,
+      );
+      if (!nextPositionEntry) {
+        return;
+      }
+      onRobotMoveClick(
+        game.robots[selectedRobotIndex],
+        nextPositionEntry.nextPosition,
+        nextPositionEntry.isUndo,
+      );
+    },
+    [game, selectedRobotIndex, onRobotMoveClick],
+  );
   const drawSettings = DrawSettings.use();
   const restrictTouchScreenMovesTo = useMemo(() => {
     const robot = game.robots[selectedRobotIndex];
     if (!robot) {
       return {};
     }
-    return Object.fromEntries(game.getNextRobotPositionEntries(robot).map(({direction}) => [direction, true]));
+    return Object.fromEntries(
+      game
+        .getNextRobotPositionEntries(robot)
+        .map(({ direction }) => [direction, true]),
+    );
   }, [game, selectedRobotIndex]);
   const moveInterpreterProps = useMemo(() => {
     return {
@@ -69,7 +111,9 @@ export function MultiRobotPuzzleMode() {
         onRobotReset={game.path.length ? onRobotResetClick : undefined}
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
         onNewPuzzle={onRandomCrossedWallsClick}
-        askForNewPuzzleConfirmation={game.completedTargetPositions.length !== game.targetPositions.length}
+        askForNewPuzzleConfirmation={
+          game.completedTargetPositions.length !== game.targetPositions.length
+        }
       />
       <div className={"button-row"}>
         <MovesCounter game={game} />
@@ -82,9 +126,9 @@ export function MultiRobotPuzzleMode() {
         />
       </div>
       <SvgContainer
-        gridWidth={game.field.width} 
-        gridHeight={game.field.height} 
-        ensureFitsInWindow 
+        gridWidth={game.field.width}
+        gridHeight={game.field.height}
+        ensureFitsInWindow
         onTouchScreenMove={onTouchScreenMove}
         showMoveInterpreter={showMoveInterpreter}
         moveInterpreterProps={moveInterpreterProps}
@@ -106,8 +150,11 @@ export function MultiRobotPuzzleMode() {
 }
 
 function makeGame(desiredTargetDistance: number): Game {
-  return Game
-    .makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }, {x: 5, y: 5}, {x: 15, y: 5}])
+  return Game.makeForSizeAndRobots(21, 21, [
+    { x: 10, y: 10 },
+    { x: 5, y: 5 },
+    { x: 15, y: 5 },
+  ])
     .pickRandomCrossedWalls(30, desiredTargetDistance, true)
     .pickTargets(desiredTargetDistance);
 }

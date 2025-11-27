@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { Direction, Game, NextPositionEntriesMap, Robot, WallType } from "../game";
+import {
+  Direction,
+  Game,
+  NextPositionEntriesMap,
+  Robot,
+  WallType,
+} from "../game";
 import { Position, PositionMap } from "../utils";
 import { DField } from "./DField";
 import { DFieldDistances } from "./DFieldDistances";
@@ -15,13 +21,20 @@ export interface DGameProps {
   showRobotControls?: boolean;
   selectedRobotIndex?: number;
   onSelectedRobotIndexChange?: (index: number) => void;
-  onRobotMoveClick?: (robot: Robot, nextPosition: Position, isUndo: boolean) => void;
+  onRobotMoveClick?: (
+    robot: Robot,
+    nextPosition: Position,
+    isUndo: boolean,
+  ) => void;
   onRobotResetClick?: () => void;
   onNewGameClick?: () => void;
   targetPositions?: Position[];
 }
 
-const directionFilterMap: Map<Direction, (left: Position, right: Position) => boolean> = new Map([
+const directionFilterMap: Map<
+  Direction,
+  (left: Position, right: Position) => boolean
+> = new Map([
   [Direction.Left, (left, right) => left.x < right.x],
   [Direction.Right, (left, right) => left.x > right.x],
   [Direction.Up, (left, right) => left.y < right.y],
@@ -29,10 +42,10 @@ const directionFilterMap: Map<Direction, (left: Position, right: Position) => bo
 ]);
 
 const hotkeyDirectionMap: Map<string, Direction> = new Map([
-  ['left', Direction.Left],
-  ['right', Direction.Right],
-  ['up', Direction.Up],
-  ['down', Direction.Down],
+  ["left", Direction.Left],
+  ["right", Direction.Right],
+  ["up", Direction.Up],
+  ["down", Direction.Down],
 ]);
 
 export function DGame({
@@ -57,9 +70,13 @@ export function DGame({
       return null;
     }
     if (game.robots.length === 1) {
-      return game.calculateReachableSingleRobotPositions(game.robots[selectedRobotIndex]);
+      return game.calculateReachableSingleRobotPositions(
+        game.robots[selectedRobotIndex],
+      );
     } else {
-      return game.calculateReachableMultiRobotPositions(game.robots[selectedRobotIndex]);
+      return game.calculateReachableMultiRobotPositions(
+        game.robots[selectedRobotIndex],
+      );
     }
   }, [game, showDistances, selectedRobotIndex]);
   useEffect(() => {
@@ -75,43 +92,66 @@ export function DGame({
     if (!showRobotControls) {
       return undefined;
     }
-    return new Map(game.robots.map(robot => [robot.index, robot.position]));
+    return new Map(game.robots.map((robot) => [robot.index, robot.position]));
   }, [game, showRobotControls]);
-  const onRobotNextPositionClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
-    onRobotMoveClick?.(robot, nextPosition, isUndo)
-  }, [onRobotMoveClick]);
-  const onDirectionKeyPress = useCallback((direction: Direction) => {
-    if (!onRobotMoveClick) {
-      return;
-    }
-    if (!game.robots[selectedRobotIndex]) {
-      return;
-    }
-    const nextRobotPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction, nextRobotsPositionEntries);
-    if (!nextRobotPositionEntry) {
-      return;
-    }
-    onRobotMoveClick?.(game.robots[selectedRobotIndex], nextRobotPositionEntry.nextPosition, nextRobotPositionEntry.isUndo);
-  }, [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex]);
-  useHotkeys(['left', 'right', 'up', 'down', 'r', 'shift+r', 'u', 't', 'n'], (e, {hotkey}) => {
-    e.preventDefault();
-    if (hotkey === 'r') {
-      onSelectedRobotIndexChange?.((selectedRobotIndex + 1) % game.robots.length);
-    } else if (hotkey === 'shift+r') {
-      onSelectedRobotIndexChange?.((selectedRobotIndex - 1 + game.robots.length) % game.robots.length);
-    } else if (hotkey === 'u') {
-      if (game.path.length) {
-        const {robotIndex, previousPosition} = game.path[game.path.length - 1];
-        onRobotMoveClick?.(game.robots[robotIndex], previousPosition, true);
+  const onRobotNextPositionClick = useCallback(
+    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
+      onRobotMoveClick?.(robot, nextPosition, isUndo);
+    },
+    [onRobotMoveClick],
+  );
+  const onDirectionKeyPress = useCallback(
+    (direction: Direction) => {
+      if (!onRobotMoveClick) {
+        return;
       }
-    } else if (hotkey === 't') {
-      onRobotResetClick?.();
-    } else if (hotkey === 'n') {
-      onNewGameClick?.();
-    } else {
-      onDirectionKeyPress?.(hotkeyDirectionMap.get(hotkey)!);
-    }
-  }, [onDirectionKeyPress, onSelectedRobotIndexChange, onRobotMoveClick]);
+      if (!game.robots[selectedRobotIndex]) {
+        return;
+      }
+      const nextRobotPositionEntry = game.getRobotMoveInDirection(
+        game.robots[selectedRobotIndex],
+        direction,
+        nextRobotsPositionEntries,
+      );
+      if (!nextRobotPositionEntry) {
+        return;
+      }
+      onRobotMoveClick?.(
+        game.robots[selectedRobotIndex],
+        nextRobotPositionEntry.nextPosition,
+        nextRobotPositionEntry.isUndo,
+      );
+    },
+    [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex],
+  );
+  useHotkeys(
+    ["left", "right", "up", "down", "r", "shift+r", "u", "t", "n"],
+    (e, { hotkey }) => {
+      e.preventDefault();
+      if (hotkey === "r") {
+        onSelectedRobotIndexChange?.(
+          (selectedRobotIndex + 1) % game.robots.length,
+        );
+      } else if (hotkey === "shift+r") {
+        onSelectedRobotIndexChange?.(
+          (selectedRobotIndex - 1 + game.robots.length) % game.robots.length,
+        );
+      } else if (hotkey === "u") {
+        if (game.path.length) {
+          const { robotIndex, previousPosition } =
+            game.path[game.path.length - 1];
+          onRobotMoveClick?.(game.robots[robotIndex], previousPosition, true);
+        }
+      } else if (hotkey === "t") {
+        onRobotResetClick?.();
+      } else if (hotkey === "n") {
+        onNewGameClick?.();
+      } else {
+        onDirectionKeyPress?.(hotkeyDirectionMap.get(hotkey)!);
+      }
+    },
+    [onDirectionKeyPress, onSelectedRobotIndexChange, onRobotMoveClick],
+  );
   const onRobotSelect = useCallback((robot: Robot) => {
     onSelectedRobotIndexChange?.(robot.index);
   }, []);
@@ -125,7 +165,9 @@ export function DGame({
         showGhostWalls={showGhostWalls}
         onGhostWallClick={onGhostWallClick}
         robotPositions={robotPositions}
-        nextRobotsPositionEntries={showRobotControls ? nextRobotsPositionEntries : undefined}
+        nextRobotsPositionEntries={
+          showRobotControls ? nextRobotsPositionEntries : undefined
+        }
         onRobotMoveClick={onRobotNextPositionClick}
         targetPositions={targetPositions}
         completedTargetPositions={game.completedTargetPositions}

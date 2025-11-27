@@ -4,21 +4,37 @@ import { Direction, Game, Robot } from "../game";
 import { DGame, MovesCounter, TargetsCounter } from "../components";
 import { Position, useSavedGame } from "../utils";
 import { SvgContainer } from "../SvgContainer";
-import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
+import {
+  UsageInstructions,
+  useShowMoveInterpreter,
+} from "../UsageInstructions";
 
 const DefaultDesiredTargetDistance = 5;
 
 export function SingleRobotPuzzleMode() {
-  const {game, setGame, desiredTargetDistance, setDesiredTargetDistance, effectiveTargetDistance} =
-    useSavedGame("singleRobotPuzzleGame", makeGame, DefaultDesiredTargetDistance);
+  const {
+    game,
+    setGame,
+    desiredTargetDistance,
+    setDesiredTargetDistance,
+    effectiveTargetDistance,
+  } = useSavedGame(
+    "singleRobotPuzzleGame",
+    makeGame,
+    DefaultDesiredTargetDistance,
+  );
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
       return game.targetPositions;
     }
     return [
-      ...game.targetPositions.filter(target => game.completedTargetPositions.includes(target)),
-      ...game.targetPositions.filter(target => !game.completedTargetPositions.includes(target)).slice(0, 1),
+      ...game.targetPositions.filter((target) =>
+        game.completedTargetPositions.includes(target),
+      ),
+      ...game.targetPositions
+        .filter((target) => !game.completedTargetPositions.includes(target))
+        .slice(0, 1),
     ];
   }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
   const onRobotResetClick = useCallback(() => {
@@ -27,26 +43,44 @@ export function SingleRobotPuzzleMode() {
   const onUndoRobotMove = useCallback(() => {
     setGame(game.undoMoveRobot());
   }, [game, setGame]);
-  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
-    setGame(game.moveRobot(robot, nextPosition, isUndo));
-  }, [game, setGame]);
+  const onRobotMoveClick = useCallback(
+    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
+      setGame(game.moveRobot(robot, nextPosition, isUndo));
+    },
+    [game, setGame],
+  );
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(makeGame(effectiveTargetDistance));
   }, [setGame]);
-  const [showMoveInterpreter, setShowMoveInterpreter] = useShowMoveInterpreter();
-  const onTouchScreenMove = useCallback((direction: Direction) => {
-    const nextPositionEntry = game.getRobotMoveInDirection(game.robots[0], direction);
-    if (!nextPositionEntry) {
-      return;
-    }
-    onRobotMoveClick(game.robots[0], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
-  }, [game, onRobotMoveClick]);
+  const [showMoveInterpreter, setShowMoveInterpreter] =
+    useShowMoveInterpreter();
+  const onTouchScreenMove = useCallback(
+    (direction: Direction) => {
+      const nextPositionEntry = game.getRobotMoveInDirection(
+        game.robots[0],
+        direction,
+      );
+      if (!nextPositionEntry) {
+        return;
+      }
+      onRobotMoveClick(
+        game.robots[0],
+        nextPositionEntry.nextPosition,
+        nextPositionEntry.isUndo,
+      );
+    },
+    [game, onRobotMoveClick],
+  );
   const restrictTouchScreenMovesTo = useMemo(() => {
     const robot = game.robots[0];
     if (!robot) {
       return {};
     }
-    return Object.fromEntries(game.getNextRobotPositionEntries(robot).map(({direction}) => [direction, true]));
+    return Object.fromEntries(
+      game
+        .getNextRobotPositionEntries(robot)
+        .map(({ direction }) => [direction, true]),
+    );
   }, [game]);
   return (
     <>
@@ -57,7 +91,9 @@ export function SingleRobotPuzzleMode() {
         onRobotReset={game.path.length ? onRobotResetClick : undefined}
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
         onNewPuzzle={onRandomCrossedWallsClick}
-        askForNewPuzzleConfirmation={game.completedTargetPositions.length !== game.targetPositions.length}
+        askForNewPuzzleConfirmation={
+          game.completedTargetPositions.length !== game.targetPositions.length
+        }
       />
       <div>
         <MovesCounter game={game} />
@@ -91,8 +127,7 @@ export function SingleRobotPuzzleMode() {
 }
 
 function makeGame(desiredTargetDistance: number): Game {
-  return Game
-    .makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
+  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
     .pickRandomCrossedWalls(20, desiredTargetDistance)
     .pickTargets(desiredTargetDistance);
 }

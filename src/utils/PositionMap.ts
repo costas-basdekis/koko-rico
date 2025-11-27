@@ -7,7 +7,9 @@ export type PositionMapLine<T> = Map<number, T>;
 export class PositionMap<T> {
   lines: PositionMapLines<T>;
 
-  static deserialise<T>(serialised: ReturnType<PositionMap<T>["serialise"]>): PositionMap<T> {
+  static deserialise<T>(
+    serialised: ReturnType<PositionMap<T>["serialise"]>,
+  ): PositionMap<T> {
     return new PositionMap(serialised);
   }
 

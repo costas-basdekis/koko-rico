@@ -4,7 +4,7 @@ import { Position } from ".";
 
 export interface VisualiseProps {
   start: Position;
-  restrictTouchScreenMovesTo?: {[key in Direction]?: boolean};
+  restrictTouchScreenMovesTo?: { [key in Direction]?: boolean };
   stroke?: string;
   fill?: string;
 }
@@ -19,13 +19,19 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
   minOffset: number;
   maxVerticalOffset: number;
 
-  constructor({minOffset = 100, maxVerticalOffset = 30}: {minOffset?: number, maxVerticalOffset?: number} = {}) {
+  constructor({
+    minOffset = 100,
+    maxVerticalOffset = 30,
+  }: { minOffset?: number; maxVerticalOffset?: number } = {}) {
     this.minOffset = minOffset;
     this.maxVerticalOffset = maxVerticalOffset;
   }
 
   getNextMove(dX: number, dY: number): Direction | null {
-    if (Math.abs(dX) >= this.maxVerticalOffset && Math.abs(dY) >= this.maxVerticalOffset) {
+    if (
+      Math.abs(dX) >= this.maxVerticalOffset &&
+      Math.abs(dY) >= this.maxVerticalOffset
+    ) {
       return null;
     }
     if (Math.abs(dX) >= this.minOffset) {
@@ -44,50 +50,72 @@ export class SimpleMoveInterpreter implements MoveInterpreter {
     return null;
   }
 
-  Visualise = ({start, restrictTouchScreenMovesTo, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
-    return <>
-      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Right] ? <rect
-        x={(start.x + this.minOffset)}
-        y={(start.y - this.maxVerticalOffset)}
-        width={10000}
-        height={this.maxVerticalOffset * 2}
-        stroke={stroke}
-        strokeWidth={2}
-        fill={fill}
-      /> : null}
-      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Down] ? <rect
-        x={(start.x - this.maxVerticalOffset)}
-        y={(start.y + this.minOffset)}
-        width={this.maxVerticalOffset * 2}
-        height={10000}
-        stroke={stroke}
-        strokeWidth={2}
-        fill={fill}
-      /> : null}
-      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Left] ? <rect
-        x={(-10000)}
-        y={(start.y - this.maxVerticalOffset)}
-        width={10000 + (start.x - this.minOffset)}
-        height={this.maxVerticalOffset * 2}
-        stroke={stroke}
-        strokeWidth={2}
-        fill={fill}
-      /> : null}
-      {!restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[Direction.Up] ? <rect
-        x={(start.x - this.maxVerticalOffset)}
-        y={(-10000)}
-        width={this.maxVerticalOffset * 2}
-        height={10000 + (start.y - this.minOffset)}
-        stroke={stroke}
-        strokeWidth={2}
-        fill={fill}
-      /> : null}
-    </>;
-  }
+  Visualise = ({
+    start,
+    restrictTouchScreenMovesTo,
+    stroke = "red",
+    fill = "none",
+  }: VisualiseProps): JSX.Element => {
+    return (
+      <>
+        {!restrictTouchScreenMovesTo ||
+        restrictTouchScreenMovesTo[Direction.Right] ? (
+          <rect
+            x={start.x + this.minOffset}
+            y={start.y - this.maxVerticalOffset}
+            width={10000}
+            height={this.maxVerticalOffset * 2}
+            stroke={stroke}
+            strokeWidth={2}
+            fill={fill}
+          />
+        ) : null}
+        {!restrictTouchScreenMovesTo ||
+        restrictTouchScreenMovesTo[Direction.Down] ? (
+          <rect
+            x={start.x - this.maxVerticalOffset}
+            y={start.y + this.minOffset}
+            width={this.maxVerticalOffset * 2}
+            height={10000}
+            stroke={stroke}
+            strokeWidth={2}
+            fill={fill}
+          />
+        ) : null}
+        {!restrictTouchScreenMovesTo ||
+        restrictTouchScreenMovesTo[Direction.Left] ? (
+          <rect
+            x={-10000}
+            y={start.y - this.maxVerticalOffset}
+            width={10000 + (start.x - this.minOffset)}
+            height={this.maxVerticalOffset * 2}
+            stroke={stroke}
+            strokeWidth={2}
+            fill={fill}
+          />
+        ) : null}
+        {!restrictTouchScreenMovesTo ||
+        restrictTouchScreenMovesTo[Direction.Up] ? (
+          <rect
+            x={start.x - this.maxVerticalOffset}
+            y={-10000}
+            width={this.maxVerticalOffset * 2}
+            height={10000 + (start.y - this.minOffset)}
+            stroke={stroke}
+            strokeWidth={2}
+            fill={fill}
+          />
+        ) : null}
+      </>
+    );
+  };
 
   fitIn(size: number): MoveInterpreter {
     const ratio = size / (this.minOffset * 2);
-    return new SimpleMoveInterpreter({minOffset: this.minOffset * ratio, maxVerticalOffset: this.maxVerticalOffset * ratio});
+    return new SimpleMoveInterpreter({
+      minOffset: this.minOffset * ratio,
+      maxVerticalOffset: this.maxVerticalOffset * ratio,
+    });
   }
 }
 
@@ -96,17 +124,45 @@ export class RingMoveInterpreter implements MoveInterpreter {
   maxRadius: number;
   angleSizeReduction: number;
 
-  constructor({minRadius = 75, maxRadius = 200, angleSizeReduction = Math.PI / 8}: {minRadius?: number, maxRadius?: number, angleSizeReduction?: number} = {}) {
+  constructor({
+    minRadius = 75,
+    maxRadius = 200,
+    angleSizeReduction = Math.PI / 8,
+  }: {
+    minRadius?: number;
+    maxRadius?: number;
+    angleSizeReduction?: number;
+  } = {}) {
     this.minRadius = minRadius;
     this.maxRadius = maxRadius;
     this.angleSizeReduction = angleSizeReduction;
   }
 
-  static anglesDirectionMap: {startAngle: number, endAngle: number, direction: Direction}[] = [
-    {startAngle: Math.atan2(-1, 1), endAngle: Math.atan2(1, 1), direction: Direction.Right},
-    {startAngle: Math.atan2(1, 1), endAngle: Math.atan2(1, -1), direction: Direction.Down},
-    {startAngle: Math.atan2(1, -1), endAngle: Math.atan2(-1, -1), direction: Direction.Left},
-    {startAngle: Math.atan2(-1, -1), endAngle: Math.atan2(-1, 1), direction: Direction.Up},
+  static anglesDirectionMap: {
+    startAngle: number;
+    endAngle: number;
+    direction: Direction;
+  }[] = [
+    {
+      startAngle: Math.atan2(-1, 1),
+      endAngle: Math.atan2(1, 1),
+      direction: Direction.Right,
+    },
+    {
+      startAngle: Math.atan2(1, 1),
+      endAngle: Math.atan2(1, -1),
+      direction: Direction.Down,
+    },
+    {
+      startAngle: Math.atan2(1, -1),
+      endAngle: Math.atan2(-1, -1),
+      direction: Direction.Left,
+    },
+    {
+      startAngle: Math.atan2(-1, -1),
+      endAngle: Math.atan2(-1, 1),
+      direction: Direction.Up,
+    },
   ];
 
   getNextMove(dX: number, dY: number): Direction | null {
@@ -115,7 +171,11 @@ export class RingMoveInterpreter implements MoveInterpreter {
       return null;
     }
     const angle = Math.atan2(dY, dX);
-    for (const {startAngle, endAngle, direction} of RingMoveInterpreter.anglesDirectionMap) {
+    for (const {
+      startAngle,
+      endAngle,
+      direction,
+    } of RingMoveInterpreter.anglesDirectionMap) {
       const adjustedStartAngle = startAngle + this.angleSizeReduction / 2;
       const adjustedEndAngle = endAngle - this.angleSizeReduction / 2;
       if (adjustedStartAngle <= adjustedEndAngle) {
@@ -131,38 +191,57 @@ export class RingMoveInterpreter implements MoveInterpreter {
     return null;
   }
 
-  Visualise = ({start, restrictTouchScreenMovesTo, stroke = "red", fill = "none"}: VisualiseProps): JSX.Element => {
+  Visualise = ({
+    start,
+    restrictTouchScreenMovesTo,
+    stroke = "red",
+    fill = "none",
+  }: VisualiseProps): JSX.Element => {
     const pathDAndDirections = useMemo(() => {
-      return RingMoveInterpreter.anglesDirectionMap.map(({startAngle, endAngle, direction}) => ({
-        direction, 
-        d: `
+      return RingMoveInterpreter.anglesDirectionMap.map(
+        ({ startAngle, endAngle, direction }) => ({
+          direction,
+          d: `
           M${this.minRadius * Math.cos(startAngle + this.angleSizeReduction / 2)},${this.minRadius * Math.sin(startAngle + this.angleSizeReduction / 2)}
           A${this.minRadius},${this.minRadius} 0 0,1 ${this.minRadius * Math.cos(endAngle - this.angleSizeReduction / 2)},${this.minRadius * Math.sin(endAngle - this.angleSizeReduction / 2)}
           L${this.maxRadius * Math.cos(endAngle - this.angleSizeReduction / 2)},${this.maxRadius * Math.sin(endAngle - this.angleSizeReduction / 2)}
           A${this.maxRadius},${this.maxRadius} 0 0,0 ${this.maxRadius * Math.cos(startAngle + this.angleSizeReduction / 2)},${this.maxRadius * Math.sin(startAngle + this.angleSizeReduction / 2)}
           Z
         `,
-      }));
+        }),
+      );
     }, []);
     const transform = useMemo(() => {
       return `translate(${start.x},${start.y})`;
     }, [start.x, start.y]);
-    return <>
-      {pathDAndDirections.filter(({direction}) => !restrictTouchScreenMovesTo || restrictTouchScreenMovesTo[direction]).map(({direction, d}) => (
-        <path
-          key={direction}
-          d={d}
-          transform={transform}
-          stroke={stroke}
-          strokeWidth={2}
-          fill={fill}
-        />
-      ))}
-    </>;
-  }
+    return (
+      <>
+        {pathDAndDirections
+          .filter(
+            ({ direction }) =>
+              !restrictTouchScreenMovesTo ||
+              restrictTouchScreenMovesTo[direction],
+          )
+          .map(({ direction, d }) => (
+            <path
+              key={direction}
+              d={d}
+              transform={transform}
+              stroke={stroke}
+              strokeWidth={2}
+              fill={fill}
+            />
+          ))}
+      </>
+    );
+  };
 
   fitIn(size: number): MoveInterpreter {
     const ratio = size / (this.maxRadius * 2 * 1.2);
-    return new RingMoveInterpreter({minRadius: this.minRadius * ratio, maxRadius: this.maxRadius * ratio, angleSizeReduction: this.angleSizeReduction});
+    return new RingMoveInterpreter({
+      minRadius: this.minRadius * ratio,
+      maxRadius: this.maxRadius * ratio,
+      angleSizeReduction: this.angleSizeReduction,
+    });
   }
 }

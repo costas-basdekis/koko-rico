@@ -5,7 +5,10 @@ import { ReactComponent as RawNextPositionArrowUp } from "./next-position-arrow-
 import { Direction } from "../game";
 import { Position } from "../utils";
 
-export const BaseNextPositionArrowUp = makeAndRegisterSvgDef("next-position-arrow-up", <RawNextPositionArrowUp />);
+export const BaseNextPositionArrowUp = makeAndRegisterSvgDef(
+  "next-position-arrow-up",
+  <RawNextPositionArrowUp />,
+);
 
 export type NextPositionArrowUpProps = {
   size: number;
@@ -25,7 +28,17 @@ export const directionAngleMap = new Map<Direction, number>([
   [Direction.Left, 270],
 ]);
 
-export function NextPositionArrowUp({size, direction, position, drawPosition, robotIndex, isUndo = false, isSelected = false, extraClassName, ...rest}: NextPositionArrowUpProps) {
+export function NextPositionArrowUp({
+  size,
+  direction,
+  position,
+  drawPosition,
+  robotIndex,
+  isUndo = false,
+  isSelected = false,
+  extraClassName,
+  ...rest
+}: NextPositionArrowUpProps) {
   const drawSettings = DrawSettings.use();
   const transform = useMemo(() => {
     let transform = `scale(${size / 20})`;
@@ -40,9 +53,11 @@ export function NextPositionArrowUp({size, direction, position, drawPosition, ro
     }
     return transform;
   }, [drawSettings, position, direction]);
-  return <BaseNextPositionArrowUp
-    className={`next-position-arrow ${robotIndex !== undefined ? `index-${robotIndex}` : ""} ${isUndo ? "undo" : ""} ${isSelected ? "selected" : ""} ${extraClassName}`}
-    transform={transform}
-    {...rest}
-  />
+  return (
+    <BaseNextPositionArrowUp
+      className={`next-position-arrow ${robotIndex !== undefined ? `index-${robotIndex}` : ""} ${isUndo ? "undo" : ""} ${isSelected ? "selected" : ""} ${extraClassName}`}
+      transform={transform}
+      {...rest}
+    />
+  );
 }

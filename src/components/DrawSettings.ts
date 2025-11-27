@@ -14,11 +14,22 @@ export class DrawSettings {
     return useContext(this.Context);
   }
 
-  static fittingInWindow(windowWidth: number, windowHeight: number, gridWidth: number, gridHeight: number, extraPaddingX: number = 0, extraPaddingY: number = 0): DrawSettings {
+  static fittingInWindow(
+    windowWidth: number,
+    windowHeight: number,
+    gridWidth: number,
+    gridHeight: number,
+    extraPaddingX: number = 0,
+    extraPaddingY: number = 0,
+  ): DrawSettings {
     const xOffset = 10;
     const yOffset = 10;
-    const maxWidth = Math.floor((windowWidth - extraPaddingX - xOffset * 2) /  gridWidth);
-    const maxHeight = Math.floor((windowHeight - extraPaddingY - yOffset * 2) /  gridHeight);
+    const maxWidth = Math.floor(
+      (windowWidth - extraPaddingX - xOffset * 2) / gridWidth,
+    );
+    const maxHeight = Math.floor(
+      (windowHeight - extraPaddingY - yOffset * 2) / gridHeight,
+    );
     const width = Math.min(maxWidth, maxHeight);
     const height = width;
     return new this(width, height, xOffset, yOffset);
@@ -30,7 +41,7 @@ export class DrawSettings {
     height: number = 1,
     xOffset: number = 10,
     yOffset: number = 10,
-    robotColours: string[] = ["red", "green", "blue", "yellow"]
+    robotColours: string[] = ["red", "green", "blue", "yellow"],
   ) {
     this.width = width;
     this.height = height;
@@ -41,19 +52,21 @@ export class DrawSettings {
 
   equals(other: DrawSettings): boolean {
     return (
-      this.width === other.width
-      && this.height === other.height
-      && this.xOffset === other.xOffset
-      && this.yOffset === other.yOffset
-      && this.robotColours.length === other.robotColours.length
-      && this.robotColours.every((colour, index) => colour == other.robotColours[index])
-    )
+      this.width === other.width &&
+      this.height === other.height &&
+      this.xOffset === other.xOffset &&
+      this.yOffset === other.yOffset &&
+      this.robotColours.length === other.robotColours.length &&
+      this.robotColours.every(
+        (colour, index) => colour == other.robotColours[index],
+      )
+    );
   }
 
   getDisplayWidth(gridWidth: number): number {
     return this.width * gridWidth + this.xOffset * 2;
   }
-  
+
   getDisplayHeight(gridHeight: number): number {
     return this.height * gridHeight + this.yOffset * 2;
   }

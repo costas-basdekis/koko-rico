@@ -15,7 +15,12 @@ export class NextMoveEvaluator {
   leftWallsCrossed?: PositionMap<boolean>;
   topWallsCrossed?: PositionMap<boolean>;
 
-  constructor(game: Game, robot: Robot, leftWallsCrossed?: PositionMap<boolean>, topWallsCrossed?: PositionMap<boolean>) {
+  constructor(
+    game: Game,
+    robot: Robot,
+    leftWallsCrossed?: PositionMap<boolean>,
+    topWallsCrossed?: PositionMap<boolean>,
+  ) {
     this.game = game;
     this.robot = robot;
     this.robot = game.robots[0];
@@ -28,13 +33,13 @@ export class NextMoveEvaluator {
     const topWalls = new PositionMap<boolean>();
     if (otherPositions) {
       for (const otherPosition of otherPositions) {
-        leftWalls.set({x: otherPosition.x, y: otherPosition.y}, true);
-        leftWalls.set({x: otherPosition.x + 1, y: otherPosition.y}, true);
-        topWalls.set({x: otherPosition.x, y: otherPosition.y}, true);
-        topWalls.set({x: otherPosition.x, y: otherPosition.y + 1}, true);
+        leftWalls.set({ x: otherPosition.x, y: otherPosition.y }, true);
+        leftWalls.set({ x: otherPosition.x + 1, y: otherPosition.y }, true);
+        topWalls.set({ x: otherPosition.x, y: otherPosition.y }, true);
+        topWalls.set({ x: otherPosition.x, y: otherPosition.y + 1 }, true);
       }
     }
-    return {leftWalls, topWalls};
+    return { leftWalls, topWalls };
   }
 
   static offsetsByDirection: Map<Direction, [WallType, number]> = new Map([
@@ -44,13 +49,22 @@ export class NextMoveEvaluator {
     [Direction.Down, ["top", 1]],
   ]);
 
-  getNextPositions(position: Position, otherPositions?: Position[], otherPositionsWalls?: OtherPositionsWalls): Position[] {
+  getNextPositions(
+    position: Position,
+    otherPositions?: Position[],
+    otherPositionsWalls?: OtherPositionsWalls,
+  ): Position[] {
     if (!otherPositionsWalls) {
       otherPositionsWalls = this.getOtherPositionsWalls(otherPositions);
     }
     const nextPositions: Position[] = [];
     for (const direction of NextMoveEvaluator.offsetsByDirection.keys()) {
-      const nextPosition = this.getNextPositionAtDirection(position, direction as Direction, otherPositions, otherPositionsWalls);
+      const nextPosition = this.getNextPositionAtDirection(
+        position,
+        direction as Direction,
+        otherPositions,
+        otherPositionsWalls,
+      );
       if (nextPosition) {
         nextPositions.push(nextPosition);
       }
@@ -58,17 +72,27 @@ export class NextMoveEvaluator {
     return nextPositions;
   }
 
-  getNextPositionAtDirection(position: Position, direction: Direction, otherPositions?: Position[], otherPositionsWalls?: OtherPositionsWalls): Position | null {
+  getNextPositionAtDirection(
+    position: Position,
+    direction: Direction,
+    otherPositions?: Position[],
+    otherPositionsWalls?: OtherPositionsWalls,
+  ): Position | null {
     if (!otherPositionsWalls) {
       otherPositionsWalls = this.getOtherPositionsWalls(otherPositions);
     }
-    const [wallType, wallIndexOffset] = NextMoveEvaluator.offsetsByDirection.get(direction)!;
+    const [wallType, wallIndexOffset] =
+      NextMoveEvaluator.offsetsByDirection.get(direction)!;
     const leftWall = wallType === "left";
-    const walls = leftWall ? this.game.field.leftWalls : this.game.field.topWalls;
-    const otherWalls = leftWall ? otherPositionsWalls.leftWalls : otherPositionsWalls.topWalls;
+    const walls = leftWall
+      ? this.game.field.leftWalls
+      : this.game.field.topWalls;
+    const otherWalls = leftWall
+      ? otherPositionsWalls.leftWalls
+      : otherPositionsWalls.topWalls;
     const positionOffset = wallIndexOffset * 2 - 1;
-    const nextPosition = {x: position.x, y: position.y};
-    const wallPosition = {x: position.x, y: position.y};
+    const nextPosition = { x: position.x, y: position.y };
+    const wallPosition = { x: position.x, y: position.y };
     while (true) {
       if (leftWall) {
         wallPosition.x = nextPosition.x;
@@ -87,11 +111,17 @@ export class NextMoveEvaluator {
       }
       if (leftWall) {
         if (this.leftWallsCrossed) {
-          this.leftWallsCrossed.set({x: nextPosition.x + (1 - wallIndexOffset), y: nextPosition.y}, true);
+          this.leftWallsCrossed.set(
+            { x: nextPosition.x + (1 - wallIndexOffset), y: nextPosition.y },
+            true,
+          );
         }
       } else {
         if (this.topWallsCrossed) {
-          this.topWallsCrossed.set({x: nextPosition.x, y: nextPosition.y + (1 - wallIndexOffset)}, true);
+          this.topWallsCrossed.set(
+            { x: nextPosition.x, y: nextPosition.y + (1 - wallIndexOffset) },
+            true,
+          );
         }
       }
     }

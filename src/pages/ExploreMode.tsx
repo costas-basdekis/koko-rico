@@ -2,27 +2,41 @@ import _ from "underscore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, WallType, Robot, Direction } from "../game";
 import { DGame, DrawSettings } from "../components";
-import { loadGameFromLocalStorage, Position, PositionMap, positionsEqual, saveGameToLocalStorage } from "../utils";
+import {
+  loadGameFromLocalStorage,
+  Position,
+  PositionMap,
+  positionsEqual,
+  saveGameToLocalStorage,
+} from "../utils";
 import { SvgContainer } from "../SvgContainer";
-import { UsageInstructions, useShowMoveInterpreter } from "../UsageInstructions";
+import {
+  UsageInstructions,
+  useShowMoveInterpreter,
+} from "../UsageInstructions";
 
 export default function ExploreMode() {
-  const [game, setGame]: [Game, any] = useState(() =>
-    loadGameFromLocalStorage("exploreGame") ?? Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
+  const [game, setGame]: [Game, any] = useState(
+    () =>
+      loadGameFromLocalStorage("exploreGame") ??
+      Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]),
   );
   useEffect(() => {
     saveGameToLocalStorage("exploreGame", game);
   }, [game]);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
-  const onSelectedRobotIndexChange = useCallback((index: number) => {
-    setSelectedRobotIndex((index + game.robots.length) % game.robots.length);
-  }, [setSelectedRobotIndex, game.robots.length]);
+  const onSelectedRobotIndexChange = useCallback(
+    (index: number) => {
+      setSelectedRobotIndex((index + game.robots.length) % game.robots.length);
+    },
+    [setSelectedRobotIndex, game.robots.length],
+  );
   const onGhostWallClick = useCallback(
     (position: Position, type: WallType) => {
       const newGame = game.toggleWall(position, type);
       setGame(newGame);
     },
-    [game]
+    [game],
   );
   const onRobotResetClick = useCallback(() => {
     setGame(game.resetRobots());
@@ -36,51 +50,81 @@ export default function ExploreMode() {
   const onRandomCrossedWallsClick = useCallback(() => {
     setGame(game.pickRandomCrossedWalls(30));
   }, [game]);
-  const [distanceMap, setDistanceMap] = useState<PositionMap<number> | null>(null);
-  const onDistanceMapChange = useCallback((newDistanceMap: PositionMap<number> | null) => {
-    setDistanceMap(newDistanceMap);
-  }, [setDistanceMap]);
+  const [distanceMap, setDistanceMap] = useState<PositionMap<number> | null>(
+    null,
+  );
+  const onDistanceMapChange = useCallback(
+    (newDistanceMap: PositionMap<number> | null) => {
+      setDistanceMap(newDistanceMap);
+    },
+    [setDistanceMap],
+  );
   const maxDistance = useMemo(() => {
     if (!distanceMap) {
       return null;
     }
     return Math.max(...distanceMap.values());
   }, [distanceMap]);
-  const onRobotMoveClick = useCallback((robot: Robot, nextPosition: Position, isUndo: boolean) => {
-    setGame(game.moveRobot(robot, nextPosition, isUndo));
-  }, [game, setGame]);
-  const onRobotCountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const robotCount = parseInt(e.target.value, 10);
-    if (robotCount < game.robots.length) {
-      setGame(game.removeRobots(game.robots.length - robotCount));
-    } else if (robotCount > game.robots.length) {
-      const newPositions: Position[] = [];
-      for (let i = game.robots.length; i < robotCount; i++) {
-        const position = {x: 10, y: 10};
-        while (game.robots.some(robot => positionsEqual(robot.position, position))) {
-          position.x = Math.floor(Math.random() * game.field.width);
-          position.y = Math.floor(Math.random() * game.field.height);
+  const onRobotMoveClick = useCallback(
+    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
+      setGame(game.moveRobot(robot, nextPosition, isUndo));
+    },
+    [game, setGame],
+  );
+  const onRobotCountChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const robotCount = parseInt(e.target.value, 10);
+      if (robotCount < game.robots.length) {
+        setGame(game.removeRobots(game.robots.length - robotCount));
+      } else if (robotCount > game.robots.length) {
+        const newPositions: Position[] = [];
+        for (let i = game.robots.length; i < robotCount; i++) {
+          const position = { x: 10, y: 10 };
+          while (
+            game.robots.some((robot) =>
+              positionsEqual(robot.position, position),
+            )
+          ) {
+            position.x = Math.floor(Math.random() * game.field.width);
+            position.y = Math.floor(Math.random() * game.field.height);
+          }
+          newPositions.push(position);
         }
-        newPositions.push(position);
+        setGame(game.addRobots(newPositions));
       }
-      setGame(game.addRobots(newPositions));
-    }
-  }, [game, setGame]);
-  const [showMoveInterpreter, setShowMoveInterpreter] = useShowMoveInterpreter();
-  const onTouchScreenMove = useCallback((direction: Direction) => {
-    const nextPositionEntry = game.getRobotMoveInDirection(game.robots[selectedRobotIndex], direction);
-    if (!nextPositionEntry) {
-      return;
-    }
-    onRobotMoveClick(game.robots[selectedRobotIndex], nextPositionEntry.nextPosition, nextPositionEntry.isUndo);
-  }, [game, selectedRobotIndex, onRobotMoveClick]);
+    },
+    [game, setGame],
+  );
+  const [showMoveInterpreter, setShowMoveInterpreter] =
+    useShowMoveInterpreter();
+  const onTouchScreenMove = useCallback(
+    (direction: Direction) => {
+      const nextPositionEntry = game.getRobotMoveInDirection(
+        game.robots[selectedRobotIndex],
+        direction,
+      );
+      if (!nextPositionEntry) {
+        return;
+      }
+      onRobotMoveClick(
+        game.robots[selectedRobotIndex],
+        nextPositionEntry.nextPosition,
+        nextPositionEntry.isUndo,
+      );
+    },
+    [game, selectedRobotIndex, onRobotMoveClick],
+  );
   const drawSettings = DrawSettings.use();
   const restrictTouchScreenMovesTo = useMemo(() => {
     const robot = game.robots[selectedRobotIndex];
     if (!robot) {
       return {};
     }
-    return Object.fromEntries(game.getNextRobotPositionEntries(robot).map(({direction}) => [direction, true]));
+    return Object.fromEntries(
+      game
+        .getNextRobotPositionEntries(robot)
+        .map(({ direction }) => [direction, true]),
+    );
   }, [game, selectedRobotIndex]);
   const moveInterpreterProps = useMemo(() => {
     return {
@@ -90,16 +134,42 @@ export default function ExploreMode() {
   return (
     <>
       <div>
-        <label><input type={"radio"} value={"1"} onChange={onRobotCountChange} checked={game.robots.length === 1} />1 robot</label>
-        <label><input type={"radio"} value={"2"} onChange={onRobotCountChange} checked={game.robots.length === 2} />2 robots</label>
-        <label><input type={"radio"} value={"3"} onChange={onRobotCountChange} checked={game.robots.length === 3} />3 robots</label>
+        <label>
+          <input
+            type={"radio"}
+            value={"1"}
+            onChange={onRobotCountChange}
+            checked={game.robots.length === 1}
+          />
+          1 robot
+        </label>
+        <label>
+          <input
+            type={"radio"}
+            value={"2"}
+            onChange={onRobotCountChange}
+            checked={game.robots.length === 2}
+          />
+          2 robots
+        </label>
+        <label>
+          <input
+            type={"radio"}
+            value={"3"}
+            onChange={onRobotCountChange}
+            checked={game.robots.length === 3}
+          />
+          3 robots
+        </label>
         {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
       </div>
       <UsageInstructions
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
         selectedRobotIndex={selectedRobotIndex}
-        onSelectedRobotIndexChange={game.robots.length > 1 ? onSelectedRobotIndexChange : undefined}
+        onSelectedRobotIndexChange={
+          game.robots.length > 1 ? onSelectedRobotIndexChange : undefined
+        }
         onRobotMove={onTouchScreenMove}
         onRobotReset={game.path.length ? onRobotResetClick : undefined}
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
