@@ -5,6 +5,7 @@ import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
 import { SingleRobotDistanceEvaluator } from "./SingleRobotDistanceEvaluator";
 import { MultiRobotDistanceEvaluator } from "./MultiRobotDistanceEvaluator";
+import { GameFormat, LatestGameFormat, migrate } from "./GameMigrations";
 
 export interface RobotPathEntry {
   previousPosition: Position;
@@ -54,7 +55,12 @@ export class Game {
     );
   }
 
-  static deserialise({
+  static deserialise(serialised: GameFormat): Game {
+    const latestVersionSerialised = migrate(serialised);
+    return this.deserialiseLatestVersion(latestVersionSerialised);
+  }
+
+  static deserialiseLatestVersion({
     field,
     robots,
     initialRobots,
@@ -62,7 +68,7 @@ export class Game {
     targetDistance,
     targetPositions,
     completedTargetPositions,
-  }: ReturnType<Game["serialise"]>): Game {
+  }: LatestGameFormat): Game {
     return new Game(
       Field.deserialise(field),
       robots.map((robot) => Robot.deserialise(robot)),
@@ -92,16 +98,9 @@ export class Game {
     this.completedTargetPositions = completedTargetPositions;
   }
 
-  serialise(): {
-    field: ReturnType<Field["serialise"]>;
-    robots: ReturnType<Robot["serialise"]>[];
-    initialRobots: ReturnType<Robot["serialise"]>[];
-    path: RobotPath;
-    targetDistance: number;
-    targetPositions: Position[];
-    completedTargetPositions: Position[];
-  } {
+  serialise(): LatestGameFormat {
     return {
+      version: 2,
       field: this.field.serialise(),
       robots: this.robots.map((robot) => robot.serialise()),
       initialRobots: this.initialRobots.map((robot) => robot.serialise()),
