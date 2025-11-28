@@ -44,7 +44,16 @@ export function TargetsCounter({
     <>
       <label className={"button-like"}>Targets:</label>
       <label className={`button-like targets-counter`}>
-        {game.completedTargetPositions.length}/{game.targetPositions.length}
+        <Star level={"gold"} />
+        {game.completedTargetPositions.length}/{game.targetPositions.length},
+        <Star level={"silver"} />
+        {game.silverTargetPositions.length}/
+        {game.targetPositions.length - game.completedTargetPositions.length},
+        <Star level={"bronze"} />
+        {game.bronzeTargetPositions.length}/
+        {game.targetPositions.length -
+          game.completedTargetPositions.length -
+          game.silverTargetPositions.length}
       </label>
       <label className={`button-like`}>
         <input
@@ -65,4 +74,12 @@ export function TargetsCounter({
       </label>
     </>
   );
+}
+
+interface StarProps {
+  level: "gold" | "silver" | "bronze";
+}
+
+function Star({ level }: StarProps) {
+  return <span className={`star level-${level}`}>★</span>;
 }

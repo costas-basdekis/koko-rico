@@ -33,6 +33,8 @@ export interface DFieldProps {
   ) => void;
   targetPositions?: Position[];
   completedTargetPositions?: Position[];
+  silverTargetPositions?: Position[];
+  bronzeTargetPositions?: Position[];
 }
 
 export function DField({
@@ -47,6 +49,8 @@ export function DField({
   onRobotMoveClick,
   targetPositions,
   completedTargetPositions,
+  silverTargetPositions,
+  bronzeTargetPositions,
 }: DFieldProps) {
   if (path && !robots) {
     throw new Error("DGame cannot accept robotPaths prop without robots prop.");
@@ -88,6 +92,8 @@ export function DField({
         field={field}
         targetPositions={targetPositions}
         completedTargetPositions={completedTargetPositions}
+        silverTargetPositions={silverTargetPositions}
+        bronzeTargetPositions={bronzeTargetPositions}
       />
       {Array.from(robotPathsByIndex.entries())
         .sort(sortOnSelectedRobotFirst)

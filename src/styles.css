@@ -82,6 +82,14 @@ svg {
   fill: green;
 }
 
+.grid-square.target-position.silver-target-position {
+  fill: silver;
+}
+
+.grid-square.target-position.bronze-target-position {
+  fill: darkgoldenrod;
+}
+
 .distance-map-item {
   text-anchor: middle;
   dominant-baseline: middle;
@@ -195,6 +203,26 @@ svg {
   background-color: green;
 }
 
+.moves-counter.silver-moves {
+  background-color: silver;
+}
+
+.moves-counter.bronze-moves {
+  background-color: darkgoldenrod;
+}
+
 .moves-counter.more-moves {
   background-color: red;
+}
+
+.star.level-gold {
+  color: gold;
+}
+
+.star.level-silver {
+  color: silver;
+}
+
+.star.level-bronze {
+  color: darkgoldenrod;
 }

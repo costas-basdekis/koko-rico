@@ -1,14 +1,14 @@
 interface Migration {
   sourceVersion: number;
   targetVersion: number;
-  migrate: (serialised: GameFormat) => GameFormat;
+  migrate: (serialised: any) => GameFormat;
 }
 const migrations: Migration[] = [];
 
 function registerMigration(
   sourceVersion: number,
   targetVersion: number,
-  migrate: (serialised: GameFormat) => GameFormat,
+  migrate: (serialised: any) => GameFormat,
 ) {
   migrations.push({ sourceVersion, targetVersion, migrate });
 }
@@ -35,10 +35,13 @@ export function migrate(serialised: GameFormat): LatestGameFormat {
   );
 }
 
-export type GameFormat = GameFormatVersion1 | GameFormatVersion2;
+export type GameFormat =
+  | GameFormatVersion1
+  | GameFormatVersion2
+  | GameFormatVersion3;
 
-export const LatestGameVersion = 2;
-export type LatestGameFormat = GameFormatVersion2 & {
+export const LatestGameVersion = 3;
+export type LatestGameFormat = GameFormatVersion3 & {
   version: typeof LatestGameVersion;
 };
 
@@ -85,5 +88,37 @@ registerMigration(
   2,
   function migrateV1ToV2(serialised: GameFormatVersion1): GameFormatVersion2 {
     return { ...serialised, version: 2 };
+  },
+);
+
+type GameFormatVersion3 = Omit<GameFormatVersion2, "version"> & {
+  version: 3;
+  silverTargetDistance: number;
+  bronzeTargetDistance: number;
+  silverTargetPositions: PositionV1[];
+  bronzeTargetPositions: PositionV1[];
+};
+
+function getDefaultSilverAndBronzeTargetDistancesV3(
+  targetDistance: number,
+): [number, number] {
+  const step = Math.max(1, Math.round(targetDistance * 0.2));
+  return [targetDistance + step, targetDistance + step * 2];
+}
+
+registerMigration(
+  2,
+  3,
+  function migrateV2ToV3(serialised: GameFormatVersion2): GameFormatVersion3 {
+    const [silverTargetDistance, bronzeTargetDistance] =
+      getDefaultSilverAndBronzeTargetDistancesV3(serialised.targetDistance);
+    return {
+      ...serialised,
+      version: 3,
+      silverTargetDistance,
+      bronzeTargetDistance,
+      silverTargetPositions: [],
+      bronzeTargetPositions: [],
+    };
   },
 );

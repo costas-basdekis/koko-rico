@@ -171,6 +171,8 @@ export function DGame({
         onRobotMoveClick={onRobotNextPositionClick}
         targetPositions={targetPositions}
         completedTargetPositions={game.completedTargetPositions}
+        silverTargetPositions={game.silverTargetPositions}
+        bronzeTargetPositions={game.bronzeTargetPositions}
       />
       {distanceMap ? (
         <DFieldDistances field={game.field} distanceMap={distanceMap} />

@@ -11,6 +11,8 @@ export interface DGridProps {
   onRobotMoveClick?: (nextPosition: Position) => void;
   targetPositions?: Position[];
   completedTargetPositions?: Position[];
+  silverTargetPositions?: Position[];
+  bronzeTargetPositions?: Position[];
 }
 
 export function DGrid({
@@ -20,6 +22,8 @@ export function DGrid({
   onRobotMoveClick,
   targetPositions,
   completedTargetPositions,
+  silverTargetPositions,
+  bronzeTargetPositions,
 }: DGridProps) {
   return (
     <g className={"grid"}>
@@ -40,6 +44,8 @@ export function DGrid({
               onRobotMoveClick={onRobotMoveClick}
               targetPositions={targetPositions}
               completedTargetPositions={completedTargetPositions}
+              silverTargetPositions={silverTargetPositions}
+              bronzeTargetPositions={bronzeTargetPositions}
             />
           );
         }),
@@ -55,6 +61,8 @@ export interface DGridCellProps {
   onRobotMoveClick?: (nextPosition: Position) => void;
   targetPositions?: Position[];
   completedTargetPositions?: Position[];
+  silverTargetPositions?: Position[];
+  bronzeTargetPositions?: Position[];
 }
 
 export function DGridCell({
@@ -64,6 +72,8 @@ export function DGridCell({
   onRobotMoveClick,
   targetPositions,
   completedTargetPositions,
+  silverTargetPositions,
+  bronzeTargetPositions,
 }: DGridCellProps) {
   const onClick = useCallback(() => {
     onRobotMoveClick?.({ x, y });
@@ -85,10 +95,44 @@ export function DGridCell({
       ) ?? false
     );
   }, [x, y, completedTargetPositions, isTarget]);
+  const isSilverTargetCompleted = useMemo(() => {
+    if (!isTarget || isTargetCompleted) {
+      return false;
+    }
+    return (
+      silverTargetPositions?.some((completedTarget) =>
+        positionsEqual({ x, y }, completedTarget),
+      ) ?? false
+    );
+  }, [x, y, silverTargetPositions, isTarget, isTargetCompleted]);
+  const isBronzeTargetCompleted = useMemo(() => {
+    if (!isTarget || isTargetCompleted || isSilverTargetCompleted) {
+      return false;
+    }
+    return (
+      bronzeTargetPositions?.some((completedTarget) =>
+        positionsEqual({ x, y }, completedTarget),
+      ) ?? false
+    );
+  }, [
+    x,
+    y,
+    bronzeTargetPositions,
+    isTarget,
+    isTargetCompleted,
+    isSilverTargetCompleted,
+  ]);
   return (
     <rect
       key={`${x},${y}`}
-      className={`grid-square ${showRobotControls ? "robot-next-position" : ""} ${isTarget ? "target-position" : ""} ${isTargetCompleted ? "completed-target-position" : ""}`}
+      className={[
+        "grid-square",
+        `${showRobotControls ? "robot-next-position" : ""}`,
+        `${isTarget ? "target-position" : ""}`,
+        `${isTargetCompleted ? "completed-target-position" : ""}`,
+        `${isSilverTargetCompleted ? "silver-target-position" : ""}`,
+        `${isBronzeTargetCompleted ? "bronze-target-position" : ""}`,
+      ].join(" ")}
       x={drawSettings.xOffset + drawSettings.width * x}
       y={drawSettings.yOffset + drawSettings.height * y}
       width={drawSettings.width}

@@ -31,10 +31,21 @@ export class Game {
   initialRobots: Robot[];
   path: RobotPath;
   targetDistance: number;
+  silverTargetDistance: number;
+  bronzeTargetDistance: number;
   targetPositions: Position[];
   completedTargetPositions: Position[];
+  silverTargetPositions: Position[];
+  bronzeTargetPositions: Position[];
   singleRobotDistanceMap?: PositionMap<number> = undefined;
   multiRobotDistanceMap?: PositionMap<number> = undefined;
+
+  static getDefaultSilverAndBronzeTargetDistances(
+    targetDistance: number,
+  ): [number, number] {
+    const step = Math.max(1, Math.round(targetDistance * 0.2));
+    return [targetDistance + step, targetDistance + step * 2];
+  }
 
   static makeForSizeAndRobots(
     width: number,
@@ -50,6 +61,10 @@ export class Game {
       robots,
       [],
       0,
+      0,
+      0,
+      [],
+      [],
       [],
       [],
     );
@@ -66,6 +81,10 @@ export class Game {
     initialRobots,
     path,
     targetDistance,
+    silverTargetDistance,
+    bronzeTargetDistance,
+    silverTargetPositions,
+    bronzeTargetPositions,
     targetPositions,
     completedTargetPositions,
   }: LatestGameFormat): Game {
@@ -75,8 +94,12 @@ export class Game {
       initialRobots.map((robot) => Robot.deserialise(robot)),
       path,
       targetDistance,
+      silverTargetDistance,
+      bronzeTargetDistance,
       targetPositions,
       completedTargetPositions,
+      silverTargetPositions,
+      bronzeTargetPositions,
     );
   }
 
@@ -86,28 +109,40 @@ export class Game {
     initialRobots: Robot[],
     path: RobotPath,
     targetDistance: number,
+    silverTargetDistance: number,
+    bronzeTargetDistance: number,
     targetPositions: Position[],
     completedTargetPositions: Position[],
+    silverTargetPositions: Position[],
+    bronzeTargetPositions: Position[],
   ) {
     this.field = field;
     this.robots = robots;
     this.initialRobots = initialRobots;
     this.path = path;
     this.targetDistance = targetDistance;
+    this.silverTargetDistance = silverTargetDistance;
+    this.bronzeTargetDistance = bronzeTargetDistance;
     this.targetPositions = targetPositions;
     this.completedTargetPositions = completedTargetPositions;
+    this.silverTargetPositions = silverTargetPositions;
+    this.bronzeTargetPositions = bronzeTargetPositions;
   }
 
   serialise(): LatestGameFormat {
     return {
-      version: 2,
+      version: 3,
       field: this.field.serialise(),
       robots: this.robots.map((robot) => robot.serialise()),
       initialRobots: this.initialRobots.map((robot) => robot.serialise()),
       path: this.path,
       targetDistance: this.targetDistance,
+      silverTargetDistance: this.silverTargetDistance,
+      bronzeTargetDistance: this.bronzeTargetDistance,
       targetPositions: this.targetPositions,
       completedTargetPositions: this.completedTargetPositions,
+      silverTargetPositions: this.silverTargetPositions,
+      bronzeTargetPositions: this.bronzeTargetPositions,
     };
   }
 
@@ -116,8 +151,12 @@ export class Game {
     robots = this.robots,
     path = this.path,
     targetDistance = this.targetDistance,
+    silverTargetDistance = this.silverTargetDistance,
+    bronzeTargetDistance = this.bronzeTargetDistance,
     targetPositions: targets = this.targetPositions,
     completedTargetPositions: completedTargets = this.completedTargetPositions,
+    silverTargetPositions = this.silverTargetPositions,
+    bronzeTargetPositions = this.bronzeTargetPositions,
   }: Partial<
     Pick<
       Game,
@@ -125,8 +164,12 @@ export class Game {
       | "robots"
       | "path"
       | "targetDistance"
+      | "silverTargetDistance"
+      | "bronzeTargetDistance"
       | "targetPositions"
       | "completedTargetPositions"
+      | "silverTargetPositions"
+      | "bronzeTargetPositions"
     >
   >) {
     return new Game(
@@ -135,8 +178,12 @@ export class Game {
       this.initialRobots,
       path,
       targetDistance,
+      silverTargetDistance,
+      bronzeTargetDistance,
       targets,
       completedTargets,
+      silverTargetPositions,
+      bronzeTargetPositions,
     );
   }
 
@@ -179,27 +226,85 @@ export class Game {
             },
           ],
     });
-    if (
-      !isUndo &&
-      robot.index === 0 &&
-      newGame.path.length === this.targetDistance
-    ) {
-      const completedTargetPosition = this.targetPositions.find(
-        (targetPosition) => positionsEqual(newPosition, targetPosition),
-      );
-      if (
-        completedTargetPosition &&
-        !this.completedTargetPositions.includes(completedTargetPosition)
-      ) {
-        newGame = newGame.change({
-          completedTargetPositions: [
-            ...this.completedTargetPositions,
-            completedTargetPosition,
-          ],
-        });
-      }
+    if (!isUndo && robot.index === 0) {
+      newGame = newGame.updateCompletedTargetsAfterMove();
     }
     return newGame;
+  }
+
+  updateCompletedTargetsAfterMove(): Game {
+    debugger;
+    if (
+      this.path.length < this.targetDistance ||
+      this.path.length > this.bronzeTargetDistance
+    ) {
+      return this;
+    }
+    const { position: newPosition } = this.path[this.path.length - 1];
+    const completedTargetPosition = this.targetPositions.find(
+      (targetPosition) => positionsEqual(newPosition, targetPosition),
+    );
+    if (!completedTargetPosition) {
+      return this;
+    }
+    if (this.completedTargetPositions.includes(completedTargetPosition)) {
+      return this;
+    }
+    if (this.path.length === this.targetDistance) {
+      const silverTargetPositions = this.silverTargetPositions.includes(
+        completedTargetPosition,
+      )
+        ? this.silverTargetPositions.filter(
+            (position) => position != completedTargetPosition,
+          )
+        : this.silverTargetPositions;
+      const bronzeTargetPositions = this.bronzeTargetPositions.includes(
+        completedTargetPosition,
+      )
+        ? this.bronzeTargetPositions.filter(
+            (position) => position != completedTargetPosition,
+          )
+        : this.bronzeTargetPositions;
+      return this.change({
+        completedTargetPositions: [
+          ...this.completedTargetPositions,
+          completedTargetPosition,
+        ],
+        silverTargetPositions,
+        bronzeTargetPositions,
+      });
+    } else if (this.path.length <= this.silverTargetDistance) {
+      if (this.silverTargetPositions.includes(completedTargetPosition)) {
+        return this;
+      }
+      const bronzeTargetPositions = this.bronzeTargetPositions.includes(
+        completedTargetPosition,
+      )
+        ? this.bronzeTargetPositions.filter(
+            (position) => position != completedTargetPosition,
+          )
+        : this.bronzeTargetPositions;
+      return this.change({
+        silverTargetPositions: [
+          ...this.silverTargetPositions,
+          completedTargetPosition,
+        ],
+        bronzeTargetPositions,
+      });
+    } else {
+      if (
+        this.silverTargetPositions.includes(completedTargetPosition) ||
+        this.bronzeTargetPositions.includes(completedTargetPosition)
+      ) {
+        return this;
+      }
+      return this.change({
+        bronzeTargetPositions: [
+          ...this.bronzeTargetPositions,
+          completedTargetPosition,
+        ],
+      });
+    }
   }
 
   resetRobots(): Game {
@@ -493,10 +598,16 @@ export class Game {
     if (count !== null) {
       targetPositions.splice(count);
     }
+    const [silverTargetDistance, bronzeTargetDistance] =
+      Game.getDefaultSilverAndBronzeTargetDistances(targetDistance);
     return this.change({
       targetDistance,
       targetPositions,
+      silverTargetDistance,
+      bronzeTargetDistance,
       completedTargetPositions: [],
+      silverTargetPositions: [],
+      bronzeTargetPositions: [],
     });
   }
 }
