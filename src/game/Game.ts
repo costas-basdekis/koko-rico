@@ -88,6 +88,21 @@ export class Game {
     targetPositions,
     completedTargetPositions,
   }: LatestGameFormat): Game {
+    completedTargetPositions = targetPositions.filter((position) =>
+      completedTargetPositions.some((completedPosition) =>
+        positionsEqual(completedPosition, position),
+      ),
+    );
+    silverTargetPositions = targetPositions.filter((position) =>
+      silverTargetPositions.some((completedPosition) =>
+        positionsEqual(completedPosition, position),
+      ),
+    );
+    bronzeTargetPositions = targetPositions.filter((position) =>
+      bronzeTargetPositions.some((completedPosition) =>
+        positionsEqual(completedPosition, position),
+      ),
+    );
     return new Game(
       Field.deserialise(field),
       robots.map((robot) => Robot.deserialise(robot)),
