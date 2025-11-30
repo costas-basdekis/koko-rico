@@ -155,6 +155,6 @@ function makeGame(desiredTargetDistance: number): Game {
     { x: 5, y: 5 },
     { x: 15, y: 5 },
   ])
-    .pickRandomCrossedWalls(30, desiredTargetDistance, true)
+    .pickRandomCrossedWallsProgressively(30, desiredTargetDistance, true)
     .pickTargets(desiredTargetDistance);
 }

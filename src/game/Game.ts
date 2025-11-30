@@ -595,6 +595,102 @@ export class Game {
     return newGame;
   }
 
+  pickRandomCrossedWallsProgressively(
+    count: number,
+    minMaxMoveCount?: number,
+    multiRobot: boolean = false,
+  ): Game {
+    let newGame = this.change({
+      field: Field.makeForSize(this.field.width, this.field.height),
+      path: [],
+    });
+    const stepCount = count < 4 ? 1 : count < 9 ? 2 : 3;
+    while (true) {
+      let previousLeftWallsCrossed = new PositionMap<boolean>();
+      let previousTopWallsCrossed = new PositionMap<boolean>();
+      for (const _i of _.range(0, count, stepCount)) {
+        const pickCount = Math.min(_i + stepCount, count) - _i;
+        const leftWallsCrossed = new PositionMap<boolean>();
+        const topWallsCrossed = new PositionMap<boolean>();
+        if (multiRobot) {
+          newGame.calculateReachableMultiRobotPositions(
+            newGame.robots[0],
+            leftWallsCrossed,
+            topWallsCrossed,
+            Math.min(minMaxMoveCount ?? Infinity, _i + pickCount),
+          );
+        } else {
+          newGame.calculateReachableSingleRobotPositions(
+            newGame.robots[0],
+            leftWallsCrossed,
+            topWallsCrossed,
+          );
+        }
+        let wallsCrossed: [WallType, Position][] = [
+          ...Array.from(leftWallsCrossed.entries())
+            .filter(([, contains]) => contains)
+            .filter(([position]) => !previousLeftWallsCrossed.get(position))
+            .map(([position]) => ["left", position] as [WallType, Position]),
+          ...Array.from(topWallsCrossed.entries())
+            .filter(([, contains]) => contains)
+            .filter(([position]) => !previousTopWallsCrossed.get(position))
+            .map(([position]) => ["top", position] as [WallType, Position]),
+        ];
+        previousLeftWallsCrossed = leftWallsCrossed;
+        previousTopWallsCrossed = topWallsCrossed;
+        if (wallsCrossed.length < pickCount) {
+          wallsCrossed = [
+            ...Array.from(leftWallsCrossed.entries())
+              .filter(([, contains]) => contains)
+              .map(([position]) => ["left", position] as [WallType, Position]),
+            ...Array.from(topWallsCrossed.entries())
+              .filter(([, contains]) => contains)
+              .map(([position]) => ["top", position] as [WallType, Position]),
+          ];
+        }
+        if (wallsCrossed.length < pickCount) {
+          break;
+        }
+        for (const _j of _.range(pickCount)) {
+          const [[wallType, position]] = wallsCrossed.splice(
+            _.random(0, wallsCrossed.length - 1),
+            1,
+          );
+          newGame = newGame.toggleWall(position, wallType);
+        }
+      }
+      if (minMaxMoveCount === undefined) {
+        break;
+      }
+      if (!newGame.robots.length) {
+        throw new Error("Game has no robots and minMaxMoveCount was provided");
+      }
+      let distanceMap: PositionMap<number>;
+      if (multiRobot) {
+        distanceMap = newGame.calculateReachableMultiRobotPositions(
+          newGame.robots[0],
+          undefined,
+          undefined,
+          minMaxMoveCount,
+        );
+      } else {
+        distanceMap = newGame.calculateReachableSingleRobotPositions(
+          newGame.robots[0],
+        );
+      }
+      const maxMoveCount = Math.max(...distanceMap.values());
+      if (maxMoveCount >= minMaxMoveCount) {
+        if (multiRobot) {
+          newGame.multiRobotDistanceMap = distanceMap;
+        } else {
+          newGame.singleRobotDistanceMap = distanceMap;
+        }
+        break;
+      }
+    }
+    return newGame;
+  }
+
   pickTargets(
     desiredTargetDistance: number = this.targetDistance,
     count: number | null = null,

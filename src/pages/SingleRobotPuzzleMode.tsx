@@ -128,6 +128,6 @@ export function SingleRobotPuzzleMode() {
 
 function makeGame(desiredTargetDistance: number): Game {
   return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
-    .pickRandomCrossedWalls(20, desiredTargetDistance)
+    .pickRandomCrossedWallsProgressively(20, desiredTargetDistance)
     .pickTargets(desiredTargetDistance);
 }

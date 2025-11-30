@@ -48,7 +48,7 @@ export default function ExploreMode() {
     setGame(game.pickRandomWalls(20));
   }, [game]);
   const onRandomCrossedWallsClick = useCallback(() => {
-    setGame(game.pickRandomCrossedWalls(30));
+    setGame(game.pickRandomCrossedWallsProgressively(30, 10));
   }, [game]);
   const [distanceMap, setDistanceMap] = useState<PositionMap<number> | null>(
     null,
