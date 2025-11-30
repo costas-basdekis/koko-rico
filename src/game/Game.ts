@@ -597,9 +597,9 @@ export class Game {
 
   pickRandomCrossedWallsProgressively(
     count: number,
-    minMaxMoveCount?: number,
-    multiRobot: boolean = false,
+    minMaxMoveCount: number,
   ): Game {
+    const multiRobot = this.robots.length > 1;
     let newGame = this.change({
       field: Field.makeForSize(this.field.width, this.field.height),
       path: [],
@@ -617,7 +617,7 @@ export class Game {
             newGame.robots[0],
             leftWallsCrossed,
             topWallsCrossed,
-            Math.min(minMaxMoveCount ?? Infinity, _i + pickCount),
+            Math.min(minMaxMoveCount, _i + pickCount),
           );
         } else {
           newGame.calculateReachableSingleRobotPositions(
@@ -658,9 +658,6 @@ export class Game {
           );
           newGame = newGame.toggleWall(position, wallType);
         }
-      }
-      if (minMaxMoveCount === undefined) {
-        break;
       }
       if (!newGame.robots.length) {
         throw new Error("Game has no robots and minMaxMoveCount was provided");
