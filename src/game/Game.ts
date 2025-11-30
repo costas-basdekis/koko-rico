@@ -456,6 +456,7 @@ export class Game {
 
   calculateReachableSingleRobotPositions(
     robot: Robot,
+    distanceLimit: number,
     leftWallsCrossed?: PositionMap<boolean>,
     topWallsCrossed?: PositionMap<boolean>,
   ): PositionMap<number> {
@@ -468,16 +469,16 @@ export class Game {
         robot,
         leftWallsCrossed,
         topWallsCrossed,
-      ).evaluate();
+      ).evaluate(distanceLimit);
     }
     return this.singleRobotDistanceMap;
   }
 
   calculateReachableMultiRobotPositions(
     robot: Robot,
+    distanceLimit: number,
     leftWallsCrossed?: PositionMap<boolean>,
     topWallsCrossed?: PositionMap<boolean>,
-    distanceLimit?: number,
   ): PositionMap<number> {
     if (leftWallsCrossed || topWallsCrossed) {
       this.multiRobotDistanceMap = undefined;
@@ -523,7 +524,7 @@ export class Game {
 
   pickRandomCrossedWalls(
     count: number,
-    minMaxMoveCount?: number,
+    minMaxMoveCount: number,
     multiRobot: boolean = false,
   ): Game {
     let newGame = this.change({
@@ -537,13 +538,14 @@ export class Game {
         if (multiRobot) {
           newGame.calculateReachableMultiRobotPositions(
             newGame.robots[0],
+            minMaxMoveCount,
             leftWallsCrossed,
             topWallsCrossed,
-            minMaxMoveCount,
           );
         } else {
           newGame.calculateReachableSingleRobotPositions(
             newGame.robots[0],
+            minMaxMoveCount,
             leftWallsCrossed,
             topWallsCrossed,
           );
@@ -573,13 +575,14 @@ export class Game {
       if (multiRobot) {
         distanceMap = newGame.calculateReachableMultiRobotPositions(
           newGame.robots[0],
-          undefined,
-          undefined,
           minMaxMoveCount,
+          undefined,
+          undefined,
         );
       } else {
         distanceMap = newGame.calculateReachableSingleRobotPositions(
           newGame.robots[0],
+          minMaxMoveCount,
         );
       }
       const maxMoveCount = Math.max(...distanceMap.values());
@@ -615,13 +618,14 @@ export class Game {
         if (multiRobot) {
           newGame.calculateReachableMultiRobotPositions(
             newGame.robots[0],
+            Math.min(minMaxMoveCount, _i + pickCount),
             leftWallsCrossed,
             topWallsCrossed,
-            Math.min(minMaxMoveCount, _i + pickCount),
           );
         } else {
           newGame.calculateReachableSingleRobotPositions(
             newGame.robots[0],
+            minMaxMoveCount,
             leftWallsCrossed,
             topWallsCrossed,
           );
@@ -666,13 +670,14 @@ export class Game {
       if (multiRobot) {
         distanceMap = newGame.calculateReachableMultiRobotPositions(
           newGame.robots[0],
-          undefined,
-          undefined,
           minMaxMoveCount,
+          undefined,
+          undefined,
         );
       } else {
         distanceMap = newGame.calculateReachableSingleRobotPositions(
           newGame.robots[0],
+          minMaxMoveCount,
         );
       }
       const maxMoveCount = Math.max(...distanceMap.values());
@@ -694,6 +699,7 @@ export class Game {
   ): Game {
     const distanceMap = this.calculateReachableMultiRobotPositions(
       this.robots[0],
+      desiredTargetDistance,
     );
     const [, targetDistance] = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance >= desiredTargetDistance)

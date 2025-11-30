@@ -30,7 +30,7 @@ export class MultiRobotDistanceEvaluator {
     );
   }
 
-  evaluate(distanceLimit: number = 10): PositionMap<number> {
+  evaluate(distanceLimit: number): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
     const distanceMapByKey: Map<string, number> = new Map();

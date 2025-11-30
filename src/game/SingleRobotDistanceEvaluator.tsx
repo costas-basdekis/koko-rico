@@ -31,7 +31,7 @@ export class SingleRobotDistanceEvaluator {
     );
   }
 
-  evaluate(): PositionMap<number> {
+  evaluate(distanceLimit: number): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
     const queue: [Position, number][] = [[this.robot.position, 0]];
@@ -44,7 +44,9 @@ export class SingleRobotDistanceEvaluator {
           continue;
         }
         distanceMap.set(nextPosition, nextDistance);
-        queue.push([nextPosition, nextDistance]);
+        if (nextDistance < distanceLimit) {
+          queue.push([nextPosition, nextDistance]);
+        }
       }
     }
     return distanceMap;

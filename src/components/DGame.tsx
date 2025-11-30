@@ -15,6 +15,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 export interface DGameProps {
   game: Game;
   showDistances?: boolean;
+  maxDistance?: number;
   showGhostWalls?: boolean;
   onGhostWallClick?: (position: Position, type: WallType) => void;
   onDistanceMapChange?: (distanceMap: PositionMap<number> | null) => void;
@@ -51,6 +52,7 @@ const hotkeyDirectionMap: Map<string, Direction> = new Map([
 export function DGame({
   game,
   showDistances = false,
+  maxDistance,
   showGhostWalls = false,
   onGhostWallClick,
   onDistanceMapChange,
@@ -63,7 +65,7 @@ export function DGame({
   targetPositions = game.targetPositions,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
-    if (!showDistances) {
+    if (!showDistances || maxDistance === undefined) {
       return null;
     }
     if (!game.robots.length) {
@@ -72,13 +74,15 @@ export function DGame({
     if (game.robots.length === 1) {
       return game.calculateReachableSingleRobotPositions(
         game.robots[selectedRobotIndex],
+        maxDistance,
       );
     } else {
       return game.calculateReachableMultiRobotPositions(
         game.robots[selectedRobotIndex],
+        maxDistance,
       );
     }
-  }, [game, showDistances, selectedRobotIndex]);
+  }, [game, showDistances, maxDistance, selectedRobotIndex]);
   useEffect(() => {
     onDistanceMapChange?.(distanceMap);
   }, [distanceMap]);

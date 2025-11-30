@@ -187,6 +187,7 @@ export default function ExploreMode() {
         <DGame
           game={game}
           showDistances
+          maxDistance={10}
           showGhostWalls
           onGhostWallClick={onGhostWallClick}
           onDistanceMapChange={onDistanceMapChange}
