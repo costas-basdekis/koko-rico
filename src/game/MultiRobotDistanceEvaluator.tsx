@@ -90,7 +90,7 @@ export class MultiRobotDistanceEvaluator {
             continue;
           }
           distanceMapByKey.set(nextKey, nextDistance);
-          if (nextDistance < distanceLimit) {
+          if (nextDistance < distanceLimit - 1) {
             queue.push({
               position,
               otherPositions: nextOtherPositions,
