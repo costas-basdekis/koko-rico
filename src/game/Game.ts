@@ -248,7 +248,6 @@ export class Game {
   }
 
   updateCompletedTargetsAfterMove(): Game {
-    debugger;
     if (
       this.path.length < this.targetDistance ||
       this.path.length > this.bronzeTargetDistance
