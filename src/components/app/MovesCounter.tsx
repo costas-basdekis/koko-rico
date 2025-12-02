@@ -1,6 +1,6 @@
 import "./MovesCounter.css";
-import { Game } from "../game";
-import { ButtonLike } from "./ControlButton";
+import { Game } from "../../game";
+import { ButtonLike } from "../ui";
 
 export interface MovesCounterProps {
   game: Game;

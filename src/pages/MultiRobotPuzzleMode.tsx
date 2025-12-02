@@ -7,13 +7,11 @@ import {
   DrawSettings,
   MovesCounter,
   TargetsCounter,
-} from "../components";
-import { Position } from "../utils";
-import { SvgContainer } from "../SvgContainer";
-import {
   UsageInstructions,
   useShowMoveInterpreter,
-} from "../UsageInstructions";
+  SvgContainer,
+} from "../components";
+import { Position } from "../utils";
 import { PuzzleService, useSavedGame } from "../hooks";
 
 const DefaultDesiredTargetDistance = 5;

@@ -5,8 +5,8 @@ import {
   NextPositionEntriesMap,
   Robot,
   WallType,
-} from "../game";
-import { Position, PositionMap } from "../utils";
+} from "../../game";
+import { Position, PositionMap } from "../../utils";
 import { DField } from "./DField";
 import { DFieldDistances } from "./DFieldDistances";
 import { DRobot } from "./DRobot";

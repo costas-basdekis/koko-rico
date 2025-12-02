@@ -1,10 +1,10 @@
 import "./NextPositionArrowUp.css";
 import { useMemo } from "react";
 import { makeAndRegisterSvgDef } from "../SvgDefs";
-import { DrawSettings } from "./DrawSettings";
+import { DrawSettings } from "../game";
 import { ReactComponent as RawNextPositionArrowUp } from "./next-position-arrow-up.svg";
-import { Direction } from "../game";
-import { Position } from "../utils";
+import { Direction } from "../../game";
+import { Position } from "../../utils";
 
 export const BaseNextPositionArrowUp = makeAndRegisterSvgDef(
   "next-position-arrow-up",

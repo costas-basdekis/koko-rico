@@ -1,7 +1,7 @@
 import "./DFieldDistances.css";
 import _ from "underscore";
-import { Field } from "../game";
-import { PositionMap } from "../utils";
+import { Field } from "../../game";
+import { PositionMap } from "../../utils";
 import { DrawSettings } from "./DrawSettings";
 
 export interface DFieldDistancesProps {

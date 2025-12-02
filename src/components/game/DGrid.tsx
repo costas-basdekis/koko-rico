@@ -1,8 +1,8 @@
 import "./DGrid.css";
 import _ from "underscore";
-import { Field } from "../game";
+import { Field } from "../../game";
 import { DrawSettings } from "./DrawSettings";
-import { Position, positionsEqual } from "../utils";
+import { Position, positionsEqual } from "../../utils";
 import { useCallback, useMemo } from "react";
 
 export interface DGridProps {

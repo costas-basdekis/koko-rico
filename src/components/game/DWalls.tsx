@@ -1,8 +1,8 @@
 import "./DWalls.css";
 import { useCallback } from "react";
 import _ from "underscore";
-import { Walls, WallType } from "../game";
-import { Position } from "../utils";
+import { Walls, WallType } from "../../game";
+import { Position } from "../../utils";
 import { DrawSettings } from "./DrawSettings";
 
 export interface DWallsProps {

@@ -1,6 +1,6 @@
 import "./DRobot.css";
 import { useCallback } from "react";
-import { Robot } from "../game";
+import { Robot } from "../../game";
 import { DrawSettings } from "./DrawSettings";
 
 export interface DRobotProps {

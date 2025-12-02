@@ -1,7 +1,6 @@
 import _ from "underscore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, WallType, Robot, Direction } from "../game";
-import { DGame, DrawSettings } from "../components";
 import {
   loadGameFromLocalStorage,
   Position,
@@ -9,11 +8,13 @@ import {
   positionsEqual,
   saveGameToLocalStorage,
 } from "../utils";
-import { SvgContainer } from "../SvgContainer";
 import {
+  DGame,
+  DrawSettings,
   UsageInstructions,
   useShowMoveInterpreter,
-} from "../UsageInstructions";
+  SvgContainer,
+} from "../components";
 
 export default function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(

@@ -1,8 +1,7 @@
 import { useCallback, useMemo } from "react";
-import { Game } from "../game";
+import { Game } from "../../game";
 import _ from "underscore";
-import { Star } from "./Star";
-import { ButtonLike } from "./ControlButton";
+import { ButtonLike, Star } from "../ui";
 
 export interface TargetsCounterProps {
   game: Game;

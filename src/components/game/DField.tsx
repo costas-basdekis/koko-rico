@@ -6,14 +6,14 @@ import {
   Robot,
   RobotPath,
   WallType,
-} from "../game";
-import { getPositionKey, Position } from "../utils";
+} from "../../game";
+import { getPositionKey, Position } from "../../utils";
 import { DGrid } from "./DGrid";
 import { DrawSettings } from "./DrawSettings";
 import { DRobotPath } from "./DRobotPath";
 import { DWalls } from "./DWalls";
-import { TapHandler } from "../utils/TapHandler";
-import { NextPositionArrowUp } from "./NextPositionArrowUp";
+import { TapHandler } from "../../utils";
+import { NextPositionArrowUp } from "../ui";
 
 export interface DFieldProps {
   field: Field;

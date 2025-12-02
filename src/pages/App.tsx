@@ -1,8 +1,9 @@
-import "./styles.css";
+import "./App.css";
 import { useCallback, useState } from "react";
-import ExploreMode from "./pages/ExploreMode";
-import { MultiRobotPuzzleMode, SingleRobotPuzzleMode } from "./pages";
-import { ControlButton } from "./components";
+import ExploreMode from "./ExploreMode";
+import { MultiRobotPuzzleMode } from "./MultiRobotPuzzleMode";
+import { SingleRobotPuzzleMode } from "./SingleRobotPuzzleMode";
+import { ControlButton } from "../components";
 
 type Mode = "multi-robot-puzzle" | "signle-robot-puzzle" | "explore";
 

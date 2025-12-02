@@ -1,12 +1,17 @@
 import "./SvgContainer.css";
 import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
-import { SvgDefs } from "./SvgDefs";
-import { DrawSettings } from "./components";
-import { useWindowSize } from "./hooks";
-import { Direction } from "./game";
-import { getPositionKey, VisualiseProps } from "./utils";
-import { MoveInterpreter, RingMoveInterpreter } from "./utils";
-import { Arrow, SingleTouchManager } from "./utils/SingleTouchManager";
+import { SvgDefs } from "../SvgDefs";
+import { DrawSettings } from "../game";
+import { useWindowSize } from "../../hooks";
+import { Direction } from "../../game";
+import {
+  getPositionKey,
+  VisualiseProps,
+  MoveInterpreter,
+  RingMoveInterpreter,
+  Arrow,
+  SingleTouchManager,
+} from "../../utils";
 
 export interface SvgContainerProps {
   gridWidth: number;

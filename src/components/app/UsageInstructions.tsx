@@ -3,15 +3,15 @@ import {
   isTouchDevice as checkIsTouchDevice,
   MoveInterpreter,
   RingMoveInterpreter,
-} from "./utils";
+} from "../../utils";
 import {
   ButtonRow,
   ControlButton,
   DrawSettings,
   NextPositionArrowUp,
   Spinner,
-} from "./components";
-import { Direction } from "./game";
+} from "..";
+import { Direction } from "../../game";
 
 export interface UsageInstructionsProps {
   showMoveInterpreter?: boolean;

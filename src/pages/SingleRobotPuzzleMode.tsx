@@ -1,13 +1,15 @@
 import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
-import { DGame, MovesCounter, TargetsCounter } from "../components";
 import { Position } from "../utils";
-import { SvgContainer } from "../SvgContainer";
 import {
+  DGame,
+  MovesCounter,
+  TargetsCounter,
   UsageInstructions,
   useShowMoveInterpreter,
-} from "../UsageInstructions";
+  SvgContainer,
+} from "../components/";
 import { PuzzleService, useSavedGame } from "../hooks";
 
 const DefaultDesiredTargetDistance = 5;
