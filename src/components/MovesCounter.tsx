@@ -1,4 +1,6 @@
+import "./MovesCounter.css";
 import { Game } from "../game";
+import { ButtonLike } from "./ControlButton";
 
 export interface MovesCounterProps {
   game: Game;
@@ -7,9 +9,9 @@ export interface MovesCounterProps {
 export function MovesCounter({ game }: MovesCounterProps) {
   return (
     <>
-      <label className={"button-like"}>Moves:</label>
-      <label
-        className={`button-like moves-counter ${game.path.length < game.targetDistance ? "fewer" : game.path.length === game.targetDistance ? "exact" : game.path.length <= game.silverTargetDistance ? "silver" : game.path.length <= game.bronzeTargetDistance ? "bronze" : "more"}-moves`}
+      <ButtonLike>Moves:</ButtonLike>
+      <ButtonLike
+        className={`moves-counter ${game.path.length < game.targetDistance ? "fewer" : game.path.length === game.targetDistance ? "exact" : game.path.length <= game.silverTargetDistance ? "silver" : game.path.length <= game.bronzeTargetDistance ? "bronze" : "more"}-moves`}
       >
         {game.path.length}/
         {game.path.length <= game.targetDistance
@@ -17,7 +19,7 @@ export function MovesCounter({ game }: MovesCounterProps) {
           : game.path.length <= game.silverTargetDistance
             ? game.silverTargetDistance
             : game.bronzeTargetDistance}
-      </label>
+      </ButtonLike>
     </>
   );
 }

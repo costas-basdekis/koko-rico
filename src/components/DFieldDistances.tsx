@@ -1,3 +1,4 @@
+import "./DFieldDistances.css";
 import _ from "underscore";
 import { Field } from "../game";
 import { PositionMap } from "../utils";

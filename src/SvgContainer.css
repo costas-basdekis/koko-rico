@@ -1,0 +1,10 @@
+svg {
+  border: 1px solid black;
+}
+
+:root {
+  --robot-0-colour: red;
+  --robot-1-colour: green;
+  --robot-2-colour: blue;
+  --robot-3-colour: yellow;
+}

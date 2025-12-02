@@ -1,0 +1,19 @@
+.moves-counter.fewer-moves {
+  background-color: yellow;
+}
+
+.moves-counter.exact-moves {
+  background-color: green;
+}
+
+.moves-counter.silver-moves {
+  background-color: silver;
+}
+
+.moves-counter.bronze-moves {
+  background-color: darkgoldenrod;
+}
+
+.moves-counter.more-moves {
+  background-color: red;
+}

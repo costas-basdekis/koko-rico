@@ -1,3 +1,4 @@
+import "./DGrid.css";
 import _ from "underscore";
 import { Field } from "../game";
 import { DrawSettings } from "./DrawSettings";

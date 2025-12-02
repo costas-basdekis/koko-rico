@@ -1,5 +1,5 @@
+import "./DRobotPath.css";
 import { Robot, RobotPath } from "../game";
-import { getPositionKey, Position } from "../utils";
 import { DrawSettings } from "./DrawSettings";
 
 export interface DRobotPathProps {

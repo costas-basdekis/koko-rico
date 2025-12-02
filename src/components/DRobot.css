@@ -1,0 +1,34 @@
+.robot {
+  stroke: black;
+  stroke-width: 3px;
+  stroke-width: calc(0.15px * var(--draw-size));
+}
+.robot.index-0 {
+  fill: var(--robot-0-colour);
+}
+.robot.index-1 {
+  fill: var(--robot-1-colour);
+}
+.robot.index-2 {
+  fill: var(--robot-2-colour);
+}
+.robot.index-3 {
+  fill: var(--robot-3-colour);
+}
+
+.robot.index-0:not(.selected) {
+  stroke: var(--robot-0-colour);
+  fill: white;
+}
+.robot.index-1:not(.selected) {
+  stroke: var(--robot-1-colour);
+  fill: white;
+}
+.robot.index-2:not(.selected) {
+  stroke: var(--robot-2-colour);
+  fill: white;
+}
+.robot.index-3:not(.selected) {
+  stroke: var(--robot-3-colour);
+  fill: white;
+}

@@ -1,3 +1,4 @@
+export * from "./ControlButton";
 export * from "./DField";
 export * from "./DFieldDistances";
 export * from "./DGame";
@@ -9,4 +10,5 @@ export * from "./DWalls";
 export * from "./MovesCounter";
 export * from "./NextPositionArrowUp";
 export * from "./Spinner";
+export * from "./Star";
 export * from "./TargetsCounter";

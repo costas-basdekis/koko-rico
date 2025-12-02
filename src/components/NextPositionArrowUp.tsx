@@ -1,3 +1,4 @@
+import "./NextPositionArrowUp.css";
 import { useMemo } from "react";
 import { makeAndRegisterSvgDef } from "../SvgDefs";
 import { DrawSettings } from "./DrawSettings";

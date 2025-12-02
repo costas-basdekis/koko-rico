@@ -1,3 +1,4 @@
+import "./SvgContainer.css";
 import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import { SvgDefs } from "./SvgDefs";
 import { DrawSettings } from "./components";

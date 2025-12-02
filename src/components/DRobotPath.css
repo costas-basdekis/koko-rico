@@ -1,0 +1,22 @@
+.robot-path-item {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 10;
+  stroke-width: calc(0.33px * var(--draw-size));
+}
+
+.robot-path-item.index-0 {
+  stroke: var(--robot-0-colour);
+}
+
+.robot-path-item.index-1 {
+  stroke: var(--robot-1-colour);
+}
+
+.robot-path-item.index-2 {
+  stroke: var(--robot-2-colour);
+}
+
+.robot-path-item.index-3 {
+  stroke: var(--robot-3-colour);
+}

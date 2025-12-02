@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { Game } from "../game";
 import _ from "underscore";
+import { Star } from "./Star";
+import { ButtonLike } from "./ControlButton";
 
 export interface TargetsCounterProps {
   game: Game;
@@ -42,8 +44,8 @@ export function TargetsCounter({
   }, [maxDesiredTargetDistance]);
   return (
     <>
-      <label className={"button-like"}>Targets:</label>
-      <label className={`button-like targets-counter`}>
+      <ButtonLike>Targets:</ButtonLike>
+      <ButtonLike className={`targets-counter`}>
         <Star level={"gold"} />
         {game.completedTargetPositions.length}/{game.targetPositions.length},
         <Star level={"silver"} />
@@ -54,16 +56,16 @@ export function TargetsCounter({
         {game.targetPositions.length -
           game.completedTargetPositions.length -
           game.silverTargetPositions.length}
-      </label>
-      <label className={`button-like`}>
+      </ButtonLike>
+      <ButtonLike>
         <input
           type={"checkbox"}
           checked={showOnlyOneTarget}
           onChange={innerOnShowOnlyOneTargetChange}
         />
         One target
-      </label>
-      <label className={`button-like`}>
+      </ButtonLike>
+      <ButtonLike>
         Distance:
         <select
           value={desiredTargetDistance}
@@ -71,15 +73,7 @@ export function TargetsCounter({
         >
           {options}
         </select>
-      </label>
+      </ButtonLike>
     </>
   );
-}
-
-interface StarProps {
-  level: "gold" | "silver" | "bronze";
-}
-
-function Star({ level }: StarProps) {
-  return <span className={`star level-${level}`}>★</span>;
 }

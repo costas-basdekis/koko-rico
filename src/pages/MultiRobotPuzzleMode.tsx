@@ -2,6 +2,7 @@ import _ from "underscore";
 import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, Robot } from "../game";
 import {
+  ButtonRow,
   DGame,
   DrawSettings,
   MovesCounter,
@@ -116,7 +117,7 @@ export function MultiRobotPuzzleMode() {
           game.completedTargetPositions.length !== game.targetPositions.length
         }
       />
-      <div className={"button-row"}>
+      <ButtonRow>
         <MovesCounter game={game} />
         <TargetsCounter
           game={game}
@@ -125,7 +126,7 @@ export function MultiRobotPuzzleMode() {
           desiredTargetDistance={desiredTargetDistance}
           onDesiredTargetDistanceChange={setDesiredTargetDistance}
         />
-      </div>
+      </ButtonRow>
       <SvgContainer
         gridWidth={game.field.width}
         gridHeight={game.field.height}

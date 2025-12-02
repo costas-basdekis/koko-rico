@@ -1,3 +1,4 @@
+import "./DWalls.css";
 import { useCallback } from "react";
 import _ from "underscore";
 import { Walls, WallType } from "../game";

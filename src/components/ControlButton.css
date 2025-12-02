@@ -1,0 +1,20 @@
+.control-button .button-hotkey {
+  font-size: 26px;
+}
+
+.button-row { 
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.button-like {
+  font-size: 26px;
+  border: 2px outset black;
+  background-color: rgb(239, 239, 239);
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.button-like .subtitle {
+  font-size: initial;
+}

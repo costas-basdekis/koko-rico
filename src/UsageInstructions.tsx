@@ -4,7 +4,13 @@ import {
   MoveInterpreter,
   RingMoveInterpreter,
 } from "./utils";
-import { DrawSettings, NextPositionArrowUp, Spinner } from "./components";
+import {
+  ButtonRow,
+  ControlButton,
+  DrawSettings,
+  NextPositionArrowUp,
+  Spinner,
+} from "./components";
 import { Direction } from "./game";
 
 export interface UsageInstructionsProps {
@@ -107,12 +113,8 @@ export function UsageInstructions({
   }, [onNewPuzzle, askForNewPuzzleConfirmation]);
   return (
     <>
-      <div className={"button-row"}>
-        <button
-          className={"control-button"}
-          disabled={!onRobotMove}
-          onClick={onLeftClick}
-        >
+      <ButtonRow>
+        <ControlButton disabled={!onRobotMove} onClick={onLeftClick}>
           <svg width={buttonSize} height={buttonSize}>
             <NextPositionArrowUp
               size={buttonSize}
@@ -123,12 +125,8 @@ export function UsageInstructions({
           </svg>
           <br />
           {isTouchDevice ? "Drag " : ""}Left
-        </button>
-        <button
-          className={"control-button"}
-          disabled={!onRobotMove}
-          onClick={onRightClick}
-        >
+        </ControlButton>
+        <ControlButton disabled={!onRobotMove} onClick={onRightClick}>
           <svg width={buttonSize} height={buttonSize}>
             <NextPositionArrowUp
               size={buttonSize}
@@ -139,12 +137,8 @@ export function UsageInstructions({
           </svg>
           <br />
           {isTouchDevice ? "Drag " : ""}Right
-        </button>
-        <button
-          className={"control-button"}
-          disabled={!onRobotMove}
-          onClick={onUpClick}
-        >
+        </ControlButton>
+        <ControlButton disabled={!onRobotMove} onClick={onUpClick}>
           <svg width={buttonSize} height={buttonSize}>
             <NextPositionArrowUp
               size={buttonSize}
@@ -155,12 +149,8 @@ export function UsageInstructions({
           </svg>
           <br />
           {isTouchDevice ? "Drag " : ""}Up
-        </button>
-        <button
-          className={"control-button"}
-          disabled={!onRobotMove}
-          onClick={onDownClick}
-        >
+        </ControlButton>
+        <ControlButton disabled={!onRobotMove} onClick={onDownClick}>
           <svg width={buttonSize} height={buttonSize}>
             <NextPositionArrowUp
               size={buttonSize}
@@ -171,11 +161,10 @@ export function UsageInstructions({
           </svg>
           <br />
           {isTouchDevice ? "Drag " : ""}Down
-        </button>
+        </ControlButton>
         {isTouchDevice ? (
           <>
             <button
-              className={"control-button"}
               disabled={!onChangeShowMoveInterpreter}
               onClick={toggleShowMoveInterpreter}
             >
@@ -187,49 +176,35 @@ export function UsageInstructions({
             </button>
           </>
         ) : null}
-      </div>
-      <div className={"button-row"}>
-        <button
-          className={"control-button"}
+      </ButtonRow>
+      <ButtonRow>
+        <ControlButton
           disabled={!onSelectedRobotIndexChange}
           onClick={onNextRobotClick}
         >
           <span className={"button-hotkey"}>R</span>
           <br />
           Next robot
-        </button>
-        <button
-          className={"control-button"}
+        </ControlButton>
+        <ControlButton
           disabled={!onSelectedRobotIndexChange}
           onClick={onPreviousRobotClick}
         >
           <span className={"button-hotkey"}>Shift+R</span>
           <br />
           Previous robot
-        </button>
-        <button
-          className={"control-button"}
-          disabled={!onRobotReset}
-          onClick={onRobotReset}
-        >
+        </ControlButton>
+        <ControlButton disabled={!onRobotReset} onClick={onRobotReset}>
           <span className={"button-hotkey"}>T</span>
           <br />
           Reset robots
-        </button>
-        <button
-          className={"control-button"}
-          disabled={!onUndoRobotMove}
-          onClick={onUndoRobotMove}
-        >
+        </ControlButton>
+        <ControlButton disabled={!onUndoRobotMove} onClick={onUndoRobotMove}>
           <span className={"button-hotkey"}>U</span>
           <br />
           Undo
-        </button>
-        <button
-          className={"control-button"}
-          disabled={!onNewPuzzle}
-          onClick={innerOnNewPuzzle}
-        >
+        </ControlButton>
+        <ControlButton disabled={!onNewPuzzle} onClick={innerOnNewPuzzle}>
           {gameLoading ? (
             <Spinner />
           ) : (
@@ -237,8 +212,8 @@ export function UsageInstructions({
           )}
           <br />
           New Puzzle
-        </button>
-      </div>
+        </ControlButton>
+      </ButtonRow>
     </>
   );
 }

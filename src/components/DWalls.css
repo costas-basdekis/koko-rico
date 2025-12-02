@@ -1,0 +1,14 @@
+.grid-wall {
+  stroke: black;
+  stroke-width: 3px;
+  stroke-width: calc(0.15px * var(--draw-size));
+  stroke-linecap: square;
+}
+
+.grid-wall.ghost:not(:hover) {
+  stroke: transparent;
+}
+
+.grid-wall.clickable:hover {
+  cursor: pointer;
+}

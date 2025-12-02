@@ -1,0 +1,25 @@
+.grid-square {
+  stroke: black;
+  fill: white;
+}
+
+.grid-square.robot-next-position {
+  fill: green;
+  cursor: pointer;
+}
+
+.grid-square.target-position {
+  fill: yellow;
+}
+
+.grid-square.target-position.completed-target-position {
+  fill: green;
+}
+
+.grid-square.target-position.silver-target-position {
+  fill: silver;
+}
+
+.grid-square.target-position.bronze-target-position {
+  fill: darkgoldenrod;
+}

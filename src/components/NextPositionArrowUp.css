@@ -1,0 +1,48 @@
+.next-position-arrow {
+  pointer-events: none;
+}
+
+.next-position-arrow.index-0 {
+  fill: var(--robot-0-colour);
+}
+
+.next-position-arrow.index-1 {
+  fill: var(--robot-1-colour);
+}
+
+.next-position-arrow.index-2 {
+  fill: var(--robot-2-colour);
+}
+
+.next-position-arrow.index-3 {
+  fill: var(--robot-3-colour);
+}
+
+.next-position-arrow.index-0:not(.selected):not(.undo) {
+  stroke: var(--robot-0-colour);
+  fill: white;
+}
+
+.next-position-arrow.index-1:not(.selected):not(.undo) {
+  stroke: var(--robot-1-colour);
+  fill: white;
+}
+
+.next-position-arrow.index-2:not(.selected):not(.undo) {
+  stroke: var(--robot-2-colour);
+  fill: white;
+}
+
+.next-position-arrow.index-3:not(.selected):not(.undo) {
+  stroke: var(--robot-3-colour);
+  fill: white;
+}
+
+.next-position-arrow.undo:not(.selected) {
+  stroke: orange;
+  fill: white;
+}
+
+.next-position-arrow.undo.selected {
+  fill: orange;
+}

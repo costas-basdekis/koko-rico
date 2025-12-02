@@ -2,6 +2,7 @@ import "./styles.css";
 import { useCallback, useState } from "react";
 import ExploreMode from "./pages/ExploreMode";
 import { MultiRobotPuzzleMode, SingleRobotPuzzleMode } from "./pages";
+import { ControlButton } from "./components";
 
 type Mode = "multi-robot-puzzle" | "signle-robot-puzzle" | "explore";
 
@@ -27,7 +28,7 @@ export default function App() {
         <ExploreMode />
       ) : null}
       <div>
-        <button className={"control-button"} onClick={onSetMultiobotPuzzleMode}>
+        <ControlButton onClick={onSetMultiobotPuzzleMode}>
           <input
             type={"radio"}
             onChange={onSetMultiobotPuzzleMode}
@@ -36,11 +37,8 @@ export default function App() {
           <span className={"button-hotkey"}>Multi</span>
           <br />
           Robot Puzzle
-        </button>
-        <button
-          className={"control-button"}
-          onClick={onSetSingleRobotPuzzleMode}
-        >
+        </ControlButton>
+        <ControlButton onClick={onSetSingleRobotPuzzleMode}>
           <input
             type={"radio"}
             onChange={onSetSingleRobotPuzzleMode}
@@ -49,8 +47,8 @@ export default function App() {
           <span className={"button-hotkey"}>Single</span>
           <br />
           Robot Puzzle
-        </button>
-        <button className={"control-button"} onClick={onSetExplorationMode}>
+        </ControlButton>
+        <ControlButton onClick={onSetExplorationMode}>
           <input
             type={"radio"}
             onChange={onSetExplorationMode}
@@ -59,7 +57,7 @@ export default function App() {
           <span className={"button-hotkey"}>Explore</span>
           <br />
           Mode
-        </button>
+        </ControlButton>
       </div>
     </div>
   );
