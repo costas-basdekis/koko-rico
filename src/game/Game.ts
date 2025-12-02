@@ -25,6 +25,16 @@ export type NextPositionEntries = NextPositionEntry[];
 
 export type NextPositionEntriesMap = Map<number, NextPositionEntries>;
 
+export interface GameBackgroundRequest {
+  serialised: any;
+  count: number;
+  desiredTargetDistance: number;
+}
+
+export type GameBackgroundResponse =
+  | { success: false; error: string }
+  | { success: true; serialised: LatestGameFormat };
+
 export class Game {
   field: Field;
   robots: Robot[];
@@ -690,6 +700,21 @@ export class Game {
       }
     }
     return newGame;
+  }
+
+  static backgroundPuzzleGeneration({
+    desiredTargetDistance,
+    count,
+    serialised,
+  }: GameBackgroundRequest): GameBackgroundResponse {
+    try {
+      const game = Game.deserialise(serialised)
+        .pickRandomCrossedWallsProgressively(count, desiredTargetDistance)
+        .pickTargets(desiredTargetDistance);
+      return { success: true, serialised: game.serialise() };
+    } catch (e) {
+      return { success: false, error: `${e}` };
+    }
   }
 
   pickTargets(

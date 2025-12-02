@@ -4,11 +4,12 @@ import {
   MoveInterpreter,
   RingMoveInterpreter,
 } from "./utils";
-import { DrawSettings, NextPositionArrowUp } from "./components";
+import { DrawSettings, NextPositionArrowUp, Spinner } from "./components";
 import { Direction } from "./game";
 
 export interface UsageInstructionsProps {
   showMoveInterpreter?: boolean;
+  gameLoading?: boolean;
   onChangeShowMoveInterpreter?: (showMoveInterpreter: boolean) => void;
   moveInterpreter?: MoveInterpreter;
   selectedRobotIndex?: number;
@@ -22,6 +23,7 @@ export interface UsageInstructionsProps {
 
 export function UsageInstructions({
   showMoveInterpreter = true,
+  gameLoading = false,
   onChangeShowMoveInterpreter,
   moveInterpreter = new RingMoveInterpreter(),
   selectedRobotIndex,
@@ -95,6 +97,7 @@ export function UsageInstructions({
   );
   const innerOnNewPuzzle = useCallback(() => {
     if (
+      !gameLoading &&
       askForNewPuzzleConfirmation &&
       !confirm("Are you sure you want to create a new puzzle?")
     ) {
@@ -227,7 +230,11 @@ export function UsageInstructions({
           disabled={!onNewPuzzle}
           onClick={innerOnNewPuzzle}
         >
-          <span className={"button-hotkey"}>N</span>
+          {gameLoading ? (
+            <Spinner />
+          ) : (
+            <span className={"button-hotkey"}>N</span>
+          )}
           <br />
           New Puzzle
         </button>

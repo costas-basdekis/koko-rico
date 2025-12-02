@@ -8,4 +8,5 @@ export * from "./DRobotPath";
 export * from "./DWalls";
 export * from "./MovesCounter";
 export * from "./NextPositionArrowUp";
+export * from "./Spinner";
 export * from "./TargetsCounter";

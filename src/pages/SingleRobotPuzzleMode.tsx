@@ -8,6 +8,7 @@ import {
   UsageInstructions,
   useShowMoveInterpreter,
 } from "../UsageInstructions";
+import { PuzzleService } from "../hooks";
 
 const DefaultDesiredTargetDistance = 5;
 
@@ -15,12 +16,14 @@ export function SingleRobotPuzzleMode() {
   const {
     game,
     setGame,
+    onNewGame,
+    gameLoading,
     desiredTargetDistance,
     setDesiredTargetDistance,
-    effectiveTargetDistance,
   } = useSavedGame(
     "singleRobotPuzzleGame",
-    makeGame,
+    makeInitialGame,
+    makeBackgroundGame,
     DefaultDesiredTargetDistance,
   );
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
@@ -49,9 +52,6 @@ export function SingleRobotPuzzleMode() {
     },
     [game, setGame],
   );
-  const onRandomCrossedWallsClick = useCallback(() => {
-    setGame(makeGame(effectiveTargetDistance));
-  }, [setGame]);
   const [showMoveInterpreter, setShowMoveInterpreter] =
     useShowMoveInterpreter();
   const onTouchScreenMove = useCallback(
@@ -85,12 +85,13 @@ export function SingleRobotPuzzleMode() {
   return (
     <>
       <UsageInstructions
+        gameLoading={gameLoading}
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
         onRobotMove={onTouchScreenMove}
         onRobotReset={game.path.length ? onRobotResetClick : undefined}
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
-        onNewPuzzle={onRandomCrossedWallsClick}
+        onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
           game.completedTargetPositions.length !== game.targetPositions.length
         }
@@ -118,7 +119,7 @@ export function SingleRobotPuzzleMode() {
           showRobotControls
           onRobotMoveClick={onRobotMoveClick}
           onRobotResetClick={onRobotResetClick}
-          onNewGameClick={onRandomCrossedWallsClick}
+          onNewGameClick={onNewGame}
           targetPositions={visibleTargetPositions}
         />
       </SvgContainer>
@@ -126,8 +127,21 @@ export function SingleRobotPuzzleMode() {
   );
 }
 
-function makeGame(desiredTargetDistance: number): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }])
-    .pickRandomCrossedWallsProgressively(20, desiredTargetDistance)
-    .pickTargets(desiredTargetDistance);
+function makeInitialGame(): Game {
+  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]);
+}
+
+function makeBackgroundGame(
+  desiredTargetDistance: number,
+  puzzleService: PuzzleService,
+  setGameOrError: (gameOrError: Game | string) => void,
+) {
+  puzzleService.request(
+    {
+      serialised: makeInitialGame().serialise(),
+      count: 20,
+      desiredTargetDistance,
+    },
+    setGameOrError,
+  );
 }
