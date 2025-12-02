@@ -7,13 +7,13 @@ import {
   MovesCounter,
   TargetsCounter,
 } from "../components";
-import { Position, useSavedGame } from "../utils";
+import { Position } from "../utils";
 import { SvgContainer } from "../SvgContainer";
 import {
   UsageInstructions,
   useShowMoveInterpreter,
 } from "../UsageInstructions";
-import { PuzzleService, usePuzzleService } from "../hooks";
+import { PuzzleService, useSavedGame } from "../hooks";
 
 const DefaultDesiredTargetDistance = 5;
 
