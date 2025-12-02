@@ -1,14 +1,15 @@
 {
   "files": {
-    "main.css": "/koko-rico/static/css/main.257facce.css",
-    "main.js": "/koko-rico/static/js/main.8b3cc3e5.js",
+    "main.css": "/koko-rico/static/css/main.dd9f035e.css",
+    "main.js": "/koko-rico/static/js/main.690f2a22.js",
+    "service-worker.js": "/koko-rico/service-worker.js",
     "index.html": "/koko-rico/index.html",
     "static/media/next-position-arrow-up.svg": "/koko-rico/static/media/next-position-arrow-up.51d6d68036aa4bd06daa8856e03f01c3.svg",
-    "main.257facce.css.map": "/koko-rico/static/css/main.257facce.css.map",
-    "main.8b3cc3e5.js.map": "/koko-rico/static/js/main.8b3cc3e5.js.map"
+    "main.dd9f035e.css.map": "/koko-rico/static/css/main.dd9f035e.css.map",
+    "main.690f2a22.js.map": "/koko-rico/static/js/main.690f2a22.js.map"
   },
   "entrypoints": [
-    "static/css/main.257facce.css",
-    "static/js/main.8b3cc3e5.js"
+    "static/css/main.dd9f035e.css",
+    "static/js/main.690f2a22.js"
   ]
 }
