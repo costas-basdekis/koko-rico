@@ -16,7 +16,7 @@ import {
   SvgContainer,
 } from "../components";
 
-export default function ExploreMode() {
+export function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(
     () =>
       loadGameFromLocalStorage("exploreGame") ??

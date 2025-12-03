@@ -1,6 +1,6 @@
 import "./App.css";
 import { useCallback, useState } from "react";
-import ExploreMode from "./ExploreMode";
+import { ExploreMode } from "./ExploreMode";
 import { MultiRobotPuzzleMode } from "./MultiRobotPuzzleMode";
 import { SingleRobotPuzzleMode } from "./SingleRobotPuzzleMode";
 import { ControlButton } from "../components";
