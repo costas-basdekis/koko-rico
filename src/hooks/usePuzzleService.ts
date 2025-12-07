@@ -39,7 +39,7 @@ export function usePuzzleService(): PuzzleService {
         callback: (gameOrError: Game | string) => void,
       ) => {
         if (!service.webWorker) {
-          service.webWorker = new Worker("koko-rico/service-worker.js");
+          service.webWorker = new Worker("/koko-rico/service-worker.js");
           service.webWorker.onmessage = service.onMessage;
         }
         const callbackId = service.nextCallbackId;
