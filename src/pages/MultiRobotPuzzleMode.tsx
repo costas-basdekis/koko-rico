@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Direction, Game, Robot } from "../game";
 import {
   ButtonRow,
@@ -99,6 +99,7 @@ export function MultiRobotPuzzleMode() {
       stroke: drawSettings.robotColours[selectedRobotIndex],
     };
   }, [drawSettings, selectedRobotIndex]);
+  const onShowSettingsRef = useRef<(() => void) | undefined>();
   return (
     <>
       <UsageInstructions
@@ -114,16 +115,15 @@ export function MultiRobotPuzzleMode() {
         askForNewPuzzleConfirmation={
           game.completedTargetPositions.length !== game.targetPositions.length
         }
+        onShowSettingsRef={onShowSettingsRef}
+        showOnlyOneTarget={showOnlyOneTarget}
+        onShowOnlyOneTargetChange={setShowOnlyOneTarget}
+        desiredTargetDistance={desiredTargetDistance}
+        onDesiredTargetDistanceChange={setDesiredTargetDistance}
       />
       <ButtonRow>
         <MovesCounter game={game} />
-        <TargetsCounter
-          game={game}
-          showOnlyOneTarget={showOnlyOneTarget}
-          onShowOnlyOneTargetChange={setShowOnlyOneTarget}
-          desiredTargetDistance={desiredTargetDistance}
-          onDesiredTargetDistanceChange={setDesiredTargetDistance}
-        />
+        <TargetsCounter game={game} />
       </ButtonRow>
       <SvgContainer
         gridWidth={game.field.width}
@@ -142,6 +142,7 @@ export function MultiRobotPuzzleMode() {
           onRobotMoveClick={onRobotMoveClick}
           onRobotResetClick={onRobotResetClick}
           onNewGameClick={onNewGame}
+          onShowSettings={onShowSettingsRef.current}
           targetPositions={visibleTargetPositions}
         />
       </SvgContainer>

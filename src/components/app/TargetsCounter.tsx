@@ -5,11 +5,11 @@ import { ButtonLike, Star } from "../ui";
 
 export interface TargetsCounterProps {
   game: Game;
-  showOnlyOneTarget: boolean;
-  onShowOnlyOneTargetChange: (showOnlyOneTarget: boolean) => void;
+  showOnlyOneTarget?: boolean;
+  onShowOnlyOneTargetChange?: (showOnlyOneTarget: boolean) => void;
   maxDesiredTargetDistance?: number;
-  desiredTargetDistance: number;
-  onDesiredTargetDistanceChange: (desiredTargetDistance: number) => void;
+  desiredTargetDistance?: number;
+  onDesiredTargetDistanceChange?: (desiredTargetDistance: number) => void;
 }
 
 export function TargetsCounter({
@@ -22,14 +22,14 @@ export function TargetsCounter({
 }: TargetsCounterProps) {
   const innerOnShowOnlyOneTargetChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onShowOnlyOneTargetChange(e.target.checked);
+      onShowOnlyOneTargetChange?.(e.target.checked);
     },
     [onShowOnlyOneTargetChange],
   );
   const innerOnDesiredTargetDistanceChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newValue = parseInt(e.target.value, 10);
-      onDesiredTargetDistanceChange(newValue);
+      onDesiredTargetDistanceChange?.(newValue);
     },
     [onDesiredTargetDistanceChange],
   );
@@ -41,6 +41,16 @@ export function TargetsCounter({
       </option>
     ));
   }, [maxDesiredTargetDistance]);
+  if (onShowOnlyOneTargetChange && showOnlyOneTarget === undefined) {
+    throw new Error(
+      `showOnlyOneTarget is required when onShowOnlyOneTargetChange is present`,
+    );
+  }
+  if (onDesiredTargetDistanceChange && desiredTargetDistance === undefined) {
+    throw new Error(
+      `desiredTargetDistance is required when onDesiredTargetDistanceChange is present`,
+    );
+  }
   return (
     <>
       <ButtonLike>Targets:</ButtonLike>
@@ -56,23 +66,27 @@ export function TargetsCounter({
           game.completedTargetPositions.length -
           game.silverTargetPositions.length}
       </ButtonLike>
-      <ButtonLike>
-        <input
-          type={"checkbox"}
-          checked={showOnlyOneTarget}
-          onChange={innerOnShowOnlyOneTargetChange}
-        />
-        One target
-      </ButtonLike>
-      <ButtonLike>
-        Distance:
-        <select
-          value={desiredTargetDistance}
-          onChange={innerOnDesiredTargetDistanceChange}
-        >
-          {options}
-        </select>
-      </ButtonLike>
+      {onShowOnlyOneTargetChange ? (
+        <ButtonLike>
+          <input
+            type={"checkbox"}
+            checked={showOnlyOneTarget}
+            onChange={innerOnShowOnlyOneTargetChange}
+          />
+          One target
+        </ButtonLike>
+      ) : null}
+      {onDesiredTargetDistanceChange ? (
+        <ButtonLike>
+          Distance:
+          <select
+            value={desiredTargetDistance}
+            onChange={innerOnDesiredTargetDistanceChange}
+          >
+            {options}
+          </select>
+        </ButtonLike>
+      ) : null}
     </>
   );
 }
