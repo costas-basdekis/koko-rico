@@ -48,7 +48,9 @@ export class Game {
   silverTargetPositions: Position[];
   bronzeTargetPositions: Position[];
   singleRobotDistanceMap?: PositionMap<number> = undefined;
+  singleRobotDistanceMapDistance?: number = undefined;
   multiRobotDistanceMap?: PositionMap<number> = undefined;
+  multiRobotDistanceMapDistance?: number = undefined;
 
   static getDefaultSilverAndBronzeTargetDistances(
     targetDistance: number,
@@ -485,13 +487,19 @@ export class Game {
     if (leftWallsCrossed || topWallsCrossed) {
       this.singleRobotDistanceMap = undefined;
     }
-    if (!this.singleRobotDistanceMap) {
+    if (
+      this.singleRobotDistanceMapDistance !== distanceLimit ||
+      !this.singleRobotDistanceMap ||
+      leftWallsCrossed ||
+      topWallsCrossed
+    ) {
       this.singleRobotDistanceMap = new SingleRobotDistanceEvaluator(
         this,
         robot,
         leftWallsCrossed,
         topWallsCrossed,
       ).evaluate(distanceLimit);
+      this.singleRobotDistanceMapDistance = distanceLimit;
     }
     return this.singleRobotDistanceMap;
   }
@@ -505,7 +513,12 @@ export class Game {
     if (leftWallsCrossed || topWallsCrossed) {
       this.multiRobotDistanceMap = undefined;
     }
-    if (!this.multiRobotDistanceMap) {
+    if (
+      this.multiRobotDistanceMapDistance != distanceLimit ||
+      !this.multiRobotDistanceMap ||
+      leftWallsCrossed ||
+      topWallsCrossed
+    ) {
       this.multiRobotDistanceMap = new MultiRobotDistanceEvaluator(
         this,
         robot,
