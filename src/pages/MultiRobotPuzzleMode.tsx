@@ -46,14 +46,28 @@ export function MultiRobotPuzzleMode() {
     if (!showOnlyOneTarget) {
       return game.targetPositions;
     }
-    return [
-      ...game.targetPositions.filter((target) =>
-        game.completedTargetPositions.includes(target),
-      ),
-      ...game.targetPositions
-        .filter((target) => !game.completedTargetPositions.includes(target))
-        .slice(0, 1),
-    ];
+    if (
+      game.targetPositions.length ===
+      game.completedTargetPositions.length +
+        game.silverTargetPositions.length +
+        game.bronzeTargetPositions.length
+    ) {
+      return [
+        game.bronzeTargetPositions[0] ??
+          game.silverTargetPositions[0] ??
+          game.completedTargetPositions[0],
+      ];
+    }
+    return game.targetPositions
+      .filter(
+        (target) =>
+          !(
+            game.completedTargetPositions.includes(target) ||
+            game.silverTargetPositions.includes(target) ||
+            game.bronzeTargetPositions.includes(target)
+          ),
+      )
+      .slice(0, 1);
   }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
   const [showMoveInterpreter, setShowMoveInterpreter] =
     useShowMoveInterpreter();
