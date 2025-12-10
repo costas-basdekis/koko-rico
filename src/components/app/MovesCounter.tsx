@@ -1,28 +1,30 @@
 import "./MovesCounter.css";
-import { Game } from "../../game";
+import { Game, GameTargets } from "../../game";
 import { ButtonLike, Star } from "../ui";
 
 export interface MovesCounterProps {
   game: Game;
+  gameTargets: GameTargets;
 }
 
-export function MovesCounter({ game }: MovesCounterProps) {
+export function MovesCounter({ game, gameTargets }: MovesCounterProps) {
   return (
     <>
       <ButtonLike>Moves:</ButtonLike>
       <ButtonLike
-        className={`moves-counter ${game.path.length < game.targetDistance ? "fewer" : game.path.length === game.targetDistance ? "exact" : game.path.length <= game.silverTargetDistance ? "silver" : game.path.length <= game.bronzeTargetDistance ? "bronze" : "more"}-moves`}
+        className={`moves-counter ${game.path.length < gameTargets.targetDistance ? "fewer" : game.path.length === gameTargets.targetDistance ? "exact" : game.path.length <= gameTargets.silverTargetDistance ? "silver" : game.path.length <= gameTargets.bronzeTargetDistance ? "bronze" : "more"}-moves`}
       >
         {game.path.length}
       </ButtonLike>
       <ButtonLike>
-        {game.targetDistance}
+        {gameTargets.targetDistance}
         <Star level={"gold"} />
         {", "}
-        {game.targetDistance + 1}-{game.silverTargetDistance}
+        {gameTargets.targetDistance + 1}-{gameTargets.silverTargetDistance}
         <Star level={"silver"} />
         {", "}
-        {game.silverTargetDistance + 1}-{game.bronzeTargetDistance}
+        {gameTargets.silverTargetDistance + 1}-
+        {gameTargets.bronzeTargetDistance}
         <Star level={"bronze"} />
       </ButtonLike>
     </>

@@ -286,4 +286,27 @@ export class GameTargets {
       });
     }
   }
+
+  getOneTarget(): Position {
+    if (
+      this.targetPositions.length ===
+      this.completedTargetPositions.length +
+        this.silverTargetPositions.length +
+        this.bronzeTargetPositions.length
+    ) {
+      return (
+        this.bronzeTargetPositions[0] ??
+        this.silverTargetPositions[0] ??
+        this.completedTargetPositions[0]
+      );
+    }
+    return this.targetPositions.find(
+      (target) =>
+        !(
+          this.completedTargetPositions.includes(target) ||
+          this.silverTargetPositions.includes(target) ||
+          this.bronzeTargetPositions.includes(target)
+        ),
+    )!;
+  }
 }

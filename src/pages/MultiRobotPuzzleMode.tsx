@@ -19,6 +19,7 @@ const DefaultDesiredTargetDistance = 5;
 export function MultiRobotPuzzleMode() {
   const {
     game,
+    gameTargets,
     redoStack,
     onReset,
     onUndo,
@@ -44,31 +45,10 @@ export function MultiRobotPuzzleMode() {
   const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
-      return game.targetPositions;
+      return gameTargets.targetPositions;
     }
-    if (
-      game.targetPositions.length ===
-      game.completedTargetPositions.length +
-        game.silverTargetPositions.length +
-        game.bronzeTargetPositions.length
-    ) {
-      return [
-        game.bronzeTargetPositions[0] ??
-          game.silverTargetPositions[0] ??
-          game.completedTargetPositions[0],
-      ];
-    }
-    return game.targetPositions
-      .filter(
-        (target) =>
-          !(
-            game.completedTargetPositions.includes(target) ||
-            game.silverTargetPositions.includes(target) ||
-            game.bronzeTargetPositions.includes(target)
-          ),
-      )
-      .slice(0, 1);
-  }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
+    return [gameTargets.getOneTarget()];
+  }, [gameTargets, showOnlyOneTarget]);
   const [showMoveInterpreter, setShowMoveInterpreter] =
     useShowMoveInterpreter();
   const onTouchScreenMove = useCallback(
@@ -122,7 +102,8 @@ export function MultiRobotPuzzleMode() {
         onRedoRobotMove={redoStack.length ? onRedo : undefined}
         onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
-          game.completedTargetPositions.length !== game.targetPositions.length
+          gameTargets.completedTargetPositions.length !==
+          gameTargets.targetPositions.length
         }
         onShowSettings={onShowSettings}
       />
@@ -134,9 +115,9 @@ export function MultiRobotPuzzleMode() {
         onDesiredTargetDistanceChange={setDesiredTargetDistance}
       />
       <ButtonRow>
-        <MovesCounter game={game} />
+        <MovesCounter game={game} gameTargets={gameTargets} />
         <br />
-        <TargetsCounter game={game} />
+        <TargetsCounter gameTargets={gameTargets} />
       </ButtonRow>
       <SvgContainer
         gridWidth={game.field.width}
@@ -149,6 +130,7 @@ export function MultiRobotPuzzleMode() {
       >
         <DGame
           game={game}
+          gameTargets={gameTargets}
           showRobotControls
           selectedRobotIndex={selectedRobotIndex}
           onSelectedRobotIndexChange={setSelectedRobotIndex}

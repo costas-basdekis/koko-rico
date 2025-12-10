@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from "react";
-import { Game } from "../../game";
+import { GameTargets } from "../../game";
 import _ from "underscore";
 import { ButtonLike, Star } from "../ui";
 
 export interface TargetsCounterProps {
-  game: Game;
+  gameTargets: GameTargets;
   showOnlyOneTarget?: boolean;
   onShowOnlyOneTargetChange?: (showOnlyOneTarget: boolean) => void;
   maxDesiredTargetDistance?: number;
@@ -13,7 +13,7 @@ export interface TargetsCounterProps {
 }
 
 export function TargetsCounter({
-  game,
+  gameTargets,
   showOnlyOneTarget,
   onShowOnlyOneTargetChange,
   maxDesiredTargetDistance = 20,
@@ -56,15 +56,18 @@ export function TargetsCounter({
       <ButtonLike>Targets:</ButtonLike>
       <ButtonLike className={`targets-counter`}>
         <Star level={"gold"} />
-        {game.completedTargetPositions.length}/{game.targetPositions.length},
+        {gameTargets.completedTargetPositions.length}/
+        {gameTargets.targetPositions.length},
         <Star level={"silver"} />
-        {game.silverTargetPositions.length}/
-        {game.targetPositions.length - game.completedTargetPositions.length},
+        {gameTargets.silverTargetPositions.length}/
+        {gameTargets.targetPositions.length -
+          gameTargets.completedTargetPositions.length}
+        ,
         <Star level={"bronze"} />
-        {game.bronzeTargetPositions.length}/
-        {game.targetPositions.length -
-          game.completedTargetPositions.length -
-          game.silverTargetPositions.length}
+        {gameTargets.bronzeTargetPositions.length}/
+        {gameTargets.targetPositions.length -
+          gameTargets.completedTargetPositions.length -
+          gameTargets.silverTargetPositions.length}
       </ButtonLike>
       {onShowOnlyOneTargetChange ? (
         <ButtonLike>

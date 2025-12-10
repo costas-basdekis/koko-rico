@@ -2,6 +2,7 @@ import "./DField.css";
 import { useCallback, useMemo } from "react";
 import {
   Field,
+  GameTargets,
   getPositionsDirection,
   Robot,
   RobotPath,
@@ -32,10 +33,8 @@ export interface DFieldProps {
     nextPosition: Position,
     isUndo: boolean,
   ) => void;
+  gameTargets?: GameTargets;
   targetPositions?: Position[];
-  completedTargetPositions?: Position[];
-  silverTargetPositions?: Position[];
-  bronzeTargetPositions?: Position[];
 }
 
 export function DField({
@@ -48,10 +47,8 @@ export function DField({
   nextRobotsPositionEntries,
   robotPositions,
   onRobotMoveClick,
+  gameTargets,
   targetPositions,
-  completedTargetPositions,
-  silverTargetPositions,
-  bronzeTargetPositions,
 }: DFieldProps) {
   if (path && !robots) {
     throw new Error("DGame cannot accept robotPaths prop without robots prop.");
@@ -89,13 +86,7 @@ export function DField({
   );
   return (
     <g className={"field"}>
-      <DGrid
-        field={field}
-        targetPositions={targetPositions}
-        completedTargetPositions={completedTargetPositions}
-        silverTargetPositions={silverTargetPositions}
-        bronzeTargetPositions={bronzeTargetPositions}
-      />
+      <DGrid field={field} gameTargets={gameTargets} />
       {Array.from(robotPathsByIndex.entries())
         .sort(sortOnSelectedRobotFirst)
         .map(([index, robotPath]) => (

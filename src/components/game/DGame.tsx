@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import {
   Direction,
   Game,
+  GameTargets,
   NextPositionEntriesMap,
   Robot,
   WallType,
@@ -14,6 +15,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 export interface DGameProps {
   game: Game;
+  gameTargets?: GameTargets;
   showDistances?: boolean;
   maxDistance?: number;
   showGhostWalls?: boolean;
@@ -54,6 +56,7 @@ const hotkeyDirectionMap: Map<string, Direction> = new Map([
 
 export function DGame({
   game,
+  gameTargets,
   showDistances = false,
   maxDistance,
   showGhostWalls = false,
@@ -68,7 +71,7 @@ export function DGame({
   onRobotResetClick,
   onNewGameClick,
   onShowSettings,
-  targetPositions = game.targetPositions,
+  targetPositions = gameTargets?.targetPositions ?? game.targetPositions,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances || maxDistance === undefined) {
@@ -179,10 +182,8 @@ export function DGame({
           showRobotControls ? nextRobotsPositionEntries : undefined
         }
         onRobotMoveClick={onRobotNextPositionClick}
+        gameTargets={gameTargets}
         targetPositions={targetPositions}
-        completedTargetPositions={game.completedTargetPositions}
-        silverTargetPositions={game.silverTargetPositions}
-        bronzeTargetPositions={game.bronzeTargetPositions}
       />
       {distanceMap ? (
         <DFieldDistances field={game.field} distanceMap={distanceMap} />
