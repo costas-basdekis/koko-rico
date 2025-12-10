@@ -14,6 +14,7 @@ import {
   UsageInstructions,
   useShowMoveInterpreter,
   SvgContainer,
+  SettingsDialog,
 } from "../components";
 
 export function ExploreMode() {
@@ -54,6 +55,7 @@ export function ExploreMode() {
   const [distanceMap, setDistanceMap] = useState<PositionMap<number> | null>(
     null,
   );
+  const [desiredMaxDistance, setDesiredMaxDistance] = useState(10);
   const onDistanceMapChange = useCallback(
     (newDistanceMap: PositionMap<number> | null) => {
       setDistanceMap(newDistanceMap);
@@ -132,38 +134,11 @@ export function ExploreMode() {
       stroke: drawSettings.robotColours[selectedRobotIndex],
     };
   }, [drawSettings, selectedRobotIndex]);
+  const [onShowSettings, setOnShowSettings] = useState<
+    (() => void) | undefined
+  >(undefined);
   return (
     <>
-      <div>
-        <label>
-          <input
-            type={"radio"}
-            value={"1"}
-            onChange={onRobotCountChange}
-            checked={game.robots.length === 1}
-          />
-          1 robot
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"2"}
-            onChange={onRobotCountChange}
-            checked={game.robots.length === 2}
-          />
-          2 robots
-        </label>
-        <label>
-          <input
-            type={"radio"}
-            value={"3"}
-            onChange={onRobotCountChange}
-            checked={game.robots.length === 3}
-          />
-          3 robots
-        </label>
-        {maxDistance !== null ? <div>Max distance: {maxDistance}</div> : null}
-      </div>
       <UsageInstructions
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
@@ -175,6 +150,14 @@ export function ExploreMode() {
         onRobotReset={game.path.length ? onRobotResetClick : undefined}
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
         onNewPuzzle={onRandomCrossedWallsClick}
+        onShowSettings={onShowSettings}
+      />
+      <ExploreSettingsDialog
+        onShowSettingsRef={setOnShowSettings}
+        game={game}
+        onRobotCountChange={onRobotCountChange}
+        desiredMaxDistance={desiredMaxDistance}
+        onDesiredTargetDistanceChange={setDesiredMaxDistance}
       />
       <SvgContainer
         gridWidth={game.field.width}
@@ -188,7 +171,7 @@ export function ExploreMode() {
         <DGame
           game={game}
           showDistances
-          maxDistance={10}
+          maxDistance={desiredMaxDistance}
           showGhostWalls
           onGhostWallClick={onGhostWallClick}
           onDistanceMapChange={onDistanceMapChange}
@@ -201,5 +184,92 @@ export function ExploreMode() {
         />
       </SvgContainer>
     </>
+  );
+}
+
+interface ExploreSettingsDialogProps {
+  onShowSettingsRef?: (onShowSettings?: () => void) => void;
+  game: Game;
+  onRobotCountChange: React.ChangeEventHandler;
+  desiredMaxDistance: number;
+  onDesiredTargetDistanceChange: (desiredTargetDistance: number) => void;
+}
+
+function ExploreSettingsDialog({
+  onShowSettingsRef,
+  game,
+  onRobotCountChange,
+  desiredMaxDistance,
+  onDesiredTargetDistanceChange,
+}: ExploreSettingsDialogProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const onDialogOpen = useCallback(() => {
+    setDialogOpen(true);
+  }, [setDialogOpen]);
+  useEffect(() => {
+    onShowSettingsRef?.(() => {
+      return onDialogOpen;
+    });
+    return () => {
+      onShowSettingsRef?.(undefined);
+    };
+  }, [onShowSettingsRef, onDialogOpen]);
+  const innerOnDesiredTargetDistanceChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newValue = parseInt(e.target.value, 10);
+      onDesiredTargetDistanceChange?.(newValue);
+    },
+    [onDesiredTargetDistanceChange],
+  );
+  const options = useMemo(() => {
+    return _.range(2, 40 + 1).map((value) => (
+      <option key={value} value={value}>
+        {value}
+        {value === 10 ? " - Default" : value === 11 ? " - Slow" : ""}
+      </option>
+    ));
+  }, [20]);
+  return (
+    <SettingsDialog open={dialogOpen} onSetOpen={setDialogOpen}>
+      <label>
+        <input
+          type={"radio"}
+          value={"1"}
+          onChange={onRobotCountChange}
+          checked={game.robots.length === 1}
+        />
+        1 robot
+      </label>
+      <label>
+        <input
+          type={"radio"}
+          value={"2"}
+          onChange={onRobotCountChange}
+          checked={game.robots.length === 2}
+        />
+        2 robots
+      </label>
+      <label>
+        <input
+          type={"radio"}
+          value={"3"}
+          onChange={onRobotCountChange}
+          checked={game.robots.length === 3}
+        />
+        3 robots
+      </label>
+      <br />
+      {
+        <label>
+          Distance:
+          <select
+            value={desiredMaxDistance}
+            onChange={innerOnDesiredTargetDistanceChange}
+          >
+            {options}
+          </select>
+        </label>
+      }
+    </SettingsDialog>
   );
 }

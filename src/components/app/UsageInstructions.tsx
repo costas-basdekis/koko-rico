@@ -9,7 +9,6 @@ import {
   ControlButton,
   DrawSettings,
   NextPositionArrowUp,
-  SettingsDialog,
   Spinner,
 } from "..";
 import { Direction } from "../../game";
@@ -28,12 +27,7 @@ export interface UsageInstructionsProps {
   onRedoRobotMove?: () => void;
   onNewPuzzle?: () => void;
   askForNewPuzzleConfirmation?: boolean;
-  onShowSettingsRef?: React.MutableRefObject<(() => void) | undefined>;
-  showOnlyOneTarget?: boolean;
-  onShowOnlyOneTargetChange?: (showOnlyOneTarget: boolean) => void;
-  maxDesiredTargetDistance?: number;
-  desiredTargetDistance?: number;
-  onDesiredTargetDistanceChange?: (desiredTargetDistance: number) => void;
+  onShowSettings?: () => void;
 }
 
 export function UsageInstructions({
@@ -49,12 +43,7 @@ export function UsageInstructions({
   onRedoRobotMove,
   onNewPuzzle,
   askForNewPuzzleConfirmation = true,
-  onShowSettingsRef,
-  showOnlyOneTarget,
-  onShowOnlyOneTargetChange,
-  maxDesiredTargetDistance = 20,
-  desiredTargetDistance,
-  onDesiredTargetDistanceChange,
+  onShowSettings,
 }: UsageInstructionsProps) {
   const isTouchDevice = useMemo(() => {
     return checkIsTouchDevice();
@@ -127,46 +116,6 @@ export function UsageInstructions({
     }
     onNewPuzzle?.();
   }, [onNewPuzzle, askForNewPuzzleConfirmation]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const onDialogOpen = useCallback(() => {
-    setDialogOpen(true);
-  }, [setDialogOpen]);
-  useEffect(() => {
-    if (onShowSettingsRef) {
-      onShowSettingsRef.current = onDialogOpen;
-    }
-  }, [onShowSettingsRef, onDialogOpen]);
-  const innerOnShowOnlyOneTargetChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onShowOnlyOneTargetChange?.(e.target.checked);
-    },
-    [onShowOnlyOneTargetChange],
-  );
-  const innerOnDesiredTargetDistanceChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newValue = parseInt(e.target.value, 10);
-      onDesiredTargetDistanceChange?.(newValue);
-    },
-    [onDesiredTargetDistanceChange],
-  );
-  const options = useMemo(() => {
-    return _.range(2, maxDesiredTargetDistance + 1).map((value) => (
-      <option key={value} value={value}>
-        {value}
-        {value === 5 ? " - Default" : value === 10 ? " - Slow" : ""}
-      </option>
-    ));
-  }, [maxDesiredTargetDistance]);
-  if (onShowOnlyOneTargetChange && showOnlyOneTarget === undefined) {
-    throw new Error(
-      `showOnlyOneTarget is required when onShowOnlyOneTargetChange is present`,
-    );
-  }
-  if (onDesiredTargetDistanceChange && desiredTargetDistance === undefined) {
-    throw new Error(
-      `desiredTargetDistance is required when onDesiredTargetDistanceChange is present`,
-    );
-  }
   return (
     <>
       <ButtonRow>
@@ -274,40 +223,14 @@ export function UsageInstructions({
           <br />
           {isTouchDevice ? "New" : "New Puzzle"}
         </ControlButton>
-        {onShowOnlyOneTargetChange || onDesiredTargetDistanceChange ? (
-          <ControlButton onClick={onDialogOpen}>
+        {onShowSettings ? (
+          <ControlButton onClick={onShowSettings}>
             <span className={"button-hotkey"}>S</span>
             <br />
             Settings
           </ControlButton>
         ) : null}
       </ButtonRow>
-      <SettingsDialog open={dialogOpen} onSetOpen={setDialogOpen}>
-        {onShowOnlyOneTargetChange ? (
-          <label>
-            <input
-              type={"checkbox"}
-              checked={showOnlyOneTarget}
-              onChange={innerOnShowOnlyOneTargetChange}
-            />
-            One target
-          </label>
-        ) : null}
-        {onShowOnlyOneTargetChange && onDesiredTargetDistanceChange ? (
-          <br />
-        ) : null}
-        {onDesiredTargetDistanceChange ? (
-          <label>
-            Distance:
-            <select
-              value={desiredTargetDistance}
-              onChange={innerOnDesiredTargetDistanceChange}
-            >
-              {options}
-            </select>
-          </label>
-        ) : null}
-      </SettingsDialog>
     </>
   );
 }

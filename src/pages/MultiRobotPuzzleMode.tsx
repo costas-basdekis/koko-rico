@@ -10,6 +10,7 @@ import {
   UsageInstructions,
   useShowMoveInterpreter,
   SvgContainer,
+  SimplePuzzleSettingsDialog,
 } from "../components";
 import { PuzzleService, useSavedGame } from "../hooks";
 
@@ -90,7 +91,9 @@ export function MultiRobotPuzzleMode() {
       stroke: drawSettings.robotColours[selectedRobotIndex],
     };
   }, [drawSettings, selectedRobotIndex]);
-  const onShowSettingsRef = useRef<(() => void) | undefined>();
+  const [onShowSettings, setOnShowSettings] = useState<
+    (() => void) | undefined
+  >(undefined);
   return (
     <>
       <UsageInstructions
@@ -107,7 +110,10 @@ export function MultiRobotPuzzleMode() {
         askForNewPuzzleConfirmation={
           game.completedTargetPositions.length !== game.targetPositions.length
         }
-        onShowSettingsRef={onShowSettingsRef}
+        onShowSettings={onShowSettings}
+      />
+      <SimplePuzzleSettingsDialog
+        onShowSettingsRef={setOnShowSettings}
         showOnlyOneTarget={showOnlyOneTarget}
         onShowOnlyOneTargetChange={setShowOnlyOneTarget}
         desiredTargetDistance={desiredTargetDistance}
@@ -136,7 +142,7 @@ export function MultiRobotPuzzleMode() {
           onRobotMoveClick={onRobotMove}
           onRobotResetClick={onReset}
           onNewGameClick={onNewGame}
-          onShowSettings={onShowSettingsRef.current}
+          onShowSettings={onShowSettings}
           targetPositions={visibleTargetPositions}
         />
       </SvgContainer>

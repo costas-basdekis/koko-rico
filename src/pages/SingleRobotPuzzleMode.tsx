@@ -1,7 +1,6 @@
 import _ from "underscore";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Direction, Game, Robot } from "../game";
-import { Position } from "../utils";
+import { Direction, Game } from "../game";
 import {
   DGame,
   MovesCounter,
@@ -9,6 +8,7 @@ import {
   UsageInstructions,
   useShowMoveInterpreter,
   SvgContainer,
+  SimplePuzzleSettingsDialog,
 } from "../components/";
 import { PuzzleService, useSavedGame } from "../hooks";
 
@@ -76,7 +76,9 @@ export function SingleRobotPuzzleMode() {
         .map(({ direction }) => [direction, true]),
     );
   }, [game]);
-  const onShowSettingsRef = useRef<(() => void) | undefined>();
+  const [onShowSettings, setOnShowSettings] = useState<
+    (() => void) | undefined
+  >(undefined);
   return (
     <>
       <UsageInstructions
@@ -91,7 +93,10 @@ export function SingleRobotPuzzleMode() {
         askForNewPuzzleConfirmation={
           game.completedTargetPositions.length !== game.targetPositions.length
         }
-        onShowSettingsRef={onShowSettingsRef}
+        onShowSettings={onShowSettings}
+      />
+      <SimplePuzzleSettingsDialog
+        onShowSettingsRef={setOnShowSettings}
         showOnlyOneTarget={showOnlyOneTarget}
         onShowOnlyOneTargetChange={setShowOnlyOneTarget}
         desiredTargetDistance={desiredTargetDistance}
@@ -118,7 +123,7 @@ export function SingleRobotPuzzleMode() {
           onRobotResetClick={onReset}
           onNewGameClick={onNewGame}
           targetPositions={visibleTargetPositions}
-          onShowSettings={onShowSettingsRef.current}
+          onShowSettings={onShowSettings}
         />
       </SvgContainer>
     </>
