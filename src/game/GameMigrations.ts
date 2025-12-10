@@ -60,7 +60,7 @@ registerMigration(
   },
 );
 
-type GameFormatVersion3 = Omit<GameFormatVersion2, "version"> & {
+export type GameFormatVersion3 = Omit<GameFormatVersion2, "version"> & {
   version: 3;
   silverTargetDistance: number;
   bronzeTargetDistance: number;

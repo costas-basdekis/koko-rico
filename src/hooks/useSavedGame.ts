@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Game, GameTargets, Robot } from "../game";
+import { Field, Game, GameTargets, Robot } from "../game";
 import { PuzzleService, usePuzzleService } from "./usePuzzleService";
 import {
   loadGameFromLocalStorage,
@@ -44,29 +44,36 @@ export function useSavedGame(
   effectiveTargetDistance: number;
   setEffectiveTargetDistance: React.Dispatch<React.SetStateAction<number>>;
 } {
-  const savedGame = useMemo(() => {
+  const savedGameAndTargets = useMemo(() => {
     return loadGameFromLocalStorage(key);
   }, []);
   const [desiredTargetDistance, setDesiredTargetDistance] = useState(
-    savedGame?.targetDistance ?? defaultTargetDistance,
+    savedGameAndTargets?.game?.targetDistance ?? defaultTargetDistance,
   );
   const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(
     desiredTargetDistance,
   );
   const [game, setGame]: [Game, any] = useState(() => {
-    if (savedGame) {
-      return savedGame;
+    if (savedGameAndTargets) {
+      return savedGameAndTargets.game;
     }
     return makeInitialGame(effectiveTargetDistance);
   });
-  const [{ gameTargets, gameTargetsField }, setGameTargetsAndField] = useState(
-    () => {
+  const [{ gameTargets, gameTargetsField }, setGameTargetsAndField] = useState<{
+    gameTargets: GameTargets;
+    gameTargetsField: Field;
+  }>(() => {
+    if (savedGameAndTargets) {
       return {
-        gameTargets: GameTargets.fromGame(game),
-        gameTargetsField: game.field,
+        gameTargets: savedGameAndTargets.gameTargets!,
+        gameTargetsField: savedGameAndTargets.game.field,
       };
-    },
-  );
+    }
+    return {
+      gameTargets: GameTargets.fromGame(game),
+      gameTargetsField: game.field,
+    };
+  });
   useEffect(() => {
     if (game.field !== gameTargetsField) {
       setGameTargetsAndField({
@@ -145,14 +152,14 @@ export function useSavedGame(
     setGameOrError,
   ]);
   useEffect(() => {
-    if (game.targetDistance === effectiveTargetDistance) {
+    if (gameTargets.targetDistance === effectiveTargetDistance) {
       return;
     }
     onNewGame();
     return cancelNewGame;
   }, [effectiveTargetDistance]);
   useEffect(() => {
-    saveGameToLocalStorage(key, game);
+    saveGameToLocalStorage(key, game, gameTargets);
   }, [game]);
   const captiveSetGame = useCallback(
     (newGameOrFunc: Game | ((newGame: Game) => Game | null | undefined)) => {

@@ -20,11 +20,11 @@ import {
 export function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(
     () =>
-      loadGameFromLocalStorage("exploreGame") ??
+      loadGameFromLocalStorage("exploreGame")?.game ??
       Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]),
   );
   useEffect(() => {
-    saveGameToLocalStorage("exploreGame", game);
+    saveGameToLocalStorage("exploreGame", game, null);
   }, [game]);
   const [selectedRobotIndex, setSelectedRobotIndex] = useState(0);
   const onSelectedRobotIndexChange = useCallback(

@@ -1,6 +1,11 @@
 import { Position, positionsEqual } from "../utils";
 import { Game } from "./Game";
 import {
+  GameFormat,
+  GameFormatVersion3,
+  LatestGameFormat,
+} from "./GameMigrations";
+import {
   GameTargetsFormat,
   LatestGameTargetsFormat,
   migrate,
@@ -107,6 +112,50 @@ export class GameTargets {
     );
   }
 
+  static deserialiseFromGameV3({
+    targetDistance,
+    silverTargetDistance,
+    bronzeTargetDistance,
+    silverTargetPositions,
+    bronzeTargetPositions,
+    targetPositions,
+    completedTargetPositions,
+  }: GameFormatVersion3): GameTargets {
+    return this.deserialise({
+      version: 1,
+      targetDistance,
+      silverTargetDistance,
+      bronzeTargetDistance,
+      silverTargetPositions,
+      bronzeTargetPositions,
+      targetPositions,
+      completedTargetPositions,
+    });
+  }
+
+  static deserialiseGameAndTargets(
+    serialised:
+      | GameFormat
+      | { game: GameFormat; gameTargets: GameTargetsFormat | null },
+  ): { game: Game; gameTargets: GameTargets | null; saveAgain: boolean } {
+    if (!("game" in serialised)) {
+      const game = Game.deserialise(serialised);
+      const gameTargets = this.fromGame(game);
+      return { game, gameTargets, saveAgain: true };
+    }
+    const serialisedGame = serialised["game"];
+    const serialisedTargets = serialised["gameTargets"];
+    return {
+      game: Game.deserialise(serialisedGame),
+      gameTargets: serialisedTargets
+        ? this.deserialise(serialisedTargets)
+        : "version" in serialisedGame && serialisedGame["version"] === 3
+          ? this.deserialiseFromGameV3(serialisedGame)
+          : null,
+      saveAgain: false,
+    };
+  }
+
   constructor(
     targetDistance: number,
     silverTargetDistance: number,
@@ -135,6 +184,16 @@ export class GameTargets {
       completedTargetPositions: this.completedTargetPositions,
       silverTargetPositions: this.silverTargetPositions,
       bronzeTargetPositions: this.bronzeTargetPositions,
+    };
+  }
+
+  static serialiseGameWithTargets(
+    game: Game,
+    gameTargets: GameTargets | null,
+  ): { game: LatestGameFormat; gameTargets: LatestGameTargetsFormat | null } {
+    return {
+      game: game.serialise(),
+      gameTargets: gameTargets ? gameTargets.serialise() : null,
     };
   }
 
