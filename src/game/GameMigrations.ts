@@ -1,10 +1,8 @@
 import { MigrationManager } from "./MigrationManager";
 
-const gameMigrationManager = new MigrationManager<GameFormat, LatestGameFormat>(
-  3,
-);
-export const migrate = gameMigrationManager.makeMigrator();
-const registerMigration = gameMigrationManager.makeRegisterMigration();
+const migrationManager = new MigrationManager<GameFormat, LatestGameFormat>(3);
+export const migrate = migrationManager.makeMigrator();
+const registerMigration = migrationManager.makeRegisterMigration();
 
 export type GameFormat =
   | GameFormatVersion1

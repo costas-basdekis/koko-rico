@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Direction, Game } from "../game";
+import { Direction, Game, GameTargets } from "../game";
 import {
   ButtonRow,
   DGame,
@@ -176,7 +176,9 @@ function makeInitialGame(): Game {
 function makeBackgroundGame(
   desiredTargetDistance: number,
   puzzleService: PuzzleService,
-  setGameOrError: (gameOrError: Game | string) => void,
+  setGameOrError: (
+    gameOrError: { game: Game; gameTargets: GameTargets } | string,
+  ) => void,
 ) {
   puzzleService.request(
     {

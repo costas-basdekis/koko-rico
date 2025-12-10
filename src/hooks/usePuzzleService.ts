@@ -1,14 +1,24 @@
 import { useEffect, useMemo } from "react";
-import { Game, GameBackgroundRequest, GameBackgroundResponse } from "../game";
+import {
+  Game,
+  GameBackgroundRequest,
+  GameBackgroundResponse,
+  GameTargets,
+} from "../game";
 
 export interface PuzzleService {
   webWorker: Worker | null;
   onMessage: (e: MessageEvent<any>) => void;
   request: (
     request: GameBackgroundRequest,
-    callback: (gameOrError: Game | string) => void,
+    callback: (
+      gameOrError: { game: Game; gameTargets: GameTargets } | string,
+    ) => void,
   ) => void;
-  callbacks: Map<number, (gameOrError: Game | string) => void>;
+  callbacks: Map<
+    number,
+    (gameOrError: { game: Game; gameTargets: GameTargets } | string) => void
+  >;
   nextCallbackId: number;
   terminate: () => void;
 }
@@ -30,13 +40,20 @@ export function usePuzzleService(): PuzzleService {
         const response = e.data as GameBackgroundResponse;
         callback(
           response.success
-            ? Game.deserialise(response.serialised)
+            ? {
+                game: Game.deserialise(response.serialised),
+                gameTargets: GameTargets.deserialise(
+                  response.serialisedTargets,
+                ),
+              }
             : response.error,
         );
       },
       request: (
         request: GameBackgroundRequest,
-        callback: (gameOrError: Game | string) => void,
+        callback: (
+          gameOrError: { game: Game; gameTargets: GameTargets } | string,
+        ) => void,
       ) => {
         if (!service.webWorker) {
           service.webWorker = new Worker("/koko-rico/service-worker.js");

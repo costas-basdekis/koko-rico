@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Game, Robot } from "../game";
+import { Game, GameTargets, Robot } from "../game";
 import { PuzzleService, usePuzzleService } from "./usePuzzleService";
 import {
   loadGameFromLocalStorage,
@@ -13,12 +13,16 @@ export function useSavedGame(
   makeBackgroundGame: (
     targetDistance: number,
     puzzleService: PuzzleService,
-    setGameOrError: (gameOrError: Game | string) => void,
+    setGameOrError: (
+      gameOrError: { game: Game; gameTargets: GameTargets } | string,
+    ) => void,
   ) => void,
   defaultTargetDistance: number,
 ): {
   game: Game;
   setGame: React.Dispatch<React.SetStateAction<Game>>;
+  gameTargets: GameTargets;
+  setGameAndTargets: (game: Game, gameTargets: GameTargets) => void;
   undoStack: Game[];
   setUndoStack: (
     undoStackOrFunc: Game[] | ((undoStack: Game[]) => Game[]),
@@ -55,6 +59,37 @@ export function useSavedGame(
     }
     return makeInitialGame(effectiveTargetDistance);
   });
+  const [{ gameTargets, gameTargetsField }, setGameTargetsAndField] = useState(
+    () => {
+      return {
+        gameTargets: GameTargets.fromGame(game),
+        gameTargetsField: game.field,
+      };
+    },
+  );
+  useEffect(() => {
+    if (game.field !== gameTargetsField) {
+      setGameTargetsAndField({
+        gameTargets: GameTargets.fromGame(game),
+        gameTargetsField: game.field,
+      });
+      return;
+    }
+    const newGameTargets = gameTargets.updateCompletedTargetsAfterMove(game);
+    if (newGameTargets !== gameTargets) {
+      setGameTargetsAndField({ gameTargets: newGameTargets, gameTargetsField });
+    }
+  }, [game, setGameTargetsAndField, gameTargetsField]);
+  const setGameAndTargets = useCallback(
+    (newGame: Game, newGameTargets: GameTargets) => {
+      setGame(newGame);
+      setGameTargetsAndField({
+        gameTargets: newGameTargets,
+        gameTargetsField: newGame.field,
+      });
+    },
+    [setGame, setGameTargetsAndField],
+  );
   const [undoStack, setUndoStack] = useState<Game[]>(() => {
     return game.getUndoStack();
   });
@@ -73,11 +108,15 @@ export function useSavedGame(
     setGameLoading,
   ]);
   const setGameOrError = useCallback(
-    (gameOrError: Game | string) => {
+    (gameOrError: { game: Game; gameTargets: GameTargets } | string) => {
       setGameLoading(false);
       if (typeof gameOrError === "string") {
       } else {
-        setGame(gameOrError);
+        setGame(gameOrError.game);
+        setGameTargetsAndField({
+          gameTargets: gameOrError.gameTargets,
+          gameTargetsField: gameOrError.game.field,
+        });
       }
     },
     [setGame, setGameLoading],
@@ -192,6 +231,8 @@ export function useSavedGame(
   return {
     game,
     setGame: captiveSetGame,
+    gameTargets,
+    setGameAndTargets,
     undoStack,
     setUndoStack,
     redoStack,

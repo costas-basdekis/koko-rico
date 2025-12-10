@@ -3,6 +3,8 @@ import { Position, PositionMap } from "../utils";
 import { Field, WallType } from "./Field";
 import { Game } from "./Game";
 import { LatestGameFormat } from "./GameMigrations";
+import { LatestGameTargetsFormat } from "./GameTargetsMigrations";
+import { GameTargets } from "./GameTargets";
 
 export interface GameBackgroundRequest {
   serialised: any;
@@ -12,7 +14,11 @@ export interface GameBackgroundRequest {
 
 export type GameBackgroundResponse =
   | { success: false; error: string }
-  | { success: true; serialised: LatestGameFormat };
+  | {
+      success: true;
+      serialised: LatestGameFormat;
+      serialisedTargets: LatestGameTargetsFormat;
+    };
 
 export class GameBuilder {
   pickRandomWalls(game: Game, count: number): Game {
@@ -229,7 +235,11 @@ export class GameBuilder {
         desiredTargetDistance,
       );
       game = game.pickTargets(desiredTargetDistance);
-      return { success: true, serialised: game.serialise() };
+      return {
+        success: true,
+        serialised: game.serialise(),
+        serialisedTargets: GameTargets.fromGame(game).serialise(),
+      };
     } catch (e) {
       return { success: false, error: `${e}` };
     }
