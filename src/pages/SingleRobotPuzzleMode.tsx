@@ -104,6 +104,7 @@ export function SingleRobotPuzzleMode() {
       />
       <div>
         <MovesCounter game={game} />
+        <br />
         <TargetsCounter game={game} />
       </div>
       <SvgContainer

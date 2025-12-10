@@ -121,6 +121,7 @@ export function MultiRobotPuzzleMode() {
       />
       <ButtonRow>
         <MovesCounter game={game} />
+        <br />
         <TargetsCounter game={game} />
       </ButtonRow>
       <SvgContainer
