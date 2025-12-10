@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Game, WallType, Robot, Direction } from "../game";
+import { Game, WallType, Robot, Direction, GameBuilder } from "../game";
 import {
   loadGameFromLocalStorage,
   Position,
@@ -46,11 +46,10 @@ export function ExploreMode() {
   const onUndoRobotMove = useCallback(() => {
     setGame(game.undoMoveRobot());
   }, [game, setGame]);
-  const onRandomWallsClick = useCallback(() => {
-    setGame(game.pickRandomWalls(20));
-  }, [game]);
   const onRandomCrossedWallsClick = useCallback(() => {
-    setGame(game.pickRandomCrossedWallsProgressively(30, 10));
+    setGame(
+      new GameBuilder().pickRandomCrossedWallsProgressively(game, 30, 10),
+    );
   }, [game]);
   const [distanceMap, setDistanceMap] = useState<PositionMap<number> | null>(
     null,

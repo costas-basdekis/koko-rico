@@ -13,7 +13,7 @@ import { ExpirationPlugin } from "workbox-expiration";
 import { precacheAndRoute, createHandlerBoundToURL } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
-import { Game } from "./game";
+import { Game, GameBuilder } from "./game";
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -84,7 +84,7 @@ self.addEventListener("message", (e) => {
     postMessage({
       type: "new-puzzle",
       callbackId: e.data.callbackId,
-      ...Game.backgroundPuzzleGeneration(e.data),
+      ...new GameBuilder().backgroundPuzzleGeneration(e.data),
     });
   }
 });
