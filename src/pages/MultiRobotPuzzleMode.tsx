@@ -1,6 +1,6 @@
 import _ from "underscore";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Direction, Game, Robot } from "../game";
+import { Direction, Game } from "../game";
 import {
   ButtonRow,
   DGame,
@@ -11,7 +11,6 @@ import {
   useShowMoveInterpreter,
   SvgContainer,
 } from "../components";
-import { Position } from "../utils";
 import { PuzzleService, useSavedGame } from "../hooks";
 
 const DefaultDesiredTargetDistance = 5;
@@ -19,7 +18,11 @@ const DefaultDesiredTargetDistance = 5;
 export function MultiRobotPuzzleMode() {
   const {
     game,
-    setGame,
+    redoStack,
+    onReset,
+    onUndo,
+    onRedo,
+    onRobotMove,
     gameLoading,
     onNewGame,
     desiredTargetDistance,
@@ -51,18 +54,6 @@ export function MultiRobotPuzzleMode() {
         .slice(0, 1),
     ];
   }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
-  const onRobotResetClick = useCallback(() => {
-    setGame(game.resetRobots());
-  }, [game, setGame]);
-  const onUndoRobotMove = useCallback(() => {
-    setGame(game.undoMoveRobot());
-  }, [game, setGame]);
-  const onRobotMoveClick = useCallback(
-    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
-      setGame(game.moveRobot(robot, nextPosition, isUndo));
-    },
-    [game, setGame],
-  );
   const [showMoveInterpreter, setShowMoveInterpreter] =
     useShowMoveInterpreter();
   const onTouchScreenMove = useCallback(
@@ -74,13 +65,13 @@ export function MultiRobotPuzzleMode() {
       if (!nextPositionEntry) {
         return;
       }
-      onRobotMoveClick(
+      onRobotMove(
         game.robots[selectedRobotIndex],
         nextPositionEntry.nextPosition,
         nextPositionEntry.isUndo,
       );
     },
-    [game, selectedRobotIndex, onRobotMoveClick],
+    [game, selectedRobotIndex, onRobotMove],
   );
   const drawSettings = DrawSettings.use();
   const restrictTouchScreenMovesTo = useMemo(() => {
@@ -109,8 +100,9 @@ export function MultiRobotPuzzleMode() {
         selectedRobotIndex={selectedRobotIndex}
         onSelectedRobotIndexChange={onSelectedRobotIndexChange}
         onRobotMove={onTouchScreenMove}
-        onRobotReset={game.path.length ? onRobotResetClick : undefined}
-        onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
+        onRobotReset={game.path.length ? onReset : undefined}
+        onUndoRobotMove={game.path.length ? onUndo : undefined}
+        onRedoRobotMove={redoStack.length ? onRedo : undefined}
         onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
           game.completedTargetPositions.length !== game.targetPositions.length
@@ -139,8 +131,10 @@ export function MultiRobotPuzzleMode() {
           showRobotControls
           selectedRobotIndex={selectedRobotIndex}
           onSelectedRobotIndexChange={setSelectedRobotIndex}
-          onRobotMoveClick={onRobotMoveClick}
-          onRobotResetClick={onRobotResetClick}
+          onUndoRobotMove={onUndo}
+          onRedoRobotMove={onRedo}
+          onRobotMoveClick={onRobotMove}
+          onRobotResetClick={onReset}
           onNewGameClick={onNewGame}
           onShowSettings={onShowSettingsRef.current}
           targetPositions={visibleTargetPositions}

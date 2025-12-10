@@ -25,6 +25,7 @@ export interface UsageInstructionsProps {
   onRobotMove?: (direction: Direction) => void;
   onRobotReset?: () => void;
   onUndoRobotMove?: () => void;
+  onRedoRobotMove?: () => void;
   onNewPuzzle?: () => void;
   askForNewPuzzleConfirmation?: boolean;
   onShowSettingsRef?: React.MutableRefObject<(() => void) | undefined>;
@@ -45,6 +46,7 @@ export function UsageInstructions({
   onRobotMove,
   onRobotReset,
   onUndoRobotMove,
+  onRedoRobotMove,
   onNewPuzzle,
   askForNewPuzzleConfirmation = true,
   onShowSettingsRef,
@@ -236,7 +238,7 @@ export function UsageInstructions({
           disabled={!onSelectedRobotIndexChange}
           onClick={onNextRobotClick}
         >
-          <span className={"button-hotkey"}>R</span>
+          <span className={"button-hotkey"}>B</span>
           <br />
           {isTouchDevice ? "Next" : "Next robot"}
         </ControlButton>
@@ -244,7 +246,7 @@ export function UsageInstructions({
           disabled={!onSelectedRobotIndexChange}
           onClick={onPreviousRobotClick}
         >
-          <span className={"button-hotkey"}>⇧+R</span>
+          <span className={"button-hotkey"}>⇧+B</span>
           <br />
           {isTouchDevice ? "Previous" : "Previous robot"}
         </ControlButton>
@@ -258,6 +260,11 @@ export function UsageInstructions({
           <br />
           Undo
         </ControlButton>
+        <ControlButton disabled={!onRedoRobotMove} onClick={onRedoRobotMove}>
+          <span className={"button-hotkey"}>R</span>
+          <br />
+          Redo
+        </ControlButton>
         <ControlButton disabled={!onNewPuzzle} onClick={innerOnNewPuzzle}>
           {gameLoading ? (
             <Spinner />
@@ -265,7 +272,7 @@ export function UsageInstructions({
             <span className={"button-hotkey"}>N</span>
           )}
           <br />
-          New Puzzle
+          {isTouchDevice ? "New" : "New Puzzle"}
         </ControlButton>
         {onShowOnlyOneTargetChange || onDesiredTargetDistanceChange ? (
           <ControlButton onClick={onDialogOpen}>

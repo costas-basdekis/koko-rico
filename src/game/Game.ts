@@ -445,6 +445,19 @@ export class Game {
     return this.moveRobot(this.robots[robotIndex], previousPosition, true);
   }
 
+  getUndoStack(): Game[] {
+    if (!this.path.length) {
+      return [];
+    }
+    let currentGame = this.undoMoveRobot();
+    const undoStack = [currentGame];
+    while (currentGame.path.length) {
+      currentGame = currentGame.undoMoveRobot();
+      undoStack.push(currentGame);
+    }
+    return undoStack;
+  }
+
   addRobots(newPositions: Position[]): any {
     return this.change({
       robots: [

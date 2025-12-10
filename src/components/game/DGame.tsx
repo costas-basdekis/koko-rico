@@ -27,6 +27,8 @@ export interface DGameProps {
     nextPosition: Position,
     isUndo: boolean,
   ) => void;
+  onUndoRobotMove?: () => void;
+  onRedoRobotMove?: () => void;
   onRobotResetClick?: () => void;
   onNewGameClick?: () => void;
   onShowSettings?: () => void;
@@ -60,6 +62,8 @@ export function DGame({
   showRobotControls = false,
   selectedRobotIndex = 0,
   onSelectedRobotIndexChange,
+  onUndoRobotMove,
+  onRedoRobotMove,
   onRobotMoveClick,
   onRobotResetClick,
   onNewGameClick,
@@ -131,23 +135,21 @@ export function DGame({
     [game, nextRobotsPositionEntries, onRobotMoveClick, selectedRobotIndex],
   );
   useHotkeys(
-    ["left", "right", "up", "down", "r", "shift+r", "u", "t", "n", "s"],
+    ["left", "right", "up", "down", "b", "shift+b", "u", "r", "t", "n", "s"],
     (e, { hotkey }) => {
       e.preventDefault();
-      if (hotkey === "r") {
+      if (hotkey === "b") {
         onSelectedRobotIndexChange?.(
           (selectedRobotIndex + 1) % game.robots.length,
         );
-      } else if (hotkey === "shift+r") {
+      } else if (hotkey === "shift+b") {
         onSelectedRobotIndexChange?.(
           (selectedRobotIndex - 1 + game.robots.length) % game.robots.length,
         );
       } else if (hotkey === "u") {
-        if (game.path.length) {
-          const { robotIndex, previousPosition } =
-            game.path[game.path.length - 1];
-          onRobotMoveClick?.(game.robots[robotIndex], previousPosition, true);
-        }
+        onUndoRobotMove?.();
+      } else if (hotkey === "r") {
+        onRedoRobotMove?.();
       } else if (hotkey === "t") {
         onRobotResetClick?.();
       } else if (hotkey === "n") {

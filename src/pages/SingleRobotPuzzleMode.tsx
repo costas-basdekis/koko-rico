@@ -17,7 +17,11 @@ const DefaultDesiredTargetDistance = 5;
 export function SingleRobotPuzzleMode() {
   const {
     game,
-    setGame,
+    redoStack,
+    onReset,
+    onUndo,
+    onRedo,
+    onRobotMove,
     onNewGame,
     gameLoading,
     desiredTargetDistance,
@@ -42,18 +46,6 @@ export function SingleRobotPuzzleMode() {
         .slice(0, 1),
     ];
   }, [game.targetPositions, game.completedTargetPositions, showOnlyOneTarget]);
-  const onRobotResetClick = useCallback(() => {
-    setGame(game.resetRobots());
-  }, [game, setGame]);
-  const onUndoRobotMove = useCallback(() => {
-    setGame(game.undoMoveRobot());
-  }, [game, setGame]);
-  const onRobotMoveClick = useCallback(
-    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
-      setGame(game.moveRobot(robot, nextPosition, isUndo));
-    },
-    [game, setGame],
-  );
   const [showMoveInterpreter, setShowMoveInterpreter] =
     useShowMoveInterpreter();
   const onTouchScreenMove = useCallback(
@@ -65,13 +57,13 @@ export function SingleRobotPuzzleMode() {
       if (!nextPositionEntry) {
         return;
       }
-      onRobotMoveClick(
+      onRobotMove(
         game.robots[0],
         nextPositionEntry.nextPosition,
         nextPositionEntry.isUndo,
       );
     },
-    [game, onRobotMoveClick],
+    [game, onRobotMove],
   );
   const restrictTouchScreenMovesTo = useMemo(() => {
     const robot = game.robots[0];
@@ -92,8 +84,9 @@ export function SingleRobotPuzzleMode() {
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
         onRobotMove={onTouchScreenMove}
-        onRobotReset={game.path.length ? onRobotResetClick : undefined}
-        onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
+        onRobotReset={game.path.length ? onReset : undefined}
+        onUndoRobotMove={game.path.length ? onUndo : undefined}
+        onRedoRobotMove={redoStack.length ? onRedo : undefined}
         onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
           game.completedTargetPositions.length !== game.targetPositions.length
@@ -119,8 +112,10 @@ export function SingleRobotPuzzleMode() {
         <DGame
           game={game}
           showRobotControls
-          onRobotMoveClick={onRobotMoveClick}
-          onRobotResetClick={onRobotResetClick}
+          onUndoRobotMove={onUndo}
+          onRedoRobotMove={onRedo}
+          onRobotMoveClick={onRobotMove}
+          onRobotResetClick={onReset}
           onNewGameClick={onNewGame}
           targetPositions={visibleTargetPositions}
           onShowSettings={onShowSettingsRef.current}

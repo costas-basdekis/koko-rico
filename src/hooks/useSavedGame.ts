@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Game } from "../game";
+import { Game, Robot } from "../game";
 import { PuzzleService, usePuzzleService } from "./usePuzzleService";
-import { loadGameFromLocalStorage, saveGameToLocalStorage } from "../utils";
+import {
+  loadGameFromLocalStorage,
+  Position,
+  saveGameToLocalStorage,
+} from "../utils";
 
 export function useSavedGame(
   key: string,
@@ -15,6 +19,18 @@ export function useSavedGame(
 ): {
   game: Game;
   setGame: React.Dispatch<React.SetStateAction<Game>>;
+  undoStack: Game[];
+  setUndoStack: (
+    undoStackOrFunc: Game[] | ((undoStack: Game[]) => Game[]),
+  ) => void;
+  redoStack: Game[];
+  setRedoStack: (
+    redoStackOrFunc: Game[] | ((redoStack: Game[]) => Game[]),
+  ) => void;
+  onReset: () => Game;
+  onUndo: () => Game;
+  onRedo: () => Game;
+  onRobotMove: (robot: Robot, newPosition: Position, isUndo: boolean) => Game;
   gameLoading: boolean;
   setGameLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onNewGame: () => void;
@@ -39,6 +55,10 @@ export function useSavedGame(
     }
     return makeInitialGame(effectiveTargetDistance);
   });
+  const [undoStack, setUndoStack] = useState<Game[]>(() => {
+    return game.getUndoStack();
+  });
+  const [redoStack, setRedoStack] = useState<Game[]>([]);
   const [gameLoading, setGameLoading] = useState(false);
   useEffect(() => {
     if (desiredTargetDistance === effectiveTargetDistance) {
@@ -95,9 +115,91 @@ export function useSavedGame(
   useEffect(() => {
     saveGameToLocalStorage(key, game);
   }, [game]);
+  const captiveSetGame = useCallback(
+    (newGameOrFunc: Game | ((newGame: Game) => Game | null | undefined)) => {
+      let newGameFunc: (newGame: Game) => Game | null | undefined;
+      if (typeof newGameOrFunc === "function") {
+        newGameFunc = newGameOrFunc;
+      } else {
+        newGameFunc = () => newGameOrFunc;
+      }
+      return setGame((originalNewGame: Game) => {
+        const newGame = newGameFunc(originalNewGame);
+        if (!newGame) {
+          return null;
+        }
+        const undoIndex = undoStack.indexOf(newGame);
+        const redoIndex = redoStack.indexOf(newGame);
+        setGame(newGame);
+        if (redoIndex != -1) {
+          setUndoStack([...undoStack, ...redoStack.slice(0, redoIndex)]);
+          setRedoStack(redoStack.slice(redoIndex + 1));
+        } else if (undoIndex != -1) {
+          setUndoStack(undoStack.slice(0, undoIndex));
+          setRedoStack([...undoStack.slice(undoIndex + 1), ...redoStack]);
+        } else {
+          setUndoStack(newGame.getUndoStack());
+          setRedoStack([]);
+        }
+      });
+    },
+    [setGame, redoStack, setRedoStack],
+  );
+  const onReset = useCallback(() => {
+    if (!undoStack) {
+      return game;
+    }
+    const newGame = undoStack[0];
+    setGame(newGame);
+    setRedoStack([...undoStack.slice(1), game]);
+    setUndoStack([]);
+    return newGame;
+  }, [game, setGame, setRedoStack, undoStack, setUndoStack]);
+  const onUndo = useCallback(() => {
+    if (!undoStack.length) {
+      return game;
+    }
+    const newGame = undoStack[undoStack.length - 1];
+    setGame(newGame);
+    setUndoStack(undoStack.slice(0, undoStack.length - 1));
+    setRedoStack([game, ...redoStack]);
+    return newGame;
+  }, [game, setGame]);
+  const onRedo = useCallback(() => {
+    if (!redoStack.length) {
+      return game;
+    }
+    const newGame = redoStack[0];
+    setGame(newGame);
+    setUndoStack([...undoStack, game]);
+    setRedoStack(redoStack.slice(1));
+    return newGame;
+  }, [game, redoStack, setRedoStack, setGame]);
+  const onRobotMove = useCallback(
+    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
+      const newGame = game.moveRobot(robot, nextPosition, isUndo);
+      setGame(newGame);
+      setUndoStack([...undoStack, game]);
+      if (isUndo) {
+        setRedoStack([game, ...redoStack]);
+      } else {
+        setRedoStack([]);
+      }
+      return newGame;
+    },
+    [game, setGame],
+  );
   return {
     game,
-    setGame,
+    setGame: captiveSetGame,
+    undoStack,
+    setUndoStack,
+    redoStack,
+    setRedoStack,
+    onReset,
+    onUndo,
+    onRedo,
+    onRobotMove,
     gameLoading,
     setGameLoading,
     onNewGame,
