@@ -1,39 +1,10 @@
-interface Migration {
-  sourceVersion: number;
-  targetVersion: number;
-  migrate: (serialised: any) => GameFormat;
-}
-const migrations: Migration[] = [];
+import { MigrationManager } from "./MigrationManager";
 
-function registerMigration(
-  sourceVersion: number,
-  targetVersion: number,
-  migrate: (serialised: any) => GameFormat,
-) {
-  migrations.push({ sourceVersion, targetVersion, migrate });
-}
-
-export function migrate(serialised: GameFormat): LatestGameFormat {
-  let version = "version" in serialised ? serialised.version : 1;
-  if (version === LatestGameVersion) {
-    return serialised as LatestGameFormat;
-  }
-  const versionHistory = [version];
-  for (const { sourceVersion, targetVersion, migrate } of migrations) {
-    if (version !== sourceVersion) {
-      continue;
-    }
-    serialised = migrate(serialised);
-    version = targetVersion;
-    versionHistory.push(version);
-    if (version === LatestGameVersion) {
-      return serialised as LatestGameFormat;
-    }
-  }
-  throw Error(
-    `Could not migrate game from version ${version} to ${LatestGameVersion} (history: ${versionHistory.join(" -> ")})`,
-  );
-}
+const gameMigrationManager = new MigrationManager<GameFormat, LatestGameFormat>(
+  3,
+);
+export const migrate = gameMigrationManager.makeMigrator();
+const registerMigration = gameMigrationManager.makeRegisterMigration();
 
 export type GameFormat =
   | GameFormatVersion1

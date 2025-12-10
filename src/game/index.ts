@@ -2,6 +2,7 @@ export * from "./Direction";
 export * from "./Field";
 export * from "./Game";
 export * from "./GameBuilder";
+export * from "./MigrationManager";
 export * from "./MultiRobotDistanceEvaluator";
 export * from "./NextMoveEvaluator";
 export * from "./Robot";
