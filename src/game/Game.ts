@@ -445,7 +445,7 @@ export class Game {
     const undoStack = [currentGame];
     while (currentGame.path.length) {
       currentGame = currentGame.undoMoveRobot();
-      undoStack.push(currentGame);
+      undoStack.unshift(currentGame);
     }
     return undoStack;
   }

@@ -144,68 +144,61 @@ export function useSavedGame(
       return setGame((originalNewGame: Game) => {
         const newGame = newGameFunc(originalNewGame);
         if (!newGame) {
-          return null;
+          return;
         }
         const undoIndex = undoStack.indexOf(newGame);
         const redoIndex = redoStack.indexOf(newGame);
-        setGame(newGame);
         if (redoIndex != -1) {
-          setUndoStack([...undoStack, ...redoStack.slice(0, redoIndex)]);
+          setUndoStack([...undoStack, game, ...redoStack.slice(0, redoIndex)]);
           setRedoStack(redoStack.slice(redoIndex + 1));
         } else if (undoIndex != -1) {
           setUndoStack(undoStack.slice(0, undoIndex));
-          setRedoStack([...undoStack.slice(undoIndex + 1), ...redoStack]);
+          setRedoStack([...undoStack.slice(undoIndex + 1), game, ...redoStack]);
         } else {
           setUndoStack(newGame.getUndoStack());
           setRedoStack([]);
+          const newGameTargets =
+            gameTargets.updateCompletedTargetsAfterMove(newGame);
+          if (newGameTargets !== gameTargets) {
+            setGameTargets(newGameTargets);
+          }
         }
+        return newGame;
       });
     },
-    [setGame, redoStack, setRedoStack],
+    [setGame, redoStack, setRedoStack, gameTargets, setGameTargets],
   );
   const onReset = useCallback(() => {
     if (!undoStack.length) {
       return game;
     }
     const newGame = undoStack[0];
-    setGame(newGame);
-    setRedoStack([...undoStack.slice(1), game, ...redoStack]);
-    setUndoStack([]);
+    captiveSetGame(newGame);
     return newGame;
-  }, [game, setGame, setRedoStack, undoStack, setUndoStack]);
+  }, [game, undoStack, captiveSetGame]);
   const onUndo = useCallback(() => {
     if (!undoStack.length) {
       return game;
     }
     const newGame = undoStack[undoStack.length - 1];
-    setGame(newGame);
-    setUndoStack(undoStack.slice(0, undoStack.length - 1));
-    setRedoStack([game, ...redoStack]);
+    captiveSetGame(newGame);
     return newGame;
-  }, [game, setGame]);
+  }, [game, undoStack, captiveSetGame]);
   const onRedo = useCallback(() => {
     if (!redoStack.length) {
       return game;
     }
     const newGame = redoStack[0];
-    setGame(newGame);
-    setUndoStack([...undoStack, game]);
-    setRedoStack(redoStack.slice(1));
+    captiveSetGame(newGame);
     return newGame;
-  }, [game, redoStack, setRedoStack, setGame]);
+  }, [game, redoStack, captiveSetGame]);
   const onRobotMove = useCallback(
     (robot: Robot, nextPosition: Position, isUndo: boolean) => {
       const newGame = game.moveRobot(robot, nextPosition, isUndo);
-      setGame(newGame);
-      setUndoStack([...undoStack, game]);
-      if (isUndo) {
-        setRedoStack([game, ...redoStack]);
-      } else {
-        setRedoStack([]);
-      }
+      captiveSetGame(newGame);
       return newGame;
     },
-    [game, setGame],
+    [game, captiveSetGame],
   );
   return {
     game,
