@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { Position, PositionMap, positionsEqual } from "../utils";
+import { HistoryItem, Position, PositionMap, positionsEqual } from "../utils";
 import { Direction, getPositionsDirection } from "./Direction";
 import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
@@ -25,7 +25,7 @@ export type NextPositionEntries = NextPositionEntry[];
 
 export type NextPositionEntriesMap = Map<number, NextPositionEntries>;
 
-export class Game {
+export class Game implements HistoryItem<Game> {
   field: Field;
   robots: Robot[];
   initialRobots: Robot[];
@@ -258,7 +258,7 @@ export class Game {
     return this.moveRobot(this.robots[robotIndex], previousPosition, true);
   }
 
-  getUndoStack(): Game[] {
+  createStack(): Game[] {
     if (!this.path.length) {
       return [];
     }
@@ -269,6 +269,26 @@ export class Game {
       undoStack.unshift(currentGame);
     }
     return undoStack;
+  }
+
+  checkIsSame(this: Game, other: Game): boolean {
+    if (this === other) {
+      return true;
+    }
+    if (this.field !== other.field) {
+      return false;
+    }
+    if (this.path.length !== other.path.length) {
+      return false;
+    }
+    return this.path.every((item, index) => other.path[index] === item);
+  }
+
+  checkIsNext(this: Game, previous: Game): boolean {
+    if (!this.path.length) {
+      return false;
+    }
+    return this.undoMoveRobot().checkIsSame(previous);
   }
 
   addRobots(newPositions: Position[]): any {

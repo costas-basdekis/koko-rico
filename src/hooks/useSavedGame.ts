@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, GameTargets, Robot } from "../game";
 import { PuzzleService, usePuzzleService } from "./usePuzzleService";
 import {
+  ItemHistory,
   loadGameFromLocalStorage,
   Position,
   saveGameToLocalStorage,
@@ -25,15 +26,7 @@ export function useSavedGame(
   game: Game;
   setGame: React.Dispatch<React.SetStateAction<Game>>;
   gameTargets: GameTargets;
-  setGameAndTargets: (game: Game, gameTargets: GameTargets) => void;
-  undoStack: Game[];
-  setUndoStack: (
-    undoStackOrFunc: Game[] | ((undoStack: Game[]) => Game[]),
-  ) => void;
-  redoStack: Game[];
-  setRedoStack: (
-    redoStackOrFunc: Game[] | ((redoStack: Game[]) => Game[]),
-  ) => void;
+  history: ItemHistory<Game>;
   onReset: () => Game;
   onUndo: () => Game;
   onRedo: () => Game;
@@ -59,23 +52,15 @@ export function useSavedGame(
   const initialGameAndTargets = useMemo(() => {
     return savedGameAndTargets ?? makeInitialGame(effectiveTargetDistance);
   }, []);
-  const [game, setGame]: [Game, any] = useState(() => {
-    return initialGameAndTargets.game;
-  });
   const [gameTargets, setGameTargets] = useState<GameTargets>(() => {
     return initialGameAndTargets.gameTargets ?? GameTargets.empty();
   });
-  const setGameAndTargets = useCallback(
-    (newGame: Game, newGameTargets: GameTargets) => {
-      setGame(newGame);
-      setGameTargets(newGameTargets);
-    },
-    [setGame, setGameTargets],
-  );
-  const [undoStack, setUndoStack] = useState<Game[]>(() => {
-    return game.getUndoStack();
+  const [history, setHistory] = useState(() => {
+    return ItemHistory.initial(initialGameAndTargets.game);
   });
-  const [redoStack, setRedoStack] = useState<Game[]>([]);
+  const game = useMemo(() => {
+    return history.current;
+  }, [history.current]);
   const [gameLoading, setGameLoading] = useState(false);
   useEffect(() => {
     if (desiredTargetDistance === effectiveTargetDistance) {
@@ -86,20 +71,7 @@ export function useSavedGame(
     desiredTargetDistance,
     effectiveTargetDistance,
     setEffectiveTargetDistance,
-    setGame,
-    setGameLoading,
   ]);
-  const setGameOrError = useCallback(
-    (gameOrError: { game: Game; gameTargets: GameTargets } | string) => {
-      setGameLoading(false);
-      if (typeof gameOrError === "string") {
-      } else {
-        setGame(gameOrError.game);
-        setGameTargets(gameOrError.gameTargets);
-      }
-    },
-    [setGame, setGameLoading],
-  );
   const puzzleService = usePuzzleService();
   const cancelNewGame = useCallback(() => {
     setGameLoading((oldGameLoading) => {
@@ -109,6 +81,85 @@ export function useSavedGame(
       return false;
     });
   }, [puzzleService, setGameLoading]);
+  useEffect(() => {
+    if (gameTargets.targetDistance === effectiveTargetDistance) {
+      return;
+    }
+    onNewGame();
+    return cancelNewGame;
+  }, [effectiveTargetDistance]);
+  useEffect(() => {
+    saveGameToLocalStorage(key, game, gameTargets);
+  }, [game]);
+  const setGame = useCallback(
+    (
+      newGameOrFunc: Game | ((newGame: Game) => Game | null | undefined),
+      newGameTargets: GameTargets = gameTargets,
+    ) => {
+      let newGameFunc: (newGame: Game) => Game | null | undefined;
+      if (typeof newGameOrFunc === "function") {
+        newGameFunc = newGameOrFunc;
+      } else {
+        newGameFunc = () => newGameOrFunc;
+      }
+      setHistory((originalHistory) => {
+        const newGame = newGameFunc(originalHistory.current);
+        if (!newGame) {
+          return originalHistory;
+        }
+        newGameTargets =
+          newGameTargets.updateCompletedTargetsAfterMove(newGame);
+        if (newGameTargets != gameTargets) {
+          setGameTargets(newGameTargets);
+        }
+        const newHistory = originalHistory.setCurrent(newGame);
+        return newHistory;
+      });
+    },
+    [history, setHistory, gameTargets, setGameTargets],
+  );
+  const onReset = useCallback(() => {
+    if (!history.canUndo()) {
+      return game;
+    }
+    const newHistory = history.undoAll();
+    setHistory(newHistory);
+    return newHistory.current;
+  }, [history, setHistory]);
+  const onUndo = useCallback(() => {
+    if (!history.canUndo()) {
+      return game;
+    }
+    const newHistory = history.undo();
+    setHistory(newHistory);
+    return newHistory.current;
+  }, [history, setHistory]);
+  const onRedo = useCallback(() => {
+    if (!history.canRedo()) {
+      return game;
+    }
+    const newHistory = history.redo();
+    setHistory(newHistory);
+    return newHistory.current;
+  }, [history, setHistory]);
+  const onRobotMove = useCallback(
+    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
+      const newGame = game.moveRobot(robot, nextPosition, isUndo);
+      setGame(newGame);
+      return newGame;
+    },
+    [game, setGame],
+  );
+  const setGameOrError = useCallback(
+    (gameOrError: { game: Game; gameTargets: GameTargets } | string) => {
+      setGameLoading(false);
+      if (typeof gameOrError === "string") {
+      } else {
+        setGame(gameOrError.game, gameOrError.gameTargets);
+      }
+    },
+    [setGame, setGameLoading],
+  );
   const onNewGame = useCallback(() => {
     if (gameLoading) {
       cancelNewGame();
@@ -123,92 +174,11 @@ export function useSavedGame(
     puzzleService,
     setGameOrError,
   ]);
-  useEffect(() => {
-    if (gameTargets.targetDistance === effectiveTargetDistance) {
-      return;
-    }
-    onNewGame();
-    return cancelNewGame;
-  }, [effectiveTargetDistance]);
-  useEffect(() => {
-    saveGameToLocalStorage(key, game, gameTargets);
-  }, [game]);
-  const captiveSetGame = useCallback(
-    (newGameOrFunc: Game | ((newGame: Game) => Game | null | undefined)) => {
-      let newGameFunc: (newGame: Game) => Game | null | undefined;
-      if (typeof newGameOrFunc === "function") {
-        newGameFunc = newGameOrFunc;
-      } else {
-        newGameFunc = () => newGameOrFunc;
-      }
-      return setGame((originalNewGame: Game) => {
-        const newGame = newGameFunc(originalNewGame);
-        if (!newGame) {
-          return;
-        }
-        const undoIndex = undoStack.indexOf(newGame);
-        const redoIndex = redoStack.indexOf(newGame);
-        if (redoIndex != -1) {
-          setUndoStack([...undoStack, game, ...redoStack.slice(0, redoIndex)]);
-          setRedoStack(redoStack.slice(redoIndex + 1));
-        } else if (undoIndex != -1) {
-          setUndoStack(undoStack.slice(0, undoIndex));
-          setRedoStack([...undoStack.slice(undoIndex + 1), game, ...redoStack]);
-        } else {
-          setUndoStack(newGame.getUndoStack());
-          setRedoStack([]);
-          const newGameTargets =
-            gameTargets.updateCompletedTargetsAfterMove(newGame);
-          if (newGameTargets !== gameTargets) {
-            setGameTargets(newGameTargets);
-          }
-        }
-        return newGame;
-      });
-    },
-    [setGame, redoStack, setRedoStack, gameTargets, setGameTargets],
-  );
-  const onReset = useCallback(() => {
-    if (!undoStack.length) {
-      return game;
-    }
-    const newGame = undoStack[0];
-    captiveSetGame(newGame);
-    return newGame;
-  }, [game, undoStack, captiveSetGame]);
-  const onUndo = useCallback(() => {
-    if (!undoStack.length) {
-      return game;
-    }
-    const newGame = undoStack[undoStack.length - 1];
-    captiveSetGame(newGame);
-    return newGame;
-  }, [game, undoStack, captiveSetGame]);
-  const onRedo = useCallback(() => {
-    if (!redoStack.length) {
-      return game;
-    }
-    const newGame = redoStack[0];
-    captiveSetGame(newGame);
-    return newGame;
-  }, [game, redoStack, captiveSetGame]);
-  const onRobotMove = useCallback(
-    (robot: Robot, nextPosition: Position, isUndo: boolean) => {
-      const newGame = game.moveRobot(robot, nextPosition, isUndo);
-      captiveSetGame(newGame);
-      return newGame;
-    },
-    [game, captiveSetGame],
-  );
   return {
     game,
-    setGame: captiveSetGame,
+    setGame,
     gameTargets,
-    setGameAndTargets,
-    undoStack,
-    setUndoStack,
-    redoStack,
-    setRedoStack,
+    history,
     onReset,
     onUndo,
     onRedo,

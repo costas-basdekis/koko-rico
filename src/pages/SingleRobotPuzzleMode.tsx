@@ -18,7 +18,7 @@ export function SingleRobotPuzzleMode() {
   const {
     game,
     gameTargets,
-    redoStack,
+    history,
     onReset,
     onUndo,
     onRedo,
@@ -80,9 +80,9 @@ export function SingleRobotPuzzleMode() {
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
         onRobotMove={onTouchScreenMove}
-        onRobotReset={game.path.length ? onReset : undefined}
-        onUndoRobotMove={game.path.length ? onUndo : undefined}
-        onRedoRobotMove={redoStack.length ? onRedo : undefined}
+        onRobotReset={history.canUndo() ? onReset : undefined}
+        onUndoRobotMove={history.canUndo() ? onUndo : undefined}
+        onRedoRobotMove={history.canRedo() ? onRedo : undefined}
         onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
           gameTargets.completedTargetPositions.length !==
