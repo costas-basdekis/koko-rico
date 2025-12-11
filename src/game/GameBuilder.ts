@@ -234,11 +234,11 @@ export class GameBuilder {
         count,
         desiredTargetDistance,
       );
-      game = game.pickTargets(desiredTargetDistance);
+      const gameTargets = GameTargets.makeFromGame(game, desiredTargetDistance);
       return {
         success: true,
         serialised: game.serialise(),
-        serialisedTargets: GameTargets.fromGame(game).serialise(),
+        serialisedTargets: gameTargets.serialise(),
       };
     } catch (e) {
       return { success: false, error: `${e}` };

@@ -127,8 +127,11 @@ export function SingleRobotPuzzleMode() {
   );
 }
 
-function makeInitialGame(): Game {
-  return Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]);
+function makeInitialGame(): { game: Game; gameTargets: GameTargets } {
+  return {
+    game: Game.makeForSizeAndRobots(21, 21, [{ x: 10, y: 10 }]),
+    gameTargets: GameTargets.empty(),
+  };
 }
 
 function makeBackgroundGame(
@@ -140,7 +143,7 @@ function makeBackgroundGame(
 ) {
   puzzleService.request(
     {
-      serialised: makeInitialGame().serialise(),
+      serialised: makeInitialGame().game.serialise(),
       count: 20,
       desiredTargetDistance,
     },

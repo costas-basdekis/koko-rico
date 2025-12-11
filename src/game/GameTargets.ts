@@ -20,6 +20,10 @@ export class GameTargets {
   silverTargetPositions: Position[];
   bronzeTargetPositions: Position[];
 
+  static empty(): GameTargets {
+    return new GameTargets(0, 0, 0, [], [], [], []);
+  }
+
   static getDefaultSilverAndBronzeTargetDistances(
     targetDistance: number,
   ): [number, number] {
@@ -140,7 +144,10 @@ export class GameTargets {
   ): { game: Game; gameTargets: GameTargets | null; saveAgain: boolean } {
     if (!("game" in serialised)) {
       const game = Game.deserialise(serialised);
-      const gameTargets = this.fromGame(game);
+      const gameTargets =
+        "version" in serialised && serialised["version"] === 3
+          ? this.deserialiseFromGameV3(serialised)
+          : null;
       return { game, gameTargets, saveAgain: true };
     }
     const serialisedGame = serialised["game"];

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Field, Game, GameTargets, Robot } from "../game";
+import { Game, GameTargets, Robot } from "../game";
 import { PuzzleService, usePuzzleService } from "./usePuzzleService";
 import {
   loadGameFromLocalStorage,
@@ -9,7 +9,10 @@ import {
 
 export function useSavedGame(
   key: string,
-  makeInitialGame: (targetDistance: number) => Game,
+  makeInitialGame: (targetDistance: number) => {
+    game: Game;
+    gameTargets: GameTargets;
+  },
   makeBackgroundGame: (
     targetDistance: number,
     puzzleService: PuzzleService,
@@ -53,49 +56,21 @@ export function useSavedGame(
   const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(
     desiredTargetDistance,
   );
+  const initialGameAndTargets = useMemo(() => {
+    return savedGameAndTargets ?? makeInitialGame(effectiveTargetDistance);
+  }, []);
   const [game, setGame]: [Game, any] = useState(() => {
-    if (savedGameAndTargets) {
-      return savedGameAndTargets.game;
-    }
-    return makeInitialGame(effectiveTargetDistance);
+    return initialGameAndTargets.game;
   });
-  const [{ gameTargets, gameTargetsField }, setGameTargetsAndField] = useState<{
-    gameTargets: GameTargets;
-    gameTargetsField: Field;
-  }>(() => {
-    if (savedGameAndTargets) {
-      return {
-        gameTargets: savedGameAndTargets.gameTargets!,
-        gameTargetsField: savedGameAndTargets.game.field,
-      };
-    }
-    return {
-      gameTargets: GameTargets.fromGame(game),
-      gameTargetsField: game.field,
-    };
+  const [gameTargets, setGameTargets] = useState<GameTargets>(() => {
+    return initialGameAndTargets.gameTargets ?? GameTargets.empty();
   });
-  useEffect(() => {
-    if (game.field !== gameTargetsField) {
-      setGameTargetsAndField({
-        gameTargets: GameTargets.fromGame(game),
-        gameTargetsField: game.field,
-      });
-      return;
-    }
-    const newGameTargets = gameTargets.updateCompletedTargetsAfterMove(game);
-    if (newGameTargets !== gameTargets) {
-      setGameTargetsAndField({ gameTargets: newGameTargets, gameTargetsField });
-    }
-  }, [game, setGameTargetsAndField, gameTargetsField]);
   const setGameAndTargets = useCallback(
     (newGame: Game, newGameTargets: GameTargets) => {
       setGame(newGame);
-      setGameTargetsAndField({
-        gameTargets: newGameTargets,
-        gameTargetsField: newGame.field,
-      });
+      setGameTargets(newGameTargets);
     },
-    [setGame, setGameTargetsAndField],
+    [setGame, setGameTargets],
   );
   const [undoStack, setUndoStack] = useState<Game[]>(() => {
     return game.getUndoStack();
@@ -120,10 +95,7 @@ export function useSavedGame(
       if (typeof gameOrError === "string") {
       } else {
         setGame(gameOrError.game);
-        setGameTargetsAndField({
-          gameTargets: gameOrError.gameTargets,
-          gameTargetsField: gameOrError.game.field,
-        });
+        setGameTargets(gameOrError.gameTargets);
       }
     },
     [setGame, setGameLoading],
