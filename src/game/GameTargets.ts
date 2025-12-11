@@ -31,18 +31,6 @@ export class GameTargets {
     return [targetDistance + step, targetDistance + step * 2];
   }
 
-  static fromGame(game: Game): GameTargets {
-    return new GameTargets(
-      game.targetDistance,
-      game.silverTargetDistance,
-      game.bronzeTargetDistance,
-      game.targetPositions,
-      game.completedTargetPositions,
-      game.silverTargetPositions,
-      game.bronzeTargetPositions,
-    );
-  }
-
   static makeFromGame(
     game: Game,
     desiredTargetDistance: number,

@@ -1,16 +1,18 @@
+import _ from "underscore";
 import { MigrationManager } from "./MigrationManager";
 
-const migrationManager = new MigrationManager<GameFormat, LatestGameFormat>(3);
+const migrationManager = new MigrationManager<GameFormat, LatestGameFormat>(4);
 export const migrate = migrationManager.makeMigrator();
 const registerMigration = migrationManager.makeRegisterMigration();
 
 export type GameFormat =
   | GameFormatVersion1
   | GameFormatVersion2
-  | GameFormatVersion3;
+  | GameFormatVersion3
+  | GameFormatVersion4;
 
-export const LatestGameVersion = 3;
-export type LatestGameFormat = GameFormatVersion3 & {
+export const LatestGameVersion = 4;
+export type LatestGameFormat = GameFormatVersion4 & {
   version: typeof LatestGameVersion;
 };
 
@@ -88,6 +90,40 @@ registerMigration(
       bronzeTargetDistance,
       silverTargetPositions: [],
       bronzeTargetPositions: [],
+    };
+  },
+);
+
+export type GameFormatVersion4 = Omit<
+  GameFormatVersion3,
+  | "version"
+  | "targetDistance"
+  | "silverTargetDistance"
+  | "bronzeTargetDistance"
+  | "targetPositions"
+  | "completedTargetPositions"
+  | "silverTargetPositions"
+  | "bronzeTargetPositions"
+> & {
+  version: 4;
+};
+
+registerMigration(
+  3,
+  4,
+  function migrateV3ToV4(serialised: GameFormatVersion3): GameFormatVersion4 {
+    return {
+      ..._.omit(serialised, [
+        "version",
+        "targetDistance",
+        "silverTargetDistance",
+        "bronzeTargetDistance",
+        "targetPositions",
+        "completedTargetPositions",
+        "silverTargetPositions",
+        "bronzeTargetPositions",
+      ]),
+      version: 4,
     };
   },
 );

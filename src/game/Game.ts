@@ -30,13 +30,6 @@ export class Game {
   robots: Robot[];
   initialRobots: Robot[];
   path: RobotPath;
-  targetDistance: number;
-  silverTargetDistance: number;
-  bronzeTargetDistance: number;
-  targetPositions: Position[];
-  completedTargetPositions: Position[];
-  silverTargetPositions: Position[];
-  bronzeTargetPositions: Position[];
   singleRobotDistanceMap?: PositionMap<number> = undefined;
   singleRobotDistanceMapDistance?: number = undefined;
   multiRobotDistanceMap?: PositionMap<number> = undefined;
@@ -57,19 +50,7 @@ export class Game {
     const robots = robotPositions.map(
       (position, index) => new Robot(position, index),
     );
-    return new Game(
-      Field.makeForSize(width, height),
-      robots,
-      robots,
-      [],
-      0,
-      0,
-      0,
-      [],
-      [],
-      [],
-      [],
-    );
+    return new Game(Field.makeForSize(width, height), robots, robots, []);
   }
 
   static deserialise(serialised: GameFormat): Game {
@@ -82,41 +63,12 @@ export class Game {
     robots,
     initialRobots,
     path,
-    targetDistance,
-    silverTargetDistance,
-    bronzeTargetDistance,
-    silverTargetPositions,
-    bronzeTargetPositions,
-    targetPositions,
-    completedTargetPositions,
   }: LatestGameFormat): Game {
-    completedTargetPositions = targetPositions.filter((position) =>
-      completedTargetPositions.some((completedPosition) =>
-        positionsEqual(completedPosition, position),
-      ),
-    );
-    silverTargetPositions = targetPositions.filter((position) =>
-      silverTargetPositions.some((completedPosition) =>
-        positionsEqual(completedPosition, position),
-      ),
-    );
-    bronzeTargetPositions = targetPositions.filter((position) =>
-      bronzeTargetPositions.some((completedPosition) =>
-        positionsEqual(completedPosition, position),
-      ),
-    );
     return new Game(
       Field.deserialise(field),
       robots.map((robot) => Robot.deserialise(robot)),
       initialRobots.map((robot) => Robot.deserialise(robot)),
       path,
-      targetDistance,
-      silverTargetDistance,
-      bronzeTargetDistance,
-      targetPositions,
-      completedTargetPositions,
-      silverTargetPositions,
-      bronzeTargetPositions,
     );
   }
 
@@ -125,41 +77,20 @@ export class Game {
     robots: Robot[],
     initialRobots: Robot[],
     path: RobotPath,
-    targetDistance: number,
-    silverTargetDistance: number,
-    bronzeTargetDistance: number,
-    targetPositions: Position[],
-    completedTargetPositions: Position[],
-    silverTargetPositions: Position[],
-    bronzeTargetPositions: Position[],
   ) {
     this.field = field;
     this.robots = robots;
     this.initialRobots = initialRobots;
     this.path = path;
-    this.targetDistance = targetDistance;
-    this.silverTargetDistance = silverTargetDistance;
-    this.bronzeTargetDistance = bronzeTargetDistance;
-    this.targetPositions = targetPositions;
-    this.completedTargetPositions = completedTargetPositions;
-    this.silverTargetPositions = silverTargetPositions;
-    this.bronzeTargetPositions = bronzeTargetPositions;
   }
 
   serialise(): LatestGameFormat {
     return {
-      version: 3,
+      version: 4,
       field: this.field.serialise(),
       robots: this.robots.map((robot) => robot.serialise()),
       initialRobots: this.initialRobots.map((robot) => robot.serialise()),
       path: this.path,
-      targetDistance: this.targetDistance,
-      silverTargetDistance: this.silverTargetDistance,
-      bronzeTargetDistance: this.bronzeTargetDistance,
-      targetPositions: this.targetPositions,
-      completedTargetPositions: this.completedTargetPositions,
-      silverTargetPositions: this.silverTargetPositions,
-      bronzeTargetPositions: this.bronzeTargetPositions,
     };
   }
 
@@ -167,41 +98,8 @@ export class Game {
     field = this.field,
     robots = this.robots,
     path = this.path,
-    targetDistance = this.targetDistance,
-    silverTargetDistance = this.silverTargetDistance,
-    bronzeTargetDistance = this.bronzeTargetDistance,
-    targetPositions: targets = this.targetPositions,
-    completedTargetPositions: completedTargets = this.completedTargetPositions,
-    silverTargetPositions = this.silverTargetPositions,
-    bronzeTargetPositions = this.bronzeTargetPositions,
-  }: Partial<
-    Pick<
-      Game,
-      | "field"
-      | "robots"
-      | "path"
-      | "targetDistance"
-      | "silverTargetDistance"
-      | "bronzeTargetDistance"
-      | "targetPositions"
-      | "completedTargetPositions"
-      | "silverTargetPositions"
-      | "bronzeTargetPositions"
-    >
-  >) {
-    return new Game(
-      field,
-      robots,
-      this.initialRobots,
-      path,
-      targetDistance,
-      silverTargetDistance,
-      bronzeTargetDistance,
-      targets,
-      completedTargets,
-      silverTargetPositions,
-      bronzeTargetPositions,
-    );
+  }: Partial<Pick<Game, "field" | "robots" | "path">>) {
+    return new Game(field, robots, this.initialRobots, path);
   }
 
   toggleWall(position: Position, type: WallType): Game {
@@ -243,84 +141,7 @@ export class Game {
             },
           ],
     });
-    if (!isUndo && robot.index === 0) {
-      newGame = newGame.updateCompletedTargetsAfterMove();
-    }
     return newGame;
-  }
-
-  updateCompletedTargetsAfterMove(): Game {
-    if (
-      this.path.length < this.targetDistance ||
-      this.path.length > this.bronzeTargetDistance
-    ) {
-      return this;
-    }
-    const { position: newPosition } = this.path[this.path.length - 1];
-    const completedTargetPosition = this.targetPositions.find(
-      (targetPosition) => positionsEqual(newPosition, targetPosition),
-    );
-    if (!completedTargetPosition) {
-      return this;
-    }
-    if (this.completedTargetPositions.includes(completedTargetPosition)) {
-      return this;
-    }
-    if (this.path.length === this.targetDistance) {
-      const silverTargetPositions = this.silverTargetPositions.includes(
-        completedTargetPosition,
-      )
-        ? this.silverTargetPositions.filter(
-            (position) => position != completedTargetPosition,
-          )
-        : this.silverTargetPositions;
-      const bronzeTargetPositions = this.bronzeTargetPositions.includes(
-        completedTargetPosition,
-      )
-        ? this.bronzeTargetPositions.filter(
-            (position) => position != completedTargetPosition,
-          )
-        : this.bronzeTargetPositions;
-      return this.change({
-        completedTargetPositions: [
-          ...this.completedTargetPositions,
-          completedTargetPosition,
-        ],
-        silverTargetPositions,
-        bronzeTargetPositions,
-      });
-    } else if (this.path.length <= this.silverTargetDistance) {
-      if (this.silverTargetPositions.includes(completedTargetPosition)) {
-        return this;
-      }
-      const bronzeTargetPositions = this.bronzeTargetPositions.includes(
-        completedTargetPosition,
-      )
-        ? this.bronzeTargetPositions.filter(
-            (position) => position != completedTargetPosition,
-          )
-        : this.bronzeTargetPositions;
-      return this.change({
-        silverTargetPositions: [
-          ...this.silverTargetPositions,
-          completedTargetPosition,
-        ],
-        bronzeTargetPositions,
-      });
-    } else {
-      if (
-        this.silverTargetPositions.includes(completedTargetPosition) ||
-        this.bronzeTargetPositions.includes(completedTargetPosition)
-      ) {
-        return this;
-      }
-      return this.change({
-        bronzeTargetPositions: [
-          ...this.bronzeTargetPositions,
-          completedTargetPosition,
-        ],
-      });
-    }
   }
 
   resetRobots(): Game {
@@ -517,37 +338,5 @@ export class Game {
       ).evaluate(distanceLimit);
     }
     return this.multiRobotDistanceMap;
-  }
-
-  pickTargets(
-    desiredTargetDistance: number = this.targetDistance,
-    count: number | null = null,
-  ): Game {
-    const distanceMap = this.calculateReachableMultiRobotPositions(
-      this.robots[0],
-      desiredTargetDistance,
-    );
-    const [, targetDistance] = Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance >= desiredTargetDistance)
-      .sort(
-        ([, leftDistance], [, rightDistance]) => leftDistance - rightDistance,
-      )[0];
-    const targetPositions = Array.from(distanceMap.entries())
-      .filter(([, distance]) => distance === targetDistance)
-      .map(([position]) => position);
-    if (count !== null) {
-      targetPositions.splice(count);
-    }
-    const [silverTargetDistance, bronzeTargetDistance] =
-      Game.getDefaultSilverAndBronzeTargetDistances(targetDistance);
-    return this.change({
-      targetDistance,
-      targetPositions,
-      silverTargetDistance,
-      bronzeTargetDistance,
-      completedTargetPositions: [],
-      silverTargetPositions: [],
-      bronzeTargetPositions: [],
-    });
   }
 }

@@ -51,7 +51,7 @@ export function useSavedGame(
     return loadGameFromLocalStorage(key);
   }, []);
   const [desiredTargetDistance, setDesiredTargetDistance] = useState(
-    savedGameAndTargets?.game?.targetDistance ?? defaultTargetDistance,
+    savedGameAndTargets?.gameTargets?.targetDistance || defaultTargetDistance,
   );
   const [effectiveTargetDistance, setEffectiveTargetDistance] = useState(
     desiredTargetDistance,
