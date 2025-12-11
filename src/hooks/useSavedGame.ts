@@ -192,12 +192,12 @@ export function useSavedGame(
     [setGame, redoStack, setRedoStack],
   );
   const onReset = useCallback(() => {
-    if (!undoStack) {
+    if (!undoStack.length) {
       return game;
     }
     const newGame = undoStack[0];
     setGame(newGame);
-    setRedoStack([...undoStack.slice(1), game]);
+    setRedoStack([...undoStack.slice(1), game, ...redoStack]);
     setUndoStack([]);
     return newGame;
   }, [game, setGame, setRedoStack, undoStack, setUndoStack]);
