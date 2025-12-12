@@ -2,3 +2,9 @@
   font-family: sans-serif;
   text-align: center;
 }
+
+.fullscreen-button {
+  vertical-align: middle;
+  padding-top: 3px;
+  margin: 0 2px;
+}

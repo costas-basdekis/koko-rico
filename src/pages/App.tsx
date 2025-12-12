@@ -1,9 +1,10 @@
 import "./App.css";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ExploreMode } from "./ExploreMode";
 import { MultiRobotPuzzleMode } from "./MultiRobotPuzzleMode";
 import { SingleRobotPuzzleMode } from "./SingleRobotPuzzleMode";
 import { ControlButton } from "../components";
+import { useFullscreen } from "../hooks";
 
 type Mode = "multi-robot-puzzle" | "signle-robot-puzzle" | "explore";
 
@@ -18,9 +19,18 @@ export default function App() {
   const onSetExplorationMode = useCallback(() => {
     setMode("explore");
   }, []);
+  const [fullscreen, , toggleFullscreen] = useFullscreen();
   return (
     <div className="App">
-      <h1>Koko Rico</h1>
+      <h1>
+        <ControlButton
+          className={"fullscreen-button"}
+          onClick={toggleFullscreen}
+        >
+          {fullscreen ? "◻" : "⛶"}
+        </ControlButton>
+        Koko Rico
+      </h1>
       {mode === "multi-robot-puzzle" ? (
         <MultiRobotPuzzleMode />
       ) : mode === "signle-robot-puzzle" ? (
