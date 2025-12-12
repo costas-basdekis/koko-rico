@@ -27,10 +27,25 @@ export function useFullscreen(
         document.exitFullscreen();
       }
     }
+    document.addEventListener("fullscreenchange", exitHandler, false);
+    document.addEventListener("mozfullscreenchange", exitHandler, false);
+    document.addEventListener("MSFullscreenChange", exitHandler, false);
+    document.addEventListener("webkitfullscreenchange", exitHandler, false);
+
+    function exitHandler() {
+      const isFullScreen = !!document.fullscreenElement;
+      if (fullscreen !== isFullScreen) {
+        setFullscreen(isFullScreen);
+      }
+    }
     return () => {
       if (document.fullscreenElement) {
         document.exitFullscreen();
       }
+      document.removeEventListener("fullscreenchange", exitHandler);
+      document.removeEventListener("mozfullscreenchange", exitHandler);
+      document.removeEventListener("MSFullscreenChange", exitHandler);
+      document.removeEventListener("webkitfullscreenchange", exitHandler);
     };
   }, [$element, fullscreen, setFullscreen]);
   const toggleFullscreen = useCallback(() => {
