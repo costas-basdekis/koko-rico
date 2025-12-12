@@ -4,7 +4,7 @@ import { ExploreMode } from "./ExploreMode";
 import { MultiRobotPuzzleMode } from "./MultiRobotPuzzleMode";
 import { SingleRobotPuzzleMode } from "./SingleRobotPuzzleMode";
 import { ControlButton } from "../components";
-import { useFullscreen } from "../hooks";
+import { useFullscreen, useStayAwake } from "../hooks";
 
 type Mode = "multi-robot-puzzle" | "signle-robot-puzzle" | "explore";
 
@@ -20,6 +20,7 @@ export default function App() {
     setMode("explore");
   }, []);
   const [fullscreen, , toggleFullscreen] = useFullscreen();
+  useStayAwake(fullscreen);
   return (
     <div className="App">
       <h1>
