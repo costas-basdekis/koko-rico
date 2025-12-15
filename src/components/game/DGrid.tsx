@@ -11,6 +11,7 @@ export interface DGridProps {
   onlyNextRobotPositions?: boolean;
   onRobotMoveClick?: (nextPosition: Position) => void;
   gameTargets?: GameTargets;
+  targetPositions?: Position[];
 }
 
 export function DGrid({
@@ -19,6 +20,7 @@ export function DGrid({
   onlyNextRobotPositions = false,
   onRobotMoveClick,
   gameTargets,
+  targetPositions,
 }: DGridProps) {
   return (
     <g className={"grid"}>
@@ -38,6 +40,7 @@ export function DGrid({
               showRobotControls={showRobotControls}
               onRobotMoveClick={onRobotMoveClick}
               gameTargets={gameTargets}
+              targetPositions={targetPositions}
             />
           );
         }),
@@ -52,6 +55,7 @@ export interface DGridCellProps {
   showRobotControls?: boolean;
   onRobotMoveClick?: (nextPosition: Position) => void;
   gameTargets?: GameTargets;
+  targetPositions?: Position[];
 }
 
 export function DGridCell({
@@ -60,6 +64,7 @@ export function DGridCell({
   showRobotControls,
   onRobotMoveClick,
   gameTargets,
+  targetPositions = gameTargets?.targetPositions,
 }: DGridCellProps) {
   const onClick = useCallback(() => {
     onRobotMoveClick?.({ x, y });
@@ -67,11 +72,10 @@ export function DGridCell({
   const drawSettings = DrawSettings.use();
   const isTarget = useMemo(() => {
     return (
-      gameTargets?.targetPositions.some((target) =>
-        positionsEqual({ x, y }, target),
-      ) ?? false
+      targetPositions?.some((target) => positionsEqual({ x, y }, target)) ??
+      false
     );
-  }, [x, y, gameTargets?.targetPositions]);
+  }, [x, y, targetPositions]);
   const isTargetCompleted = useMemo(() => {
     if (!isTarget) {
       return false;

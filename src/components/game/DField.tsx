@@ -86,7 +86,11 @@ export function DField({
   );
   return (
     <g className={"field"}>
-      <DGrid field={field} gameTargets={gameTargets} />
+      <DGrid
+        field={field}
+        gameTargets={gameTargets}
+        targetPositions={targetPositions}
+      />
       {Array.from(robotPathsByIndex.entries())
         .sort(sortOnSelectedRobotFirst)
         .map(([index, robotPath]) => (

@@ -71,7 +71,7 @@ export function DGame({
   onRobotResetClick,
   onNewGameClick,
   onShowSettings,
-  targetPositions = gameTargets?.targetPositions,
+  targetPositions,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances || maxDistance === undefined) {
