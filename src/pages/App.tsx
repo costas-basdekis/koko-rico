@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ExploreMode } from "./ExploreMode";
 import { MultiRobotPuzzleMode } from "./MultiRobotPuzzleMode";
 import { SingleRobotPuzzleMode } from "./SingleRobotPuzzleMode";
-import { ControlButton } from "../components";
+import { ButtonHotkey, ControlButton } from "../components";
 import { useFullscreen, useStayAwake } from "../hooks";
 
 type Mode = "multi-robot-puzzle" | "signle-robot-puzzle" | "explore";
@@ -46,7 +46,7 @@ export default function App() {
             onChange={onSetMultiobotPuzzleMode}
             checked={mode === "multi-robot-puzzle"}
           />
-          <span className={"button-hotkey"}>Multi</span>
+          <ButtonHotkey>Multi</ButtonHotkey>
           <br />
           Robot Puzzle
         </ControlButton>
@@ -56,7 +56,7 @@ export default function App() {
             onChange={onSetSingleRobotPuzzleMode}
             checked={mode === "signle-robot-puzzle"}
           />
-          <span className={"button-hotkey"}>Single</span>
+          <ButtonHotkey>Single</ButtonHotkey>
           <br />
           Robot Puzzle
         </ControlButton>
@@ -66,7 +66,7 @@ export default function App() {
             onChange={onSetExplorationMode}
             checked={mode === "explore"}
           />
-          <span className={"button-hotkey"}>Explore</span>
+          <ButtonHotkey>Explore</ButtonHotkey>
           <br />
           Mode
         </ControlButton>

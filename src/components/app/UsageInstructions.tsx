@@ -5,6 +5,7 @@ import {
   RingMoveInterpreter,
 } from "../../utils";
 import {
+  ButtonHotkey,
   ButtonRow,
   ControlButton,
   DrawSettings,
@@ -20,11 +21,14 @@ export interface UsageInstructionsProps {
   onChangeShowMoveInterpreter?: (showMoveInterpreter: boolean) => void;
   moveInterpreter?: MoveInterpreter;
   selectedRobotIndex?: number;
+  robotCount?: number;
   onSelectedRobotIndexChange?: (index: number) => void;
   onRobotMove?: (direction: Direction) => void;
   onRobotReset?: () => void;
   onUndoRobotMove?: () => void;
+  undoRobotIndex?: number;
   onRedoRobotMove?: () => void;
+  redoRobotIndex?: number;
   onNewPuzzle?: () => void;
   askForNewPuzzleConfirmation?: boolean;
   onShowSettings?: () => void;
@@ -36,11 +40,14 @@ export function UsageInstructions({
   onChangeShowMoveInterpreter,
   moveInterpreter = new RingMoveInterpreter(),
   selectedRobotIndex,
+  robotCount,
   onSelectedRobotIndexChange,
   onRobotMove,
   onRobotReset,
   onUndoRobotMove,
+  undoRobotIndex,
   onRedoRobotMove,
+  redoRobotIndex,
   onNewPuzzle,
   askForNewPuzzleConfirmation = true,
   onShowSettings,
@@ -187,7 +194,15 @@ export function UsageInstructions({
           disabled={!onSelectedRobotIndexChange}
           onClick={onNextRobotClick}
         >
-          <span className={"button-hotkey"}>B</span>
+          <ButtonHotkey
+            robotIndex={
+              robotCount !== undefined && selectedRobotIndex !== undefined
+                ? (selectedRobotIndex - 1 + robotCount) % robotCount
+                : undefined
+            }
+          >
+            B
+          </ButtonHotkey>
           <br />
           {isTouchDevice ? "Next" : "Next robot"}
         </ControlButton>
@@ -195,37 +210,41 @@ export function UsageInstructions({
           disabled={!onSelectedRobotIndexChange}
           onClick={onPreviousRobotClick}
         >
-          <span className={"button-hotkey"}>⇧+B</span>
+          <ButtonHotkey
+            robotIndex={
+              robotCount !== undefined && selectedRobotIndex !== undefined
+                ? (selectedRobotIndex + 1) % robotCount
+                : undefined
+            }
+          >
+            ⇧+B
+          </ButtonHotkey>
           <br />
           {isTouchDevice ? "Previous" : "Previous robot"}
         </ControlButton>
         <ControlButton disabled={!onRobotReset} onClick={onRobotReset}>
-          <span className={"button-hotkey"}>T</span>
+          <ButtonHotkey>T</ButtonHotkey>
           <br />
           {isTouchDevice ? "Reset" : "Reset robots"}
         </ControlButton>
         <ControlButton disabled={!onUndoRobotMove} onClick={onUndoRobotMove}>
-          <span className={"button-hotkey"}>U</span>
+          <ButtonHotkey robotIndex={undoRobotIndex}>U</ButtonHotkey>
           <br />
           Undo
         </ControlButton>
         <ControlButton disabled={!onRedoRobotMove} onClick={onRedoRobotMove}>
-          <span className={"button-hotkey"}>R</span>
+          <ButtonHotkey robotIndex={redoRobotIndex}>R</ButtonHotkey>
           <br />
           Redo
         </ControlButton>
         <ControlButton disabled={!onNewPuzzle} onClick={innerOnNewPuzzle}>
-          {gameLoading ? (
-            <Spinner />
-          ) : (
-            <span className={"button-hotkey"}>N</span>
-          )}
+          {gameLoading ? <Spinner /> : <ButtonHotkey>N</ButtonHotkey>}
           <br />
           {isTouchDevice ? "New" : "New Puzzle"}
         </ControlButton>
         {onShowSettings ? (
           <ControlButton onClick={onShowSettings}>
-            <span className={"button-hotkey"}>S</span>
+            <ButtonHotkey>S</ButtonHotkey>
             <br />
             Settings
           </ControlButton>

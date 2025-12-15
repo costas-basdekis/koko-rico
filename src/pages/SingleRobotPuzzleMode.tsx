@@ -82,7 +82,9 @@ export function SingleRobotPuzzleMode() {
         onRobotMove={onTouchScreenMove}
         onRobotReset={history.canUndo() ? onReset : undefined}
         onUndoRobotMove={history.canUndo() ? onUndo : undefined}
+        undoRobotIndex={1}
         onRedoRobotMove={history.canRedo() ? onRedo : undefined}
+        redoRobotIndex={1}
         onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
           gameTargets.completedTargetPositions.length !==

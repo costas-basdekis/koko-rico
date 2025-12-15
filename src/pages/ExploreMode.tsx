@@ -142,12 +142,14 @@ export function ExploreMode() {
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
         selectedRobotIndex={selectedRobotIndex}
+        robotCount={game.robots.length}
         onSelectedRobotIndexChange={
           game.robots.length > 1 ? onSelectedRobotIndexChange : undefined
         }
         onRobotMove={onTouchScreenMove}
         onRobotReset={game.path.length ? onRobotResetClick : undefined}
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
+        undoRobotIndex={game.getUndoRobotIndex()}
         onNewPuzzle={onRandomCrossedWallsClick}
         onShowSettings={onShowSettings}
       />

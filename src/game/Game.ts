@@ -102,6 +102,10 @@ export class Game implements HistoryItem<Game> {
     return new Game(field, robots, this.initialRobots, path);
   }
 
+  getUndoRobotIndex(): number | undefined {
+    return this.path[this.path.length - 1]?.robotIndex;
+  }
+
   toggleWall(position: Position, type: WallType): Game {
     return this.change({ field: this.field.toggleWall(position, type) });
   }

@@ -42,3 +42,18 @@ export function ButtonLike({
     </label>
   );
 }
+
+export interface ButtonHotkeyProps {
+  robotIndex?: number;
+  children?: any;
+}
+
+export function ButtonHotkey({ robotIndex, children }: ButtonHotkeyProps) {
+  return (
+    <span
+      className={`button-hotkey ${robotIndex !== undefined ? `index-${robotIndex}` : ""}`}
+    >
+      {children}
+    </span>
+  );
+}

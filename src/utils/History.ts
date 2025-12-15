@@ -41,6 +41,13 @@ export class ItemHistory<T extends HistoryItem<T>> {
     return this.index > 0;
   }
 
+  getUndoItem(): T | undefined {
+    if (!this.canUndo()) {
+      return undefined;
+    }
+    return this.stack[this.index - 1];
+  }
+
   undo(): ItemHistory<T> {
     if (!this.canUndo()) {
       return this;
@@ -57,6 +64,13 @@ export class ItemHistory<T extends HistoryItem<T>> {
 
   canRedo(): boolean {
     return this.index < this.stack.length - 1;
+  }
+
+  getRedoItem(): T | undefined {
+    if (!this.canRedo) {
+      return undefined;
+    }
+    return this.stack[this.index + 1];
   }
 
   redo(): ItemHistory<T> {

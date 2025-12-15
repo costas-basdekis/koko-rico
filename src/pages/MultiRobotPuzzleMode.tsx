@@ -95,11 +95,14 @@ export function MultiRobotPuzzleMode() {
         showMoveInterpreter={showMoveInterpreter}
         onChangeShowMoveInterpreter={setShowMoveInterpreter}
         selectedRobotIndex={selectedRobotIndex}
+        robotCount={game.robots.length}
         onSelectedRobotIndexChange={onSelectedRobotIndexChange}
         onRobotMove={onTouchScreenMove}
         onRobotReset={history.canUndo() ? onReset : undefined}
         onUndoRobotMove={history.canUndo() ? onUndo : undefined}
+        undoRobotIndex={game.getUndoRobotIndex()}
         onRedoRobotMove={history.canRedo() ? onRedo : undefined}
+        redoRobotIndex={history.getRedoItem()?.getUndoRobotIndex()}
         onNewPuzzle={onNewGame}
         askForNewPuzzleConfirmation={
           gameTargets.completedTargetPositions.length !==

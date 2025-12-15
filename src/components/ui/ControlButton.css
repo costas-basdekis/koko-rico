@@ -19,3 +19,19 @@
 .button-like .subtitle {
   font-size: initial;
 }
+
+.button-hotkey.index-0 {
+  color: var(--robot-0-colour);
+}
+
+.button-hotkey.index-1 {
+  color: var(--robot-1-colour);
+}
+
+.button-hotkey.index-2 {
+  color: var(--robot-2-colour);
+}
+
+.button-hotkey.index-3 {
+  color: var(--robot-3-colour);
+}
