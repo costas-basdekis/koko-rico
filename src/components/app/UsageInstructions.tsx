@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   isTouchDevice as checkIsTouchDevice,
   MoveInterpreter,
@@ -70,12 +70,6 @@ export function UsageInstructions({
     }
     onSelectedRobotIndexChange?.(selectedRobotIndex - 1);
   }, [onSelectedRobotIndexChange, selectedRobotIndex]);
-  useEffect(() => {
-    const savedShowMoveInterpreter = getSavedShowMoveInterpreter();
-    if (savedShowMoveInterpreter !== showMoveInterpreter) {
-      onChangeShowMoveInterpreter?.(savedShowMoveInterpreter);
-    }
-  }, []);
   const drawSettings = DrawSettings.use();
   const buttonSize = 50;
   const buttonPosition = useMemo(
@@ -252,20 +246,4 @@ export function UsageInstructions({
       </ButtonRow>
     </>
   );
-}
-
-export function getSavedShowMoveInterpreter(
-  defaultValue: boolean = true,
-): boolean {
-  const savedShowMoveInterpreterStr = localStorage.getItem(
-    "showMoveInterpreter",
-  );
-  if (!savedShowMoveInterpreterStr) {
-    return defaultValue;
-  }
-  return savedShowMoveInterpreterStr === "true";
-}
-
-export function useShowMoveInterpreter() {
-  return useState(getSavedShowMoveInterpreter());
 }

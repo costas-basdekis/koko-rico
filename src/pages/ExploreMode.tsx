@@ -12,10 +12,10 @@ import {
   DGame,
   DrawSettings,
   UsageInstructions,
-  useShowMoveInterpreter,
   SvgContainer,
   SettingsDialog,
 } from "../components";
+import { useSettings } from "../hooks";
 
 export function ExploreMode() {
   const [game, setGame]: [Game, any] = useState(
@@ -97,8 +97,7 @@ export function ExploreMode() {
     },
     [game, setGame],
   );
-  const [showMoveInterpreter, setShowMoveInterpreter] =
-    useShowMoveInterpreter();
+  const [{ showMoveInterpreter }, { setShowMoveInterpreter }] = useSettings();
   const onTouchScreenMove = useCallback(
     (direction: Direction) => {
       const nextPositionEntry = game.getRobotMoveInDirection(

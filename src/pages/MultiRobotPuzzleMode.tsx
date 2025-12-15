@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, GameTargets } from "../game";
 import {
   ButtonRow,
@@ -8,11 +8,10 @@ import {
   MovesCounter,
   TargetsCounter,
   UsageInstructions,
-  useShowMoveInterpreter,
   SvgContainer,
   SimplePuzzleSettingsDialog,
 } from "../components";
-import { PuzzleService, useSavedGame } from "../hooks";
+import { PuzzleService, useSavedGame, useSettings } from "../hooks";
 
 const DefaultDesiredTargetDistance = 5;
 
@@ -42,15 +41,16 @@ export function MultiRobotPuzzleMode() {
     },
     [setSelectedRobotIndex, game.robots.length],
   );
-  const [showOnlyOneTarget, setShowOnlyOneTarget] = useState(false);
+  const [
+    { showMoveInterpreter, showOnlyOneTarget },
+    { setShowMoveInterpreter, setShowOnlyOneTarget },
+  ] = useSettings();
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
       return gameTargets.targetPositions;
     }
     return [gameTargets.getOneTarget()];
   }, [gameTargets, showOnlyOneTarget]);
-  const [showMoveInterpreter, setShowMoveInterpreter] =
-    useShowMoveInterpreter();
   const onTouchScreenMove = useCallback(
     (direction: Direction) => {
       const nextPositionEntry = game.getRobotMoveInDirection(
