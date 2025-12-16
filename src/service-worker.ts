@@ -10,7 +10,11 @@
 
 import { clientsClaim } from "workbox-core";
 import { ExpirationPlugin } from "workbox-expiration";
-import { precacheAndRoute, createHandlerBoundToURL } from "workbox-precaching";
+import {
+  precacheAndRoute,
+  createHandlerBoundToURL,
+  PrecacheEntry,
+} from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
 import { GameBuilder } from "./game";
@@ -24,7 +28,11 @@ clientsClaim();
 // Their URLs are injected into the manifest variable below.
 // This variable must be present somewhere in your service worker file,
 // even if you decide not to use precaching. See https://cra.link/PWA
-precacheAndRoute(self.__WB_MANIFEST);
+const staticBuildFiles = self.__WB_MANIFEST as PrecacheEntry[];
+const extraPrecachedFiles: PrecacheEntry[] = [
+  { url: "/koko-rico/service-worker.js", revision: "__SERVICE_WORKER_HASH__" },
+];
+precacheAndRoute([...staticBuildFiles, ...extraPrecachedFiles]);
 
 // Set up App Shell-style routing, so that all navigation requests
 // are fulfilled with your index.html shell. Learn more at
