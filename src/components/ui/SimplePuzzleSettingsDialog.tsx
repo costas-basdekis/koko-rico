@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SettingsDialog } from "./SettingsDialog";
+import {
+  SetShowSettingsDialog,
+  SettingsDialog,
+  useSettingsDialog,
+} from "./SettingsDialog";
 import _ from "underscore";
 
 export interface SimplePuzzleSettingsDialogProps {
-  onShowSettingsRef?: (onShowSettings?: () => void) => void;
+  setShowSettingsDialog: SetShowSettingsDialog;
   showOnlyOneTarget: boolean;
   onShowOnlyOneTargetChange: (showOnlyOneTarget: boolean) => void;
   maxDesiredTargetDistance?: number;
@@ -12,25 +16,14 @@ export interface SimplePuzzleSettingsDialogProps {
 }
 
 export function SimplePuzzleSettingsDialog({
-  onShowSettingsRef,
+  setShowSettingsDialog,
   showOnlyOneTarget,
   onShowOnlyOneTargetChange,
   maxDesiredTargetDistance = 20,
   desiredTargetDistance,
   onDesiredTargetDistanceChange,
 }: SimplePuzzleSettingsDialogProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const onDialogOpen = useCallback(() => {
-    setDialogOpen(true);
-  }, [setDialogOpen]);
-  useEffect(() => {
-    onShowSettingsRef?.(() => {
-      return onDialogOpen;
-    });
-    return () => {
-      onShowSettingsRef?.(undefined);
-    };
-  }, [onShowSettingsRef, onDialogOpen]);
+  const [dialogOpen, setDialogOpen] = useSettingsDialog(setShowSettingsDialog);
   const innerOnShowOnlyOneTargetChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onShowOnlyOneTargetChange?.(e.target.checked);

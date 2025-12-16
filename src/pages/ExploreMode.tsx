@@ -14,6 +14,9 @@ import {
   UsageInstructions,
   SvgContainer,
   SettingsDialog,
+  useSettingsDialog,
+  useShowSettingsDialog,
+  SetShowSettingsDialog,
 } from "../components";
 import { useSettings } from "../hooks";
 
@@ -132,9 +135,7 @@ export function ExploreMode() {
       stroke: drawSettings.robotColours[selectedRobotIndex],
     };
   }, [drawSettings, selectedRobotIndex]);
-  const [onShowSettings, setOnShowSettings] = useState<
-    (() => void) | undefined
-  >(undefined);
+  const [showSettingsDialog, setShowSettingsDialog] = useShowSettingsDialog();
   return (
     <>
       <UsageInstructions
@@ -150,10 +151,10 @@ export function ExploreMode() {
         onUndoRobotMove={game.path.length ? onUndoRobotMove : undefined}
         undoRobotIndex={game.getUndoRobotIndex()}
         onNewPuzzle={onRandomCrossedWallsClick}
-        onShowSettings={onShowSettings}
+        onShowSettings={showSettingsDialog}
       />
       <ExploreSettingsDialog
-        onShowSettingsRef={setOnShowSettings}
+        setShowSettingsDialog={setShowSettingsDialog}
         game={game}
         onRobotCountChange={onRobotCountChange}
         desiredMaxDistance={desiredMaxDistance}
@@ -181,6 +182,7 @@ export function ExploreMode() {
           onRobotResetClick={onRobotResetClick}
           onNewGameClick={onRandomCrossedWallsClick}
           onRobotMoveClick={onRobotMoveClick}
+          onShowSettings={showSettingsDialog}
         />
       </SvgContainer>
     </>
@@ -188,7 +190,7 @@ export function ExploreMode() {
 }
 
 interface ExploreSettingsDialogProps {
-  onShowSettingsRef?: (onShowSettings?: () => void) => void;
+  setShowSettingsDialog: SetShowSettingsDialog;
   game: Game;
   onRobotCountChange: React.ChangeEventHandler;
   desiredMaxDistance: number;
@@ -196,24 +198,13 @@ interface ExploreSettingsDialogProps {
 }
 
 function ExploreSettingsDialog({
-  onShowSettingsRef,
+  setShowSettingsDialog,
   game,
   onRobotCountChange,
   desiredMaxDistance,
   onDesiredTargetDistanceChange,
 }: ExploreSettingsDialogProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const onDialogOpen = useCallback(() => {
-    setDialogOpen(true);
-  }, [setDialogOpen]);
-  useEffect(() => {
-    onShowSettingsRef?.(() => {
-      return onDialogOpen;
-    });
-    return () => {
-      onShowSettingsRef?.(undefined);
-    };
-  }, [onShowSettingsRef, onDialogOpen]);
+  const [dialogOpen, setDialogOpen] = useSettingsDialog(setShowSettingsDialog);
   const innerOnDesiredTargetDistanceChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newValue = parseInt(e.target.value, 10);

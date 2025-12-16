@@ -1,5 +1,5 @@
 import "./SettingsDialog.css";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface SettingsDialogProps {
   open?: boolean;
@@ -62,4 +62,34 @@ export function SettingsDialog({
       </button>
     </dialog>
   );
+}
+
+export type ShowSettingsDialog = (() => void) | undefined;
+export type SetShowSettingsDialog = React.Dispatch<
+  React.SetStateAction<ShowSettingsDialog>
+>;
+
+export function useShowSettingsDialog(): [
+  ShowSettingsDialog,
+  SetShowSettingsDialog,
+] {
+  return useState<ShowSettingsDialog | undefined>(undefined);
+}
+
+export function useSettingsDialog(
+  setShowSettingsDialog: SetShowSettingsDialog,
+): [boolean, React.Dispatch<React.SetStateAction<boolean>>] {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const onDialogOpen = useCallback(() => {
+    setDialogOpen(true);
+  }, [setDialogOpen]);
+  useEffect(() => {
+    setShowSettingsDialog?.(() => {
+      return onDialogOpen;
+    });
+    return () => {
+      setShowSettingsDialog?.(undefined);
+    };
+  }, [setShowSettingsDialog, onDialogOpen]);
+  return [dialogOpen, setDialogOpen];
 }
