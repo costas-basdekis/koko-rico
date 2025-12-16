@@ -8,6 +8,14 @@ export interface MovesCounterProps {
 }
 
 export function MovesCounter({ game, gameTargets }: MovesCounterProps) {
+  const silverDistanceRange = [
+    gameTargets.targetDistance + 1,
+    gameTargets.silverTargetDistance,
+  ];
+  const bronzeDistanceRange = [
+    gameTargets.silverTargetDistance + 1,
+    gameTargets.bronzeTargetDistance,
+  ];
   return (
     <>
       <ButtonLike>Moves:</ButtonLike>
@@ -20,11 +28,14 @@ export function MovesCounter({ game, gameTargets }: MovesCounterProps) {
         {gameTargets.targetDistance}
         <Star level={"gold"} />
         {", "}
-        {gameTargets.targetDistance + 1}-{gameTargets.silverTargetDistance}
+        {silverDistanceRange[0] === silverDistanceRange[1]
+          ? silverDistanceRange[0]
+          : `${silverDistanceRange[0]} - ${silverDistanceRange[1]}`}
         <Star level={"silver"} />
         {", "}
-        {gameTargets.silverTargetDistance + 1}-
-        {gameTargets.bronzeTargetDistance}
+        {bronzeDistanceRange[0] === bronzeDistanceRange[1]
+          ? bronzeDistanceRange[0]
+          : `${bronzeDistanceRange[0]} - ${bronzeDistanceRange[1]}`}
         <Star level={"bronze"} />
       </ButtonLike>
     </>
