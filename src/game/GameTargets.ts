@@ -215,7 +215,11 @@ export class GameTargets {
     ) {
       return this;
     }
-    const { position: newPosition } = game.path[game.path.length - 1];
+    const { position: newPosition, robotIndex } =
+      game.path[game.path.length - 1];
+    if (robotIndex !== 0) {
+      return this;
+    }
     const completedTargetPosition = this.targetPositions.find(
       (targetPosition) => positionsEqual(newPosition, targetPosition),
     );

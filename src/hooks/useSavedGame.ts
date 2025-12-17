@@ -58,9 +58,7 @@ export function useSavedGame(
   const [history, setHistory] = useState(() => {
     return ItemHistory.initial(initialGameAndTargets.game);
   });
-  const game = useMemo(() => {
-    return history.current;
-  }, [history.current]);
+  const game = history.current;
   const [gameLoading, setGameLoading] = useState(false);
   useEffect(() => {
     if (desiredTargetDistance === effectiveTargetDistance) {
