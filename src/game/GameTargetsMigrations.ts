@@ -1,15 +1,15 @@
 import { MigrationManager } from "./MigrationManager";
 
+export const LatestGameTargetsVersion = 1;
 const migrationManager = new MigrationManager<
   GameTargetsFormat,
   LatestGameTargetsFormat
->(1);
+>(LatestGameTargetsVersion, "GameTargets");
 export const migrate = migrationManager.makeMigrator();
 const registerMigration = migrationManager.makeRegisterMigration();
 
 export type GameTargetsFormat = GameTargetsFormatVersion1;
 
-export const LatestGameTargetsVersion = 1;
 export type LatestGameTargetsFormat = Omit<
   GameTargetsFormatVersion1,
   "version"

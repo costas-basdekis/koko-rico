@@ -10,9 +10,11 @@ export class MigrationManager<
 > {
   migrations: Migration<F>[] = [];
   latestVersion: number;
+  typeName: string;
 
-  constructor(latestMigrationVersion: number) {
-    this.latestVersion = latestMigrationVersion;
+  constructor(latestVersion: number, typeName: string) {
+    this.latestVersion = latestVersion;
+    this.typeName = typeName;
   }
 
   registerMigration(
@@ -49,7 +51,7 @@ export class MigrationManager<
       }
     }
     throw Error(
-      `Could not migrate game from version ${version} to ${this.latestVersion} (history: ${versionHistory.join(" -> ")})`,
+      `Could not migrate ${this.typeName} from version ${version} to ${this.latestVersion} (history: ${versionHistory.join(" -> ")})`,
     );
   }
 

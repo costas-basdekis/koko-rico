@@ -1,7 +1,11 @@
 import _ from "underscore";
 import { MigrationManager } from "./MigrationManager";
 
-const migrationManager = new MigrationManager<GameFormat, LatestGameFormat>(4);
+export const LatestGameVersion = 4;
+const migrationManager = new MigrationManager<GameFormat, LatestGameFormat>(
+  LatestGameVersion,
+  "Game",
+);
 export const migrate = migrationManager.makeMigrator();
 const registerMigration = migrationManager.makeRegisterMigration();
 
@@ -11,7 +15,6 @@ export type GameFormat =
   | GameFormatVersion3
   | GameFormatVersion4;
 
-export const LatestGameVersion = 4;
 export type LatestGameFormat = GameFormatVersion4 & {
   version: typeof LatestGameVersion;
 };
