@@ -1,5 +1,5 @@
 export * from "./gameUtils";
-export * from "./History";
+export * from "./ItemHistory";
 export * from "./localStorageUtils";
 export * from "./MoveInterpreter";
 export * from "./Position";
