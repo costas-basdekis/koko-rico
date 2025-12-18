@@ -148,6 +148,15 @@ export class Game implements HistoryItem<Game> {
     return newGame;
   }
 
+  applyRobotPath(targetPath: RobotPath): Game {
+    let result: Game = this;
+    for (const { position, robotIndex } of targetPath) {
+      const robot = result.robots[robotIndex];
+      result = result.moveRobot(robot, position, false);
+    }
+    return result;
+  }
+
   resetRobots(): Game {
     return this.change({ robots: this.initialRobots, path: [] });
   }

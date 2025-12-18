@@ -1,5 +1,5 @@
 import { Position, positionsEqual } from "../utils";
-import { Game } from "./Game";
+import { Game, RobotPath } from "./Game";
 import {
   GameFormat,
   GameFormatVersion3,
@@ -19,9 +19,10 @@ export class GameTargets {
   completedTargetPositions: Position[];
   silverTargetPositions: Position[];
   bronzeTargetPositions: Position[];
+  completedTargetPaths: { [key: number]: RobotPath | null };
 
   static empty(): GameTargets {
-    return new GameTargets(0, 0, 0, [], [], [], []);
+    return new GameTargets(0, 0, 0, [], [], [], [], {});
   }
 
   static getDefaultSilverAndBronzeTargetDistances(
@@ -61,6 +62,7 @@ export class GameTargets {
       [],
       [],
       [],
+      {},
     );
   }
 
@@ -77,6 +79,7 @@ export class GameTargets {
     bronzeTargetPositions,
     targetPositions,
     completedTargetPositions,
+    completedTargetPaths,
   }: LatestGameTargetsFormat): GameTargets {
     completedTargetPositions = targetPositions.filter((position) =>
       completedTargetPositions.some((completedPosition) =>
@@ -101,6 +104,7 @@ export class GameTargets {
       completedTargetPositions,
       silverTargetPositions,
       bronzeTargetPositions,
+      completedTargetPaths,
     );
   }
 
@@ -159,6 +163,7 @@ export class GameTargets {
     completedTargetPositions: Position[],
     silverTargetPositions: Position[],
     bronzeTargetPositions: Position[],
+    completedTargetPaths: { [key: number]: RobotPath | null },
   ) {
     this.targetDistance = targetDistance;
     this.silverTargetDistance = silverTargetDistance;
@@ -167,11 +172,12 @@ export class GameTargets {
     this.completedTargetPositions = completedTargetPositions;
     this.silverTargetPositions = silverTargetPositions;
     this.bronzeTargetPositions = bronzeTargetPositions;
+    this.completedTargetPaths = completedTargetPaths;
   }
 
   serialise(): LatestGameTargetsFormat {
     return {
-      version: 1,
+      version: 2,
       targetDistance: this.targetDistance,
       silverTargetDistance: this.silverTargetDistance,
       bronzeTargetDistance: this.bronzeTargetDistance,
@@ -179,6 +185,7 @@ export class GameTargets {
       completedTargetPositions: this.completedTargetPositions,
       silverTargetPositions: this.silverTargetPositions,
       bronzeTargetPositions: this.bronzeTargetPositions,
+      completedTargetPaths: this.completedTargetPaths,
     };
   }
 
@@ -196,6 +203,7 @@ export class GameTargets {
     completedTargetPositions: completedTargets = this.completedTargetPositions,
     silverTargetPositions = this.silverTargetPositions,
     bronzeTargetPositions = this.bronzeTargetPositions,
+    completedTargetPaths = this.completedTargetPaths,
   }: Partial<GameTargets>): GameTargets {
     return new GameTargets(
       this.targetDistance,
@@ -205,6 +213,7 @@ export class GameTargets {
       completedTargets,
       silverTargetPositions,
       bronzeTargetPositions,
+      completedTargetPaths,
     );
   }
 
@@ -220,12 +229,44 @@ export class GameTargets {
     if (robotIndex !== 0) {
       return this;
     }
-    const completedTargetPosition = this.targetPositions.find(
+    const completedTargetPositionIndex = this.targetPositions.findIndex(
       (targetPosition) => positionsEqual(newPosition, targetPosition),
     );
-    if (!completedTargetPosition) {
+    if (completedTargetPositionIndex === -1) {
       return this;
     }
+    return this.updateCompletedTargetPath(
+      game,
+      completedTargetPositionIndex,
+    ).updateCompletedTarget(game, completedTargetPositionIndex);
+  }
+
+  updateCompletedTargetPath(
+    game: Game,
+    completedTargetPositionIndex: number,
+  ): GameTargets {
+    const completedTargetPath =
+      this.completedTargetPaths[completedTargetPositionIndex];
+    if (
+      completedTargetPath !== null &&
+      completedTargetPath.length <= game.path.length
+    ) {
+      return this;
+    }
+    return this.change({
+      completedTargetPaths: {
+        ...this.completedTargetPaths,
+        [completedTargetPositionIndex]: game.path,
+      },
+    });
+  }
+
+  updateCompletedTarget(
+    game: Game,
+    completedTargetPositionIndex: number,
+  ): GameTargets {
+    const completedTargetPosition =
+      this.targetPositions[completedTargetPositionIndex];
     if (this.completedTargetPositions.includes(completedTargetPosition)) {
       return this;
     }

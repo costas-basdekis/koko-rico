@@ -19,6 +19,7 @@ const DefaultDesiredTargetDistance = 5;
 export function MultiRobotPuzzleMode() {
   const {
     game,
+    setGame,
     gameTargets,
     history,
     onReset,
@@ -87,6 +88,16 @@ export function MultiRobotPuzzleMode() {
     };
   }, [drawSettings, selectedRobotIndex]);
   const [showSettingsDialog, setShowSettingsDialog] = useShowSettingsDialog();
+  const onTargetPathClick = useCallback(
+    (targetIndex: number) => {
+      const targetPath = gameTargets.completedTargetPaths[targetIndex];
+      if (!targetPath) {
+        return;
+      }
+      setGame(history.first.applyRobotPath(targetPath));
+    },
+    [gameTargets, setGame, history],
+  );
   return (
     <>
       <UsageInstructions
@@ -143,6 +154,7 @@ export function MultiRobotPuzzleMode() {
           onNewGameClick={onNewGame}
           onShowSettings={showSettingsDialog}
           targetPositions={visibleTargetPositions}
+          onTargetPathClick={onTargetPathClick}
         />
       </SvgContainer>
     </>

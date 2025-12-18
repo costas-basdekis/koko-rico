@@ -23,3 +23,12 @@
 .grid-square.target-position.bronze-target-position {
   fill: darkgoldenrod;
 }
+
+.target-path-handle {
+    dominant-baseline: middle;
+    text-anchor: middle;
+    font-size: 22px;
+    stroke: white;
+    fill: white;
+    cursor: pointer;
+}

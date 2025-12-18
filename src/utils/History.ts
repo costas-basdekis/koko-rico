@@ -37,6 +37,14 @@ export class ItemHistory<T extends HistoryItem<T>> {
     return this.stack[this.index];
   }
 
+  get first(): T {
+    return this.stack[0];
+  }
+
+  get last(): T {
+    return this.stack[this.stack.length - 1];
+  }
+
   canUndo(): boolean {
     return this.index > 0;
   }

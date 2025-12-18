@@ -1,6 +1,6 @@
 import "./DGrid.css";
 import _ from "underscore";
-import { Field, GameTargets } from "../../game";
+import { Field, GameTargets, RobotPath } from "../../game";
 import { DrawSettings } from "./DrawSettings";
 import { Position, positionsEqual } from "../../utils";
 import { useCallback, useMemo } from "react";
@@ -12,6 +12,8 @@ export interface DGridProps {
   onRobotMoveClick?: (nextPosition: Position) => void;
   gameTargets?: GameTargets;
   targetPositions?: Position[];
+  targetPaths?: { [key: number]: RobotPath | null };
+  onTargetPathClick?: (targetIndex: number) => void;
 }
 
 export function DGrid({
@@ -21,6 +23,8 @@ export function DGrid({
   onRobotMoveClick,
   gameTargets,
   targetPositions,
+  targetPaths,
+  onTargetPathClick,
 }: DGridProps) {
   return (
     <g className={"grid"}>
@@ -41,6 +45,8 @@ export function DGrid({
               onRobotMoveClick={onRobotMoveClick}
               gameTargets={gameTargets}
               targetPositions={targetPositions}
+              targetPaths={targetPaths}
+              onTargetPathClick={onTargetPathClick}
             />
           );
         }),
@@ -56,6 +62,8 @@ export interface DGridCellProps {
   onRobotMoveClick?: (nextPosition: Position) => void;
   gameTargets?: GameTargets;
   targetPositions?: Position[];
+  targetPaths?: { [key: number]: RobotPath | null };
+  onTargetPathClick?: (targetIndex: number) => void;
 }
 
 export function DGridCell({
@@ -65,6 +73,8 @@ export function DGridCell({
   onRobotMoveClick,
   gameTargets,
   targetPositions = gameTargets?.targetPositions,
+  targetPaths,
+  onTargetPathClick,
 }: DGridCellProps) {
   const onClick = useCallback(() => {
     onRobotMoveClick?.({ x, y });
@@ -113,23 +123,66 @@ export function DGridCell({
     isTargetCompleted,
     isSilverTargetCompleted,
   ]);
+  const drawPosition = useMemo(() => {
+    return {
+      x: drawSettings.xOffset + drawSettings.width * x,
+      y: drawSettings.yOffset + drawSettings.height * y,
+    };
+  }, [x, y, drawSettings]);
+  let contents = null;
+  const targetIndex = useMemo(() => {
+    if (!isTarget || !targetPositions) {
+      return -1;
+    }
+    return targetPositions.findIndex((target) =>
+      positionsEqual({ x, y }, target),
+    );
+  }, [isTarget, targetPositions, x, y]);
+  const targetPath = useMemo(() => {
+    if (!targetPaths || targetIndex === undefined || targetIndex === -1) {
+      return null;
+    }
+    return targetPaths[targetIndex];
+  }, [targetIndex, targetPaths]);
+  const onTargetPathHandlerClick = useCallback(() => {
+    if (targetIndex === -1) {
+      return;
+    }
+    onTargetPathClick?.(targetIndex);
+  }, [targetIndex, onTargetPathClick]);
+  if (targetPath && onTargetPathClick) {
+    contents = (
+      <text
+        className={"target-path-handle"}
+        x={drawPosition.x + drawSettings.width / 2}
+        y={drawPosition.y + drawSettings.height / 2}
+        onClick={onTargetPathHandlerClick}
+        onTouchStart={onTargetPathHandlerClick}
+      >
+        ⟲
+      </text>
+    );
+  }
   return (
-    <rect
-      key={`${x},${y}`}
-      className={[
-        "grid-square",
-        `${showRobotControls ? "robot-next-position" : ""}`,
-        `${isTarget ? "target-position" : ""}`,
-        `${isTargetCompleted ? "completed-target-position" : ""}`,
-        `${isSilverTargetCompleted ? "silver-target-position" : ""}`,
-        `${isBronzeTargetCompleted ? "bronze-target-position" : ""}`,
-      ].join(" ")}
-      x={drawSettings.xOffset + drawSettings.width * x}
-      y={drawSettings.yOffset + drawSettings.height * y}
-      width={drawSettings.width}
-      height={drawSettings.height}
-      onClick={showRobotControls ? onClick : undefined}
-      onTouchStart={showRobotControls ? onClick : undefined}
-    />
+    <>
+      <rect
+        key={`${x},${y}`}
+        className={[
+          "grid-square",
+          `${showRobotControls ? "robot-next-position" : ""}`,
+          `${isTarget ? "target-position" : ""}`,
+          `${isTargetCompleted ? "completed-target-position" : ""}`,
+          `${isSilverTargetCompleted ? "silver-target-position" : ""}`,
+          `${isBronzeTargetCompleted ? "bronze-target-position" : ""}`,
+        ].join(" ")}
+        x={drawPosition.x}
+        y={drawPosition.y}
+        width={drawSettings.width}
+        height={drawSettings.height}
+        onClick={showRobotControls ? onClick : undefined}
+        onTouchStart={showRobotControls ? onClick : undefined}
+      />
+      {contents}
+    </>
   );
 }
