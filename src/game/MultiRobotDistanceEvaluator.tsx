@@ -115,6 +115,9 @@ export class MultiRobotDistanceEvaluator {
           });
         }
       }
+      if (nextDistance >= distanceLimit) {
+        continue;
+      }
       for (const otherPositionIndex of otherPositionIndexes) {
         const otherPosition = otherPositions[otherPositionIndex];
         const otherPositionsForNextPositions = Array.from(otherPositions);
@@ -137,25 +140,23 @@ export class MultiRobotDistanceEvaluator {
           ) {
             continue;
           }
-          if (nextDistance < distanceLimit) {
-            let nextEntry: RobotPathEntry | null = null;
-            if (this.solutionBuilder) {
-              nextEntry = {
-                previousPosition: otherPosition,
-                position: nextOtherPosition,
-                robotIndex: this.robotIndexMap.get(
-                  otherRobots[otherPositionIndex],
-                )!,
-              };
-              this.solutionBuilder.addPosition(nextEntry, entry);
-            }
-            queue.push({
-              position,
-              otherPositions: nextOtherPositions,
-              distance: nextDistance,
-              entry: nextEntry,
-            });
+          let nextEntry: RobotPathEntry | null = null;
+          if (this.solutionBuilder) {
+            nextEntry = {
+              previousPosition: otherPosition,
+              position: nextOtherPosition,
+              robotIndex: this.robotIndexMap.get(
+                otherRobots[otherPositionIndex],
+              )!,
+            };
+            this.solutionBuilder.addPosition(nextEntry, entry);
           }
+          queue.push({
+            position,
+            otherPositions: nextOtherPositions,
+            distance: nextDistance,
+            entry: nextEntry,
+          });
         }
       }
     }
