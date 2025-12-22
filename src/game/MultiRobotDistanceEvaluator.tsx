@@ -74,17 +74,18 @@ export class MultiRobotDistanceEvaluator {
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position, otherPositions);
       for (const nextPosition of nextPositions) {
-        const nextIndex = distanceMapByKey.getIndex({
-          position: nextPosition,
-          otherPositions,
-        });
-        if (nextIndex.has()) {
+        if (
+          !distanceMapByKey.setNew(
+            {
+              position: nextPosition,
+              otherPositions,
+            },
+            nextDistance,
+          )
+        ) {
           continue;
         }
-        nextIndex.set(nextDistance);
-        if (!distanceMap.has(nextPosition)) {
-          distanceMap.set(nextPosition, nextDistance);
-        }
+        distanceMap.setNew(nextPosition, nextDistance);
         if (nextDistance < distanceLimit) {
           queue.push({
             position: nextPosition,
@@ -104,14 +105,17 @@ export class MultiRobotDistanceEvaluator {
         for (const nextOtherPosition of nextPositions) {
           const nextOtherPositions = Array.from(otherPositionsForNextPositions);
           nextOtherPositions[otherPositionIndex] = nextOtherPosition;
-          const nextIndex = distanceMapByKey.getIndex({
-            position,
-            otherPositions: nextOtherPositions,
-          });
-          if (distanceMapByKey.has(nextIndex)) {
+          if (
+            !distanceMapByKey.setNew(
+              {
+                position,
+                otherPositions: nextOtherPositions,
+              },
+              nextDistance,
+            )
+          ) {
             continue;
           }
-          distanceMapByKey.set(nextIndex, nextDistance);
           if (nextDistance < distanceLimit) {
             queue.push({
               position,

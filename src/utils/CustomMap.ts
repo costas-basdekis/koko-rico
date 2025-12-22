@@ -106,6 +106,14 @@ export class CustomMap<K, V, H> {
     }
     this.innerMap.set(hash, [key, value]);
   }
+
+  setNew(key: K, value: V): boolean {
+    if (this.has(key)) {
+      return false;
+    }
+    this.set(key, value);
+    return true;
+  }
 }
 
 export class CustomMapWithHasher<V, K, H> extends CustomMap<K, V, H> {
