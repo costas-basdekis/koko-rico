@@ -1,3 +1,5 @@
+import { CustomMap } from "./CustomMap";
+
 export interface Position {
   x: number;
   y: number;
@@ -16,3 +18,5 @@ export function positionDistance(left: Position, right: Position): number {
   const dY = right.y - left.y;
   return Math.sqrt(dX * dX + dY * dY);
 }
+
+export class PositionMap<V> extends CustomMap.makeType(getPositionKey)<V> {}

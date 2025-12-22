@@ -41,8 +41,8 @@ export class Field {
     return new Field(
       width,
       height,
-      PositionMap.deserialise<boolean>(topWalls),
-      PositionMap.deserialise<boolean>(leftWalls),
+      PositionMap.deserialise(topWalls),
+      PositionMap.deserialise(leftWalls),
     );
   }
 
