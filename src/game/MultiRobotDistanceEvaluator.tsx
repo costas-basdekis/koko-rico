@@ -1,8 +1,24 @@
 import _ from "underscore";
-import { getPositionKey, Position, PositionMap } from "../utils";
+import { CustomMap, getPositionKey, Position, PositionMap } from "../utils";
 import { Game } from "./Game";
 import { Robot } from "./Robot";
 import { NextMoveEvaluator, OtherPositionsWalls } from "./NextMoveEvaluator";
+
+export interface RobotsState {
+  position: Position;
+  otherPositions: Position[];
+}
+
+class RobotsStateMap<V> extends CustomMap.makeType(function hasher({
+  position,
+  otherPositions,
+}: RobotsState): string {
+  return (
+    getPositionKey(position) +
+    "|" +
+    otherPositions.map(getPositionKey).sort().join("|")
+  );
+})<V> {}
 
 export class MultiRobotDistanceEvaluator {
   game: Game;
@@ -33,12 +49,12 @@ export class MultiRobotDistanceEvaluator {
   evaluate(distanceLimit: number): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
-    const distanceMapByKey: Map<string, number> = new Map();
+    const distanceMapByKey: RobotsStateMap<number> = new RobotsStateMap();
     const initialOtherPositions = this.game.robots
       .filter((other) => other !== this.robot)
       .map((other) => other.position);
     distanceMapByKey.set(
-      this.getPositionsKey(this.robot.position, initialOtherPositions),
+      { position: this.robot.position, otherPositions: initialOtherPositions },
       0,
     );
     const queue: {
@@ -58,11 +74,14 @@ export class MultiRobotDistanceEvaluator {
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position, otherPositions);
       for (const nextPosition of nextPositions) {
-        const nextKey = this.getPositionsKey(nextPosition, otherPositions);
-        if (distanceMapByKey.has(nextKey)) {
+        const nextIndex = distanceMapByKey.getIndex({
+          position: nextPosition,
+          otherPositions,
+        });
+        if (nextIndex.has()) {
           continue;
         }
-        distanceMapByKey.set(nextKey, nextDistance);
+        nextIndex.set(nextDistance);
         if (!distanceMap.has(nextPosition)) {
           distanceMap.set(nextPosition, nextDistance);
         }
@@ -85,11 +104,14 @@ export class MultiRobotDistanceEvaluator {
         for (const nextOtherPosition of nextPositions) {
           const nextOtherPositions = Array.from(otherPositionsForNextPositions);
           nextOtherPositions[otherPositionIndex] = nextOtherPosition;
-          const nextKey = this.getPositionsKey(position, nextOtherPositions);
-          if (distanceMapByKey.has(nextKey)) {
+          const nextIndex = distanceMapByKey.getIndex({
+            position,
+            otherPositions: nextOtherPositions,
+          });
+          if (distanceMapByKey.has(nextIndex)) {
             continue;
           }
-          distanceMapByKey.set(nextKey, nextDistance);
+          distanceMapByKey.set(nextIndex, nextDistance);
           if (nextDistance < distanceLimit) {
             queue.push({
               position,
@@ -101,14 +123,6 @@ export class MultiRobotDistanceEvaluator {
       }
     }
     return distanceMap;
-  }
-
-  getPositionsKey(position: Position, otherPositions: Position[]): string {
-    let key = getPositionKey(position);
-    for (const otherPosition of otherPositions) {
-      key += `|${getPositionKey(otherPosition)}`;
-    }
-    return key;
   }
 
   getNextPositions(
