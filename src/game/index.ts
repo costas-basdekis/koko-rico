@@ -7,3 +7,4 @@ export * from "./MultiRobotDistanceEvaluator";
 export * from "./NextMoveEvaluator";
 export * from "./Robot";
 export * from "./SingleRobotDistanceEvaluator";
+export * from "./SolutionBuilder";

@@ -114,6 +114,10 @@ export class CustomMap<K, V, H> {
     this.set(key, value);
     return true;
   }
+
+  get size(): number {
+    return this.innerMap.size;
+  }
 }
 
 export class CustomMapWithHasher<V, K, H> extends CustomMap<K, V, H> {

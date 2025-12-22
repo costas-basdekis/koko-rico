@@ -1,8 +1,9 @@
 import _ from "underscore";
 import { CustomMap, getPositionKey, Position, PositionMap } from "../utils";
-import { Game } from "./Game";
+import { Game, RobotPathEntry } from "./Game";
 import { Robot } from "./Robot";
 import { NextMoveEvaluator, OtherPositionsWalls } from "./NextMoveEvaluator";
+import { SolutionBuilder } from "./SolutionBuilder";
 
 export interface RobotsState {
   position: Position;
@@ -23,8 +24,10 @@ class RobotsStateMap<V> extends CustomMap.makeType(function hasher({
 export class MultiRobotDistanceEvaluator {
   game: Game;
   robot: Robot;
+  robotIndexMap: Map<Robot, number> = new Map();
   leftWallsCrossed?: PositionMap<boolean>;
   topWallsCrossed?: PositionMap<boolean>;
+  solutionBuilder?: SolutionBuilder;
   nextMoveEvaluator: NextMoveEvaluator;
 
   constructor(
@@ -32,12 +35,17 @@ export class MultiRobotDistanceEvaluator {
     robot: Robot,
     leftWallsCrossed?: PositionMap<boolean>,
     topWallsCrossed?: PositionMap<boolean>,
+    solutionBuilder?: SolutionBuilder,
   ) {
     this.game = game;
     this.robot = robot;
     this.robot = game.robots[0];
+    this.robotIndexMap = new Map(
+      game.robots.map((robot, index) => [robot, index] as [Robot, number]),
+    );
     this.leftWallsCrossed = leftWallsCrossed;
     this.topWallsCrossed = topWallsCrossed;
+    this.solutionBuilder = solutionBuilder;
     this.nextMoveEvaluator = new NextMoveEvaluator(
       game,
       robot,
@@ -50,9 +58,10 @@ export class MultiRobotDistanceEvaluator {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
     const distanceMapByKey: RobotsStateMap<number> = new RobotsStateMap();
-    const initialOtherPositions = this.game.robots
-      .filter((other) => other !== this.robot)
-      .map((other) => other.position);
+    const otherRobots = this.game.robots.filter(
+      (other) => other !== this.robot,
+    );
+    const initialOtherPositions = otherRobots.map((other) => other.position);
     distanceMapByKey.set(
       { position: this.robot.position, otherPositions: initialOtherPositions },
       0,
@@ -61,16 +70,18 @@ export class MultiRobotDistanceEvaluator {
       position: Position;
       otherPositions: Position[];
       distance: number;
+      entry: RobotPathEntry | null;
     }[] = [
       {
         position: this.robot.position,
         otherPositions: initialOtherPositions,
         distance: 0,
+        entry: null,
       },
     ];
     const otherPositionIndexes = _.range(initialOtherPositions.length);
     while (queue.length) {
-      const [{ position, otherPositions, distance }] = queue.splice(0, 1);
+      const { position, otherPositions, distance, entry } = queue.shift()!;
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position, otherPositions);
       for (const nextPosition of nextPositions) {
@@ -86,11 +97,21 @@ export class MultiRobotDistanceEvaluator {
           continue;
         }
         distanceMap.setNew(nextPosition, nextDistance);
+        let nextEntry: RobotPathEntry | null = null;
+        if (this.solutionBuilder) {
+          nextEntry = {
+            previousPosition: position,
+            position: nextPosition,
+            robotIndex: this.robotIndexMap.get(this.robot)!,
+          };
+          this.solutionBuilder.addPosition(nextEntry, entry);
+        }
         if (nextDistance < distanceLimit) {
           queue.push({
             position: nextPosition,
             otherPositions,
             distance: nextDistance,
+            entry: nextEntry,
           });
         }
       }
@@ -117,10 +138,22 @@ export class MultiRobotDistanceEvaluator {
             continue;
           }
           if (nextDistance < distanceLimit) {
+            let nextEntry: RobotPathEntry | null = null;
+            if (this.solutionBuilder) {
+              nextEntry = {
+                previousPosition: otherPosition,
+                position: nextOtherPosition,
+                robotIndex: this.robotIndexMap.get(
+                  otherRobots[otherPositionIndex],
+                )!,
+              };
+              this.solutionBuilder.addPosition(nextEntry, entry);
+            }
             queue.push({
               position,
               otherPositions: nextOtherPositions,
               distance: nextDistance,
+              entry: nextEntry,
             });
           }
         }

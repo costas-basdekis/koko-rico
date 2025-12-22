@@ -1,5 +1,12 @@
 import _ from "underscore";
-import { HistoryItem, Position, PositionMap, positionsEqual } from "../utils";
+import {
+  CustomMap,
+  getPositionKey,
+  HistoryItem,
+  Position,
+  PositionMap,
+  positionsEqual,
+} from "../utils";
 import { Direction, getPositionsDirection } from "./Direction";
 import { Field, WallType } from "./Field";
 import { Robot } from "./Robot";
@@ -12,6 +19,17 @@ export interface RobotPathEntry {
   position: Position;
   robotIndex: number;
 }
+
+export class RobotPathEntryMap<V> extends CustomMap.makeType<
+  RobotPathEntry,
+  string
+>(function hasher({
+  position,
+  previousPosition,
+  robotIndex,
+}: RobotPathEntry): string {
+  return `${getPositionKey(position)}|${getPositionKey(previousPosition)}|${robotIndex}`;
+})<V> {}
 
 export type RobotPath = RobotPathEntry[];
 
