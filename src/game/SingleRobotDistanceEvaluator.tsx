@@ -1,7 +1,8 @@
 import { Position, PositionMap } from "../utils";
-import { Game } from "./Game";
+import { Game, RobotPathEntry } from "./Game";
 import { NextMoveEvaluator } from "./NextMoveEvaluator";
 import { Robot } from "./Robot";
+import { SolutionBuilder } from "./SolutionBuilder";
 
 export class SingleRobotDistanceEvaluator {
   game: Game;
@@ -9,6 +10,7 @@ export class SingleRobotDistanceEvaluator {
   otherRobots: Robot[];
   leftWallsCrossed?: PositionMap<boolean>;
   topWallsCrossed?: PositionMap<boolean>;
+  solutionBuilder?: SolutionBuilder;
   nextMoveEvaluator: NextMoveEvaluator;
 
   constructor(
@@ -16,6 +18,7 @@ export class SingleRobotDistanceEvaluator {
     robot?: Robot,
     leftWallsCrossed?: PositionMap<boolean>,
     topWallsCrossed?: PositionMap<boolean>,
+    solutionBuilder?: SolutionBuilder,
   ) {
     this.game = game;
     this.robot = robot || game.robots[0];
@@ -23,6 +26,7 @@ export class SingleRobotDistanceEvaluator {
     this.robot = game.robots[0];
     this.leftWallsCrossed = leftWallsCrossed;
     this.topWallsCrossed = topWallsCrossed;
+    this.solutionBuilder = solutionBuilder;
     this.nextMoveEvaluator = new NextMoveEvaluator(
       game,
       this.robot,
@@ -34,18 +38,28 @@ export class SingleRobotDistanceEvaluator {
   evaluate(distanceLimit: number): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
-    const queue: [Position, number][] = [[this.robot.position, 0]];
+    const queue: [Position, number, RobotPathEntry | null][] = [
+      [this.robot.position, 0, null],
+    ];
     while (queue.length) {
-      const [[position, distance]] = queue.splice(0, 1);
+      const [position, distance, entry] = queue.shift()!;
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position);
       for (const nextPosition of nextPositions) {
-        if (distanceMap.has(nextPosition)) {
+        if (!distanceMap.setNew(nextPosition, nextDistance)) {
           continue;
         }
-        distanceMap.set(nextPosition, nextDistance);
+        let nextEntry: RobotPathEntry | null = null;
+        if (this.solutionBuilder) {
+          nextEntry = {
+            previousPosition: position,
+            position: nextPosition,
+            robotIndex: 0,
+          };
+          this.solutionBuilder.addPosition(nextEntry, entry);
+        }
         if (nextDistance < distanceLimit) {
-          queue.push([nextPosition, nextDistance]);
+          queue.push([nextPosition, nextDistance, nextEntry]);
         }
       }
     }
