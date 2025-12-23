@@ -1,7 +1,7 @@
 import _ from "underscore";
 import { Position, PositionMap } from "../utils";
 import { Field, WallType } from "./Field";
-import { Game } from "./Game";
+import { Game, RobotPath } from "./Game";
 import { LatestGameFormat } from "./GameMigrations";
 import { LatestGameTargetsFormat } from "./GameTargetsMigrations";
 import { GameTargets } from "./GameTargets";
@@ -17,6 +17,19 @@ export type GameBackgroundResponse =
   | {
       success: true;
       serialised: LatestGameFormat;
+      serialisedTargets: LatestGameTargetsFormat;
+    };
+
+export interface GameSolutionsBackgroundRequest {
+  serialised: any;
+  serialisedTargets: any;
+  distanceLimit: number;
+}
+
+export type GameSolutionsBackgroundResponse =
+  | { success: false; error: string }
+  | {
+      success: true;
       serialisedTargets: LatestGameTargetsFormat;
     };
 
@@ -238,6 +251,24 @@ export class GameBuilder {
       return {
         success: true,
         serialised: game.serialise(),
+        serialisedTargets: gameTargets.serialise(),
+      };
+    } catch (e) {
+      return { success: false, error: `${e}` };
+    }
+  }
+
+  backgroundFillTargetSolutions({
+    serialised,
+    serialisedTargets,
+    distanceLimit,
+  }: GameSolutionsBackgroundRequest): GameSolutionsBackgroundResponse {
+    try {
+      const game = Game.deserialise(serialised);
+      let gameTargets = GameTargets.deserialise(serialisedTargets);
+      gameTargets = gameTargets.fillTargetSolutions(game, distanceLimit);
+      return {
+        success: true,
         serialisedTargets: gameTargets.serialise(),
       };
     } catch (e) {

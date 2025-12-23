@@ -358,4 +358,20 @@ export class GameTargets {
         ),
     )!;
   }
+
+  fillTargetSolutions(game: Game, distanceLimit: number): GameTargets {
+    const solutions = this.solutions.slice();
+    game.fillTargetSolutions(
+      game.robots[0],
+      distanceLimit,
+      this.targetPositions,
+      solutions,
+    );
+    if (
+      solutions.every((solution, index) => solution === this.solutions[index])
+    ) {
+      return this;
+    }
+    return this.change({ solutions });
+  }
 }

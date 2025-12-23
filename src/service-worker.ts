@@ -87,5 +87,11 @@ self.addEventListener("message", (e) => {
       callbackId: e.data.callbackId,
       ...new GameBuilder().backgroundPuzzleGeneration(e.data),
     });
+  } else if (e.data.type === "fill-target-solutions") {
+    postMessage({
+      type: "solutions-filled",
+      callbackId: e.data.callbackId,
+      solutions: new GameBuilder().backgroundFillTargetSolutions(e.data),
+    });
   }
 });
