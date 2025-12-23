@@ -1,6 +1,6 @@
 import { MigrationManager } from "./MigrationManager";
 
-export const LatestGameTargetsVersion = 3;
+export const LatestGameTargetsVersion = 4;
 const migrationManager = new MigrationManager<
   GameTargetsFormat,
   LatestGameTargetsFormat
@@ -11,10 +11,11 @@ const registerMigration = migrationManager.makeRegisterMigration();
 export type GameTargetsFormat =
   | GameTargetsFormatVersion1
   | GameTargetsFormatVersion2
-  | GameTargetsFormatVersion3;
+  | GameTargetsFormatVersion3
+  | GameTargetsFormatVersion4;
 
 export type LatestGameTargetsFormat = Omit<
-  GameTargetsFormatVersion3,
+  GameTargetsFormatVersion4,
   "version"
 > & {
   version: typeof LatestGameTargetsVersion;
@@ -80,6 +81,25 @@ registerMigration(
       ...serialised,
       version: 3,
       solutions: serialised.targetPositions.map(() => null),
+    };
+  },
+);
+
+type GameTargetsFormatVersion4 = Omit<GameTargetsFormatVersion3, "version"> & {
+  version: 4;
+  concededTargetPositions: PositionV1[];
+};
+
+registerMigration(
+  3,
+  4,
+  function migrateV2ToV3(
+    serialised: GameTargetsFormatVersion3,
+  ): GameTargetsFormatVersion4 {
+    return {
+      ...serialised,
+      version: 4,
+      concededTargetPositions: [],
     };
   },
 );

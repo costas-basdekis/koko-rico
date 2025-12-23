@@ -17,13 +17,14 @@ export class GameTargets {
   bronzeTargetDistance: number;
   targetPositions: Position[];
   solutions: (RobotPath | null)[];
+  concededTargetPositions: Position[];
   completedTargetPositions: Position[];
   silverTargetPositions: Position[];
   bronzeTargetPositions: Position[];
   completedTargetPaths: { [key: number]: RobotPath | null };
 
   static empty(): GameTargets {
-    return new GameTargets(0, 0, 0, [], [], [], [], [], {});
+    return new GameTargets(0, 0, 0, [], [], [], [], [], [], {});
   }
 
   static getDefaultSilverAndBronzeTargetDistances(
@@ -64,6 +65,7 @@ export class GameTargets {
       [],
       [],
       [],
+      [],
       {},
     );
   }
@@ -81,9 +83,15 @@ export class GameTargets {
     bronzeTargetPositions,
     targetPositions,
     solutions,
+    concededTargetPositions,
     completedTargetPositions,
     completedTargetPaths,
   }: LatestGameTargetsFormat): GameTargets {
+    concededTargetPositions = targetPositions.filter((position) =>
+      concededTargetPositions.some((concededPosition) =>
+        positionsEqual(concededPosition, position),
+      ),
+    );
     completedTargetPositions = targetPositions.filter((position) =>
       completedTargetPositions.some((completedPosition) =>
         positionsEqual(completedPosition, position),
@@ -105,6 +113,7 @@ export class GameTargets {
       bronzeTargetDistance,
       targetPositions,
       solutions,
+      concededTargetPositions,
       completedTargetPositions,
       silverTargetPositions,
       bronzeTargetPositions,
@@ -165,6 +174,7 @@ export class GameTargets {
     bronzeTargetDistance: number,
     targetPositions: Position[],
     solutiuons: (RobotPath | null)[],
+    concededTargetPositions: Position[],
     completedTargetPositions: Position[],
     silverTargetPositions: Position[],
     bronzeTargetPositions: Position[],
@@ -175,6 +185,7 @@ export class GameTargets {
     this.bronzeTargetDistance = bronzeTargetDistance;
     this.targetPositions = targetPositions;
     this.solutions = solutiuons;
+    this.concededTargetPositions = concededTargetPositions;
     this.completedTargetPositions = completedTargetPositions;
     this.silverTargetPositions = silverTargetPositions;
     this.bronzeTargetPositions = bronzeTargetPositions;
@@ -183,12 +194,13 @@ export class GameTargets {
 
   serialise(): LatestGameTargetsFormat {
     return {
-      version: 3,
+      version: 4,
       targetDistance: this.targetDistance,
       silverTargetDistance: this.silverTargetDistance,
       bronzeTargetDistance: this.bronzeTargetDistance,
       targetPositions: this.targetPositions,
       solutions: this.solutions,
+      concededTargetPositions: this.concededTargetPositions,
       completedTargetPositions: this.completedTargetPositions,
       silverTargetPositions: this.silverTargetPositions,
       bronzeTargetPositions: this.bronzeTargetPositions,
@@ -208,6 +220,7 @@ export class GameTargets {
 
   change({
     solutions = this.solutions,
+    concededTargetPositions = this.concededTargetPositions,
     completedTargetPositions: completedTargets = this.completedTargetPositions,
     silverTargetPositions = this.silverTargetPositions,
     bronzeTargetPositions = this.bronzeTargetPositions,
@@ -219,6 +232,7 @@ export class GameTargets {
       this.bronzeTargetDistance,
       this.targetPositions,
       solutions,
+      concededTargetPositions,
       completedTargets,
       silverTargetPositions,
       bronzeTargetPositions,
@@ -276,7 +290,10 @@ export class GameTargets {
   ): GameTargets {
     const completedTargetPosition =
       this.targetPositions[completedTargetPositionIndex];
-    if (this.completedTargetPositions.includes(completedTargetPosition)) {
+    if (
+      this.concededTargetPositions.includes(completedTargetPosition) ||
+      this.completedTargetPositions.includes(completedTargetPosition)
+    ) {
       return this;
     }
     if (game.path.length === this.targetDistance) {
@@ -339,7 +356,8 @@ export class GameTargets {
   getOneTarget(): Position {
     if (
       this.targetPositions.length ===
-      this.completedTargetPositions.length +
+      this.concededTargetPositions.length +
+        this.completedTargetPositions.length +
         this.silverTargetPositions.length +
         this.bronzeTargetPositions.length
     ) {
@@ -352,6 +370,7 @@ export class GameTargets {
     return this.targetPositions.find(
       (target) =>
         !(
+          this.concededTargetPositions.includes(target) ||
           this.completedTargetPositions.includes(target) ||
           this.silverTargetPositions.includes(target) ||
           this.bronzeTargetPositions.includes(target)
