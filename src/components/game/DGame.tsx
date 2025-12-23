@@ -36,6 +36,8 @@ export interface DGameProps {
   onShowSettings?: () => void;
   targetPositions?: Position[];
   onTargetPathClick?: (targetIndex: number) => void;
+  showSolutionIcons?: boolean;
+  onSolutionClick?: (targetIndex: number) => void;
 }
 
 const directionFilterMap: Map<
@@ -74,6 +76,8 @@ export function DGame({
   onShowSettings,
   targetPositions,
   onTargetPathClick,
+  showSolutionIcons,
+  onSolutionClick,
 }: DGameProps) {
   const distanceMap = useMemo(() => {
     if (!showDistances || maxDistance === undefined) {
@@ -188,6 +192,8 @@ export function DGame({
         targetPositions={targetPositions}
         targetPaths={gameTargets?.completedTargetPaths}
         onTargetPathClick={onTargetPathClick}
+        showSolutionIcons={showSolutionIcons}
+        onSolutionClick={onSolutionClick}
       />
       {distanceMap ? (
         <DFieldDistances field={game.field} distanceMap={distanceMap} />

@@ -32,3 +32,12 @@
     fill: white;
     cursor: pointer;
 }
+
+.solution-handle {
+    dominant-baseline: middle;
+    text-anchor: middle;
+    font-size: 14px;
+    stroke: red;
+    fill: red;
+    cursor: pointer;
+}

@@ -4,11 +4,13 @@ import { getLSBoolean, setLSBoolean } from "../utils/localStorageUtils";
 export interface Settings {
   showMoveInterpreter: boolean;
   showOnlyOneTarget: boolean;
+  showSolutionIcons: boolean;
 }
 
 export type SetSettings = React.Dispatch<React.SetStateAction<Settings>> & {
   setShowMoveInterpreter: React.Dispatch<React.SetStateAction<boolean>>;
   setShowOnlyOneTarget: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowSolutionIcons: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 function makeSettingsAttributeSetter<K extends keyof Settings>(
@@ -36,6 +38,7 @@ export function useSettings(): [Settings, SetSettings] {
     return {
       showMoveInterpreter: getLSBoolean("showMoveInterpreter", true),
       showOnlyOneTarget: getLSBoolean("showOnlyOneTarget", false),
+      showSolutionIcons: getLSBoolean("showSolutionIcons", true),
     };
   });
   const setSettings = useMemo(() => {
@@ -50,6 +53,10 @@ export function useSettings(): [Settings, SetSettings] {
       innerSetSettings,
       "showOnlyOneTarget",
     );
+    setSettings.setShowSolutionIcons = makeSettingsAttributeSetter(
+      innerSetSettings,
+      "showSolutionIcons",
+    );
     return setSettings;
   }, [innerSetSettings]);
   useEffect(() => {
@@ -58,5 +65,8 @@ export function useSettings(): [Settings, SetSettings] {
   useEffect(() => {
     setLSBoolean("showOnlyOneTarget", settings.showOnlyOneTarget);
   }, [settings.showOnlyOneTarget]);
+  useEffect(() => {
+    setLSBoolean("showSolutionIcons", settings.showSolutionIcons);
+  }, [settings.showSolutionIcons]);
   return [settings, setSettings];
 }

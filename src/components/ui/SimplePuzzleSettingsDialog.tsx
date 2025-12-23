@@ -13,6 +13,8 @@ export interface SimplePuzzleSettingsDialogProps {
   maxDesiredTargetDistance?: number;
   desiredTargetDistance: number;
   onDesiredTargetDistanceChange: (desiredTargetDistance: number) => void;
+  showSolutionIcons: boolean;
+  onShowSolutionIconsChange: (showSolutionIcons: boolean) => void;
 }
 
 export function SimplePuzzleSettingsDialog({
@@ -22,6 +24,8 @@ export function SimplePuzzleSettingsDialog({
   maxDesiredTargetDistance = 20,
   desiredTargetDistance,
   onDesiredTargetDistanceChange,
+  showSolutionIcons,
+  onShowSolutionIconsChange,
 }: SimplePuzzleSettingsDialogProps) {
   const [dialogOpen, setDialogOpen] = useSettingsDialog(setShowSettingsDialog);
   const innerOnShowOnlyOneTargetChange = useCallback(
@@ -36,6 +40,12 @@ export function SimplePuzzleSettingsDialog({
       onDesiredTargetDistanceChange?.(newValue);
     },
     [onDesiredTargetDistanceChange],
+  );
+  const innserOnShowSolutionIconsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onShowSolutionIconsChange?.(e.target.checked);
+    },
+    [onShowSolutionIconsChange],
   );
   const options = useMemo(() => {
     return _.range(2, maxDesiredTargetDistance + 1).map((value) => (
@@ -67,6 +77,17 @@ export function SimplePuzzleSettingsDialog({
           >
             {options}
           </select>
+        </label>
+      }
+      <br />
+      {
+        <label>
+          <input
+            type={"checkbox"}
+            checked={showSolutionIcons}
+            onChange={innserOnShowSolutionIconsChange}
+          />
+          Show solution icons
         </label>
       }
     </SettingsDialog>

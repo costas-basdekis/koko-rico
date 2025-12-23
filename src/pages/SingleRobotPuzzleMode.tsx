@@ -34,8 +34,8 @@ export function SingleRobotPuzzleMode() {
     DefaultDesiredTargetDistance,
   );
   const [
-    { showMoveInterpreter, showOnlyOneTarget },
-    { setShowMoveInterpreter, setShowOnlyOneTarget },
+    { showMoveInterpreter, showOnlyOneTarget, showSolutionIcons },
+    { setShowMoveInterpreter, setShowOnlyOneTarget, setShowSolutionIcons },
   ] = useSettings();
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
@@ -97,6 +97,8 @@ export function SingleRobotPuzzleMode() {
         onShowOnlyOneTargetChange={setShowOnlyOneTarget}
         desiredTargetDistance={desiredTargetDistance}
         onDesiredTargetDistanceChange={setDesiredTargetDistance}
+        showSolutionIcons={showSolutionIcons}
+        onShowSolutionIconsChange={setShowSolutionIcons}
       />
       <div>
         <MovesCounter game={game} gameTargets={gameTargets} />
@@ -122,6 +124,7 @@ export function SingleRobotPuzzleMode() {
           onNewGameClick={onNewGame}
           targetPositions={visibleTargetPositions}
           onShowSettings={showSettingsDialog}
+          showSolutionIcons={showSolutionIcons}
         />
       </SvgContainer>
     </>

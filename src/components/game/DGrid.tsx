@@ -14,6 +14,8 @@ export interface DGridProps {
   targetPositions?: Position[];
   targetPaths?: { [key: number]: RobotPath | null };
   onTargetPathClick?: (targetIndex: number) => void;
+  showSolutionIcons?: boolean;
+  onSolutionClick?: (targetIndex: number) => void;
 }
 
 export function DGrid({
@@ -25,6 +27,8 @@ export function DGrid({
   targetPositions,
   targetPaths,
   onTargetPathClick,
+  showSolutionIcons,
+  onSolutionClick,
 }: DGridProps) {
   return (
     <g className={"grid"}>
@@ -47,6 +51,8 @@ export function DGrid({
               targetPositions={targetPositions}
               targetPaths={targetPaths}
               onTargetPathClick={onTargetPathClick}
+              showSolutionIcons={showSolutionIcons}
+              onSolutionClick={onSolutionClick}
             />
           );
         }),
@@ -64,6 +70,8 @@ export interface DGridCellProps {
   targetPositions?: Position[];
   targetPaths?: { [key: number]: RobotPath | null };
   onTargetPathClick?: (targetIndex: number) => void;
+  showSolutionIcons?: boolean;
+  onSolutionClick?: (targetIndex: number) => void;
 }
 
 export function DGridCell({
@@ -75,6 +83,8 @@ export function DGridCell({
   targetPositions = gameTargets?.targetPositions,
   targetPaths,
   onTargetPathClick,
+  showSolutionIcons,
+  onSolutionClick,
 }: DGridCellProps) {
   const onClick = useCallback(() => {
     onRobotMoveClick?.({ x, y });
@@ -86,8 +96,18 @@ export function DGridCell({
       false
     );
   }, [x, y, targetPositions]);
-  const isTargetCompleted = useMemo(() => {
+  const isTargetConceded = useMemo(() => {
     if (!isTarget) {
+      return false;
+    }
+    return (
+      gameTargets?.concededTargetPositions.some((concededTarget) =>
+        positionsEqual({ x, y }, concededTarget),
+      ) ?? false
+    );
+  }, [x, y, gameTargets?.completedTargetPositions, isTarget]);
+  const isTargetCompleted = useMemo(() => {
+    if (!isTarget || isTargetConceded) {
       return false;
     }
     return (
@@ -97,7 +117,7 @@ export function DGridCell({
     );
   }, [x, y, gameTargets?.completedTargetPositions, isTarget]);
   const isSilverTargetCompleted = useMemo(() => {
-    if (!isTarget || isTargetCompleted) {
+    if (!isTarget || isTargetConceded || isTargetCompleted) {
       return false;
     }
     return (
@@ -107,7 +127,12 @@ export function DGridCell({
     );
   }, [x, y, gameTargets?.silverTargetPositions, isTarget, isTargetCompleted]);
   const isBronzeTargetCompleted = useMemo(() => {
-    if (!isTarget || isTargetCompleted || isSilverTargetCompleted) {
+    if (
+      !isTarget ||
+      isTargetConceded ||
+      isTargetCompleted ||
+      isSilverTargetCompleted
+    ) {
       return false;
     }
     return (
@@ -150,6 +175,12 @@ export function DGridCell({
     }
     onTargetPathClick?.(targetIndex);
   }, [targetIndex, onTargetPathClick]);
+  const onSolutionHandlerClick = useCallback(() => {
+    if (targetIndex === -1) {
+      return;
+    }
+    onSolutionClick?.(targetIndex);
+  }, [targetIndex, onSolutionClick]);
   if (targetPath && onTargetPathClick) {
     contents = (
       <text
@@ -160,6 +191,23 @@ export function DGridCell({
         onTouchStart={onTargetPathHandlerClick}
       >
         ⟲
+      </text>
+    );
+  } else if (
+    showSolutionIcons &&
+    isTarget &&
+    !isTargetConceded &&
+    !isTargetCompleted
+  ) {
+    contents = (
+      <text
+        className={"solution-handle"}
+        x={drawPosition.x + drawSettings.width / 2}
+        y={drawPosition.y + drawSettings.height / 2}
+        onClick={onSolutionHandlerClick}
+        onTouchStart={onSolutionHandlerClick}
+      >
+        !
       </text>
     );
   }

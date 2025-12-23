@@ -44,8 +44,8 @@ export function MultiRobotPuzzleMode() {
     [setSelectedRobotIndex, game.robots.length],
   );
   const [
-    { showMoveInterpreter, showOnlyOneTarget },
-    { setShowMoveInterpreter, setShowOnlyOneTarget },
+    { showMoveInterpreter, showOnlyOneTarget, showSolutionIcons },
+    { setShowMoveInterpreter, setShowOnlyOneTarget, setShowSolutionIcons },
   ] = useSettings();
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
@@ -126,6 +126,8 @@ export function MultiRobotPuzzleMode() {
         onShowOnlyOneTargetChange={setShowOnlyOneTarget}
         desiredTargetDistance={desiredTargetDistance}
         onDesiredTargetDistanceChange={setDesiredTargetDistance}
+        showSolutionIcons={showSolutionIcons}
+        onShowSolutionIconsChange={setShowSolutionIcons}
       />
       <ButtonRow>
         <MovesCounter game={game} gameTargets={gameTargets} />
@@ -155,6 +157,7 @@ export function MultiRobotPuzzleMode() {
           onShowSettings={showSettingsDialog}
           targetPositions={visibleTargetPositions}
           onTargetPathClick={onTargetPathClick}
+          showSolutionIcons={showSolutionIcons}
         />
       </SvgContainer>
     </>

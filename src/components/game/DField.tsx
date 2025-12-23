@@ -37,6 +37,8 @@ export interface DFieldProps {
   targetPositions?: Position[];
   targetPaths?: { [key: number]: RobotPath | null };
   onTargetPathClick?: (targetIndex: number) => void;
+  showSolutionIcons?: boolean;
+  onSolutionClick?: (targetIndex: number) => void;
 }
 
 export function DField({
@@ -53,6 +55,8 @@ export function DField({
   targetPositions,
   targetPaths,
   onTargetPathClick,
+  showSolutionIcons,
+  onSolutionClick,
 }: DFieldProps) {
   if (path && !robots) {
     throw new Error("DGame cannot accept robotPaths prop without robots prop.");
@@ -96,6 +100,8 @@ export function DField({
         targetPositions={targetPositions}
         targetPaths={targetPaths}
         onTargetPathClick={onTargetPathClick}
+        showSolutionIcons={showSolutionIcons}
+        onSolutionClick={onSolutionClick}
       />
       {Array.from(robotPathsByIndex.entries())
         .sort(sortOnSelectedRobotFirst)
