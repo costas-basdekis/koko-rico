@@ -1,3 +1,4 @@
+import _ from "underscore";
 import { Position, PositionMap } from "../utils";
 import { RobotPath, RobotPathEntry, RobotPathEntryMap } from "./Game";
 
@@ -23,5 +24,18 @@ export class SolutionBuilder {
       entry = this.entryMap.get(entry)!;
     }
     return path;
+  }
+
+  fillTargetSolutions(
+    targetPositions: Position[],
+    solutions: (RobotPath | null)[],
+  ) {
+    for (const index of _.range(targetPositions.length)) {
+      const targetPosition = targetPositions[index];
+      if (solutions[index]) {
+        continue;
+      }
+      solutions[index] = this.getSolutionFor(targetPosition);
+    }
   }
 }

@@ -13,6 +13,7 @@ import { Robot } from "./Robot";
 import { SingleRobotDistanceEvaluator } from "./SingleRobotDistanceEvaluator";
 import { MultiRobotDistanceEvaluator } from "./MultiRobotDistanceEvaluator";
 import { GameFormat, LatestGameFormat, migrate } from "./GameMigrations";
+import { SolutionBuilder } from "./SolutionBuilder";
 
 export interface RobotPathEntry {
   previousPosition: Position;
@@ -389,5 +390,35 @@ export class Game implements HistoryItem<Game> {
       ).evaluate(distanceLimit);
     }
     return this.multiRobotDistanceMap;
+  }
+
+  fillTargetSolutions(
+    robot: Robot,
+    distanceLimit: number,
+    targetPositions: Position[],
+    solutions: (RobotPath | null)[],
+  ): (RobotPath | null)[] {
+    const solutionBuilder = new SolutionBuilder();
+    if (this.robots.length === 1) {
+      const evaluator = new SingleRobotDistanceEvaluator(
+        this,
+        robot,
+        undefined,
+        undefined,
+        solutionBuilder,
+      );
+      evaluator.evaluate(distanceLimit);
+    } else {
+      const evaluator = new MultiRobotDistanceEvaluator(
+        this,
+        robot,
+        undefined,
+        undefined,
+        solutionBuilder,
+      );
+      evaluator.evaluate(distanceLimit);
+    }
+    solutionBuilder.fillTargetSolutions(targetPositions, solutions);
+    return solutions;
   }
 }
