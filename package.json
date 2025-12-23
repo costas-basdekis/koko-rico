@@ -28,8 +28,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && sed -i -e \"s/__SERVICE_WORKER_HASH__/$(sha256sum build/service-worker.js | cut -d\" \" -f1)/g\" build/service-worker.js*",
-    "buildsw": "yarn run build && cp ./build/service-worker.js* ./public",
+    "build": "react-scripts build && sed -i \"\" -e \"s/__SERVICE_WORKER_HASH__/$(sha256sum build/service-worker.js | cut -d\" \" -f1)/g\" build/service-worker.js*",
+    "buildsw": "rm public/service-worker.js* && yarn run build && cp ./build/service-worker.js* ./public",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
