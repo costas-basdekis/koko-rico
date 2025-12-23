@@ -34,26 +34,13 @@ export function SingleRobotPuzzleMode() {
     makeBackgroundGame,
     DefaultDesiredTargetDistance,
   );
-  const [
-    {
-      showMoveInterpreter,
-      showOnlyOneTarget,
-      showSolutionIcons,
-      showPathIcons,
-    },
-    {
-      setShowMoveInterpreter,
-      setShowOnlyOneTarget,
-      setShowSolutionIcons,
-      setShowPathIcons,
-    },
-  ] = useSettings();
+  const [settings, setSettings] = useSettings();
   const visibleTargetPositions = useMemo(() => {
-    if (!showOnlyOneTarget) {
+    if (!settings.showOnlyOneTarget) {
       return gameTargets.targetPositions;
     }
     return [gameTargets.getOneTarget()];
-  }, [gameTargets, showOnlyOneTarget]);
+  }, [gameTargets, settings.showOnlyOneTarget]);
   const onTouchScreenMove = useCallback(
     (direction: Direction) => {
       const nextPositionEntry = game.getRobotMoveInDirection(
@@ -99,8 +86,8 @@ export function SingleRobotPuzzleMode() {
     <>
       <UsageInstructions
         gameLoading={gameLoading}
-        showMoveInterpreter={showMoveInterpreter}
-        onChangeShowMoveInterpreter={setShowMoveInterpreter}
+        showMoveInterpreter={settings.showMoveInterpreter}
+        onChangeShowMoveInterpreter={setSettings.setShowMoveInterpreter}
         onRobotMove={onTouchScreenMove}
         onRobotReset={history.canUndo() ? onReset : undefined}
         onUndoRobotMove={history.canUndo() ? onUndo : undefined}
@@ -116,14 +103,10 @@ export function SingleRobotPuzzleMode() {
       />
       <SimplePuzzleSettingsDialog
         setShowSettingsDialog={setShowSettingsDialog}
-        showOnlyOneTarget={showOnlyOneTarget}
-        onShowOnlyOneTargetChange={setShowOnlyOneTarget}
+        settings={settings}
+        setSettings={setSettings}
         desiredTargetDistance={desiredTargetDistance}
         onDesiredTargetDistanceChange={setDesiredTargetDistance}
-        showSolutionIcons={showSolutionIcons}
-        onShowSolutionIconsChange={setShowSolutionIcons}
-        showPathIcons={showPathIcons}
-        onShowPathIconsChange={setShowPathIcons}
       />
       <ShowSolutionConfirmationDialog
         open={targetIndexForSolution !== null}
@@ -140,7 +123,7 @@ export function SingleRobotPuzzleMode() {
         gridHeight={game.field.height}
         ensureFitsInWindow
         onTouchScreenMove={onTouchScreenMove}
-        showMoveInterpreter={showMoveInterpreter}
+        showMoveInterpreter={settings.showMoveInterpreter}
         restrictTouchScreenMovesTo={restrictTouchScreenMovesTo}
       >
         <DGame
@@ -152,10 +135,10 @@ export function SingleRobotPuzzleMode() {
           onRobotMoveClick={onRobotMove}
           onRobotResetClick={onReset}
           onNewGameClick={onNewGame}
-          showPathIcons={showPathIcons}
+          showPathIcons={settings.showPathIcons}
           targetPositions={visibleTargetPositions}
           onShowSettings={showSettingsDialog}
-          showSolutionIcons={showSolutionIcons}
+          showSolutionIcons={settings.showSolutionIcons}
           onSolutionClick={setTargetIndexForSolution}
         />
       </SvgContainer>

@@ -1,42 +1,35 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   SetShowSettingsDialog,
   SettingsDialog,
   useSettingsDialog,
 } from "./SettingsDialog";
 import _ from "underscore";
+import { SetSettings, Settings } from "../../hooks";
 
 export interface SimplePuzzleSettingsDialogProps {
   setShowSettingsDialog: SetShowSettingsDialog;
-  showOnlyOneTarget: boolean;
-  onShowOnlyOneTargetChange: (showOnlyOneTarget: boolean) => void;
+  settings: Settings;
+  setSettings: SetSettings;
   maxDesiredTargetDistance?: number;
   desiredTargetDistance: number;
   onDesiredTargetDistanceChange: (desiredTargetDistance: number) => void;
-  showSolutionIcons: boolean;
-  onShowSolutionIconsChange: (showSolutionIcons: boolean) => void;
-  showPathIcons: boolean;
-  onShowPathIconsChange: (showPathIcons: boolean) => void;
 }
 
 export function SimplePuzzleSettingsDialog({
   setShowSettingsDialog,
-  showOnlyOneTarget,
-  onShowOnlyOneTargetChange,
+  settings,
+  setSettings,
   maxDesiredTargetDistance = 20,
   desiredTargetDistance,
   onDesiredTargetDistanceChange,
-  showSolutionIcons,
-  onShowSolutionIconsChange,
-  showPathIcons,
-  onShowPathIconsChange,
 }: SimplePuzzleSettingsDialogProps) {
   const [dialogOpen, setDialogOpen] = useSettingsDialog(setShowSettingsDialog);
   const innerOnShowOnlyOneTargetChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onShowOnlyOneTargetChange?.(e.target.checked);
+      setSettings.setShowOnlyOneTarget?.(e.target.checked);
     },
-    [onShowOnlyOneTargetChange],
+    [setSettings],
   );
   const innerOnDesiredTargetDistanceChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -47,15 +40,15 @@ export function SimplePuzzleSettingsDialog({
   );
   const innserOnShowSolutionIconsChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onShowSolutionIconsChange?.(e.target.checked);
+      setSettings.setShowSolutionIcons?.(e.target.checked);
     },
-    [onShowSolutionIconsChange],
+    [setSettings.setShowSolutionIcons],
   );
   const innserOnShowPathIconsChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onShowPathIconsChange?.(e.target.checked);
+      setSettings.setShowPathIcons?.(e.target.checked);
     },
-    [onShowPathIconsChange],
+    [setSettings.setShowPathIcons],
   );
   const options = useMemo(() => {
     return _.range(2, maxDesiredTargetDistance + 1).map((value) => (
@@ -70,7 +63,7 @@ export function SimplePuzzleSettingsDialog({
       <label>
         <input
           type={"checkbox"}
-          checked={showOnlyOneTarget}
+          checked={settings.showOnlyOneTarget}
           onChange={innerOnShowOnlyOneTargetChange}
         />
         One target
@@ -89,7 +82,7 @@ export function SimplePuzzleSettingsDialog({
       <label>
         <input
           type={"checkbox"}
-          checked={showSolutionIcons}
+          checked={settings.showSolutionIcons}
           onChange={innserOnShowSolutionIconsChange}
         />
         Show solution icons
@@ -98,7 +91,7 @@ export function SimplePuzzleSettingsDialog({
       <label>
         <input
           type={"checkbox"}
-          checked={showPathIcons}
+          checked={settings.showPathIcons}
           onChange={innserOnShowPathIconsChange}
         />
         Show path icons
