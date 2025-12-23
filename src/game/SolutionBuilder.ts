@@ -1,27 +1,35 @@
 import _ from "underscore";
-import { Position, PositionMap } from "../utils";
-import { RobotPath, RobotPathEntry, RobotPathEntryMap } from "./Game";
+import { Position, PositionMap, PositionsMap } from "../utils";
+import { RobotPath, RobotPathEntry } from "./Game";
 
 export class SolutionBuilder {
-  entryMap: RobotPathEntryMap<RobotPathEntry | null> = new RobotPathEntryMap();
-  positionMap: PositionMap<RobotPathEntry> = new PositionMap();
+  positionsAndEntryMap: PositionsMap<[Position[], RobotPathEntry]> =
+    new PositionsMap();
+  positionMap: PositionMap<Position[]> = new PositionMap();
 
-  addPosition(entry: RobotPathEntry, previous: RobotPathEntry | null) {
-    this.entryMap.setNew(entry, previous);
+  addPosition(
+    positions: Position[],
+    previousPositions: Position[],
+    entry: RobotPathEntry,
+  ) {
+    this.positionsAndEntryMap.setNew(positions, [previousPositions, entry]);
     if (entry.robotIndex === 0) {
-      this.positionMap.setNew(entry.position, entry);
+      this.positionMap.setNew(entry.position, positions);
     }
   }
 
   getSolutionFor(position: Position): RobotPath | null {
-    let entry = this.positionMap.get(position);
-    if (!entry) {
+    const initialPositions: Position[] | undefined =
+      this.positionMap.get(position);
+    if (!initialPositions) {
       return null;
     }
     const path: RobotPath = [];
-    while (entry) {
+    let positionsAndEntry = this.positionsAndEntryMap.get(initialPositions);
+    while (positionsAndEntry) {
+      const [positions, entry] = positionsAndEntry;
       path.unshift(entry);
-      entry = this.entryMap.get(entry)!;
+      positionsAndEntry = this.positionsAndEntryMap.get(positions);
     }
     return path;
   }

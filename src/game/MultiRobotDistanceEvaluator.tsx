@@ -70,18 +70,17 @@ export class MultiRobotDistanceEvaluator {
       position: Position;
       otherPositions: Position[];
       distance: number;
-      entry: RobotPathEntry | null;
     }[] = [
       {
         position: this.robot.position,
         otherPositions: initialOtherPositions,
         distance: 0,
-        entry: null,
       },
     ];
     const otherPositionIndexes = _.range(initialOtherPositions.length);
     while (queue.length) {
-      const { position, otherPositions, distance, entry } = queue.shift()!;
+      const { position, otherPositions, distance } = queue.shift()!;
+      const positions = [position, ...otherPositions];
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position, otherPositions);
       for (const nextPosition of nextPositions) {
@@ -97,21 +96,23 @@ export class MultiRobotDistanceEvaluator {
           continue;
         }
         distanceMap.setNew(nextPosition, nextDistance);
-        let nextEntry: RobotPathEntry | null = null;
         if (this.solutionBuilder) {
-          nextEntry = {
+          const entry = {
             previousPosition: position,
             position: nextPosition,
             robotIndex: this.robotIndexMap.get(this.robot)!,
           };
-          this.solutionBuilder.addPosition(nextEntry, entry);
+          this.solutionBuilder.addPosition(
+            [nextPosition, ...otherPositions],
+            positions,
+            entry,
+          );
         }
         if (nextDistance < distanceLimit) {
           queue.push({
             position: nextPosition,
             otherPositions,
             distance: nextDistance,
-            entry: nextEntry,
           });
         }
       }
@@ -140,22 +141,24 @@ export class MultiRobotDistanceEvaluator {
           ) {
             continue;
           }
-          let nextEntry: RobotPathEntry | null = null;
           if (this.solutionBuilder) {
-            nextEntry = {
+            const entry = {
               previousPosition: otherPosition,
               position: nextOtherPosition,
               robotIndex: this.robotIndexMap.get(
                 otherRobots[otherPositionIndex],
               )!,
             };
-            this.solutionBuilder.addPosition(nextEntry, entry);
+            this.solutionBuilder.addPosition(
+              [position, ...nextOtherPositions],
+              positions,
+              entry,
+            );
           }
           queue.push({
             position,
             otherPositions: nextOtherPositions,
             distance: nextDistance,
-            entry: nextEntry,
           });
         }
       }

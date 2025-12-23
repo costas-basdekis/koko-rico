@@ -38,28 +38,25 @@ export class SingleRobotDistanceEvaluator {
   evaluate(distanceLimit: number): PositionMap<number> {
     const distanceMap: PositionMap<number> = new PositionMap();
     distanceMap.set(this.robot.position, 0);
-    const queue: [Position, number, RobotPathEntry | null][] = [
-      [this.robot.position, 0, null],
-    ];
+    const queue: [Position, number][] = [[this.robot.position, 0]];
     while (queue.length) {
-      const [position, distance, entry] = queue.shift()!;
+      const [position, distance] = queue.shift()!;
       const nextDistance = distance + 1;
       const nextPositions = this.getNextPositions(position);
       for (const nextPosition of nextPositions) {
         if (!distanceMap.setNew(nextPosition, nextDistance)) {
           continue;
         }
-        let nextEntry: RobotPathEntry | null = null;
         if (this.solutionBuilder) {
-          nextEntry = {
+          const entry = {
             previousPosition: position,
             position: nextPosition,
             robotIndex: 0,
           };
-          this.solutionBuilder.addPosition(nextEntry, entry);
+          this.solutionBuilder.addPosition([nextPosition], [position], entry);
         }
         if (nextDistance < distanceLimit) {
-          queue.push([nextPosition, nextDistance, nextEntry]);
+          queue.push([nextPosition, nextDistance]);
         }
       }
     }

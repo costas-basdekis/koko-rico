@@ -1,5 +1,5 @@
 import { Position } from "../utils";
-import { Game } from "./Game";
+import { Game, RobotPath } from "./Game";
 import { MultiRobotDistanceEvaluator } from "./MultiRobotDistanceEvaluator";
 import { SolutionBuilder } from "./SolutionBuilder";
 
@@ -85,6 +85,37 @@ describe("MultiRobotDistanceEvaluator", () => {
       ]);
       expect(solutionBuilder.getSolutionFor({ x: 0, y: 1 })).not.toBeNull();
       expect(solutionBuilder.getSolutionFor({ x: 0, y: 2 })).not.toBeNull();
+    });
+    it("fills in missing solution for small complicated game", () => {
+      const game = Game.makeForSizeAndRobots(5, 3, [
+        { x: 0, y: 1 },
+        { x: 1, y: 1 },
+      ]);
+      const targetPositions = [{ x: 2, y: 2 }];
+      const solutions: (RobotPath | null)[] = [null];
+      game.fillTargetSolutions(game.robots[0], 4, targetPositions, solutions);
+      expect(solutions[0]).toEqual([
+        {
+          robotIndex: 0,
+          position: { x: 0, y: 2 },
+          previousPosition: { x: 0, y: 1 },
+        },
+        {
+          robotIndex: 0,
+          position: { x: 4, y: 2 },
+          previousPosition: { x: 0, y: 2 },
+        },
+        {
+          robotIndex: 1,
+          position: { x: 1, y: 2 },
+          previousPosition: { x: 1, y: 1 },
+        },
+        {
+          robotIndex: 0,
+          position: { x: 2, y: 2 },
+          previousPosition: { x: 4, y: 2 },
+        },
+      ]);
     });
   });
 });
