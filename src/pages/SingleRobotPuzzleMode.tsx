@@ -35,8 +35,18 @@ export function SingleRobotPuzzleMode() {
     DefaultDesiredTargetDistance,
   );
   const [
-    { showMoveInterpreter, showOnlyOneTarget, showSolutionIcons },
-    { setShowMoveInterpreter, setShowOnlyOneTarget, setShowSolutionIcons },
+    {
+      showMoveInterpreter,
+      showOnlyOneTarget,
+      showSolutionIcons,
+      showPathIcons,
+    },
+    {
+      setShowMoveInterpreter,
+      setShowOnlyOneTarget,
+      setShowSolutionIcons,
+      setShowPathIcons,
+    },
   ] = useSettings();
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
@@ -112,6 +122,8 @@ export function SingleRobotPuzzleMode() {
         onDesiredTargetDistanceChange={setDesiredTargetDistance}
         showSolutionIcons={showSolutionIcons}
         onShowSolutionIconsChange={setShowSolutionIcons}
+        showPathIcons={showPathIcons}
+        onShowPathIconsChange={setShowPathIcons}
       />
       <ShowSolutionConfirmationDialog
         open={targetIndexForSolution !== null}
@@ -140,6 +152,7 @@ export function SingleRobotPuzzleMode() {
           onRobotMoveClick={onRobotMove}
           onRobotResetClick={onReset}
           onNewGameClick={onNewGame}
+          showPathIcons={showPathIcons}
           targetPositions={visibleTargetPositions}
           onShowSettings={showSettingsDialog}
           showSolutionIcons={showSolutionIcons}

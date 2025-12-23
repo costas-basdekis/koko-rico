@@ -15,6 +15,8 @@ export interface SimplePuzzleSettingsDialogProps {
   onDesiredTargetDistanceChange: (desiredTargetDistance: number) => void;
   showSolutionIcons: boolean;
   onShowSolutionIconsChange: (showSolutionIcons: boolean) => void;
+  showPathIcons: boolean;
+  onShowPathIconsChange: (showPathIcons: boolean) => void;
 }
 
 export function SimplePuzzleSettingsDialog({
@@ -26,6 +28,8 @@ export function SimplePuzzleSettingsDialog({
   onDesiredTargetDistanceChange,
   showSolutionIcons,
   onShowSolutionIconsChange,
+  showPathIcons,
+  onShowPathIconsChange,
 }: SimplePuzzleSettingsDialogProps) {
   const [dialogOpen, setDialogOpen] = useSettingsDialog(setShowSettingsDialog);
   const innerOnShowOnlyOneTargetChange = useCallback(
@@ -47,6 +51,12 @@ export function SimplePuzzleSettingsDialog({
     },
     [onShowSolutionIconsChange],
   );
+  const innserOnShowPathIconsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onShowPathIconsChange?.(e.target.checked);
+    },
+    [onShowPathIconsChange],
+  );
   const options = useMemo(() => {
     return _.range(2, maxDesiredTargetDistance + 1).map((value) => (
       <option key={value} value={value}>
@@ -57,39 +67,42 @@ export function SimplePuzzleSettingsDialog({
   }, [maxDesiredTargetDistance]);
   return (
     <SettingsDialog open={dialogOpen} onSetOpen={setDialogOpen}>
-      {
-        <label>
-          <input
-            type={"checkbox"}
-            checked={showOnlyOneTarget}
-            onChange={innerOnShowOnlyOneTargetChange}
-          />
-          One target
-        </label>
-      }
+      <label>
+        <input
+          type={"checkbox"}
+          checked={showOnlyOneTarget}
+          onChange={innerOnShowOnlyOneTargetChange}
+        />
+        One target
+      </label>
       <br />
-      {
-        <label>
-          Distance:
-          <select
-            value={desiredTargetDistance}
-            onChange={innerOnDesiredTargetDistanceChange}
-          >
-            {options}
-          </select>
-        </label>
-      }
+      <label>
+        Distance:
+        <select
+          value={desiredTargetDistance}
+          onChange={innerOnDesiredTargetDistanceChange}
+        >
+          {options}
+        </select>
+      </label>
       <br />
-      {
-        <label>
-          <input
-            type={"checkbox"}
-            checked={showSolutionIcons}
-            onChange={innserOnShowSolutionIconsChange}
-          />
-          Show solution icons
-        </label>
-      }
+      <label>
+        <input
+          type={"checkbox"}
+          checked={showSolutionIcons}
+          onChange={innserOnShowSolutionIconsChange}
+        />
+        Show solution icons
+      </label>
+      <br />
+      <label>
+        <input
+          type={"checkbox"}
+          checked={showPathIcons}
+          onChange={innserOnShowPathIconsChange}
+        />
+        Show path icons
+      </label>
     </SettingsDialog>
   );
 }

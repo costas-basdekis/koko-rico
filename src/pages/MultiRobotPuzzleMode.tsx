@@ -47,8 +47,18 @@ export function MultiRobotPuzzleMode() {
     [setSelectedRobotIndex, game.robots.length],
   );
   const [
-    { showMoveInterpreter, showOnlyOneTarget, showSolutionIcons },
-    { setShowMoveInterpreter, setShowOnlyOneTarget, setShowSolutionIcons },
+    {
+      showMoveInterpreter,
+      showOnlyOneTarget,
+      showSolutionIcons,
+      showPathIcons,
+    },
+    {
+      setShowMoveInterpreter,
+      setShowOnlyOneTarget,
+      setShowSolutionIcons,
+      setShowPathIcons,
+    },
   ] = useSettings();
   const visibleTargetPositions = useMemo(() => {
     if (!showOnlyOneTarget) {
@@ -149,6 +159,8 @@ export function MultiRobotPuzzleMode() {
         onDesiredTargetDistanceChange={setDesiredTargetDistance}
         showSolutionIcons={showSolutionIcons}
         onShowSolutionIconsChange={setShowSolutionIcons}
+        showPathIcons={showPathIcons}
+        onShowPathIconsChange={setShowPathIcons}
       />
       <ShowSolutionConfirmationDialog
         open={targetIndexForSolution !== null}
@@ -188,6 +200,7 @@ export function MultiRobotPuzzleMode() {
           onNewGameClick={onNewGame}
           onShowSettings={showSettingsDialog}
           targetPositions={visibleTargetPositions}
+          showPathIcons={showPathIcons}
           onTargetPathClick={onTargetPathClick}
           showSolutionIcons={showSolutionIcons}
           onSolutionClick={setTargetIndexForSolution}

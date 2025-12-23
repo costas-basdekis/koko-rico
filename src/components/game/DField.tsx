@@ -36,6 +36,7 @@ export interface DFieldProps {
   gameTargets?: GameTargets;
   targetPositions?: Position[];
   targetPaths?: { [key: number]: RobotPath | null };
+  showPathIcons?: boolean;
   onTargetPathClick?: (targetIndex: number) => void;
   showSolutionIcons?: boolean;
   onSolutionClick?: (targetIndex: number) => void;
@@ -54,6 +55,7 @@ export function DField({
   gameTargets,
   targetPositions,
   targetPaths,
+  showPathIcons,
   onTargetPathClick,
   showSolutionIcons,
   onSolutionClick,
@@ -99,6 +101,7 @@ export function DField({
         gameTargets={gameTargets}
         targetPositions={targetPositions}
         targetPaths={targetPaths}
+        showPathIcons={showPathIcons}
         onTargetPathClick={onTargetPathClick}
         showSolutionIcons={showSolutionIcons}
         onSolutionClick={onSolutionClick}

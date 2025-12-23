@@ -5,12 +5,14 @@ export interface Settings {
   showMoveInterpreter: boolean;
   showOnlyOneTarget: boolean;
   showSolutionIcons: boolean;
+  showPathIcons: boolean;
 }
 
 export type SetSettings = React.Dispatch<React.SetStateAction<Settings>> & {
   setShowMoveInterpreter: React.Dispatch<React.SetStateAction<boolean>>;
   setShowOnlyOneTarget: React.Dispatch<React.SetStateAction<boolean>>;
   setShowSolutionIcons: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowPathIcons: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 function makeSettingsAttributeSetter<K extends keyof Settings>(
@@ -39,6 +41,7 @@ export function useSettings(): [Settings, SetSettings] {
       showMoveInterpreter: getLSBoolean("showMoveInterpreter", true),
       showOnlyOneTarget: getLSBoolean("showOnlyOneTarget", false),
       showSolutionIcons: getLSBoolean("showSolutionIcons", true),
+      showPathIcons: getLSBoolean("showPathIcons", true),
     };
   });
   const setSettings = useMemo(() => {
@@ -57,6 +60,10 @@ export function useSettings(): [Settings, SetSettings] {
       innerSetSettings,
       "showSolutionIcons",
     );
+    setSettings.setShowPathIcons = makeSettingsAttributeSetter(
+      innerSetSettings,
+      "showPathIcons",
+    );
     return setSettings;
   }, [innerSetSettings]);
   useEffect(() => {
@@ -68,5 +75,8 @@ export function useSettings(): [Settings, SetSettings] {
   useEffect(() => {
     setLSBoolean("showSolutionIcons", settings.showSolutionIcons);
   }, [settings.showSolutionIcons]);
+  useEffect(() => {
+    setLSBoolean("showPathIcons", settings.showPathIcons);
+  }, [settings.showPathIcons]);
   return [settings, setSettings];
 }

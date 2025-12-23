@@ -13,6 +13,7 @@ export interface DGridProps {
   gameTargets?: GameTargets;
   targetPositions?: Position[];
   targetPaths?: { [key: number]: RobotPath | null };
+  showPathIcons?: boolean;
   onTargetPathClick?: (targetIndex: number) => void;
   showSolutionIcons?: boolean;
   onSolutionClick?: (targetIndex: number) => void;
@@ -26,6 +27,7 @@ export function DGrid({
   gameTargets,
   targetPositions,
   targetPaths,
+  showPathIcons,
   onTargetPathClick,
   showSolutionIcons,
   onSolutionClick,
@@ -50,6 +52,7 @@ export function DGrid({
               gameTargets={gameTargets}
               targetPositions={targetPositions}
               targetPaths={targetPaths}
+              showPathIcons={showPathIcons}
               onTargetPathClick={onTargetPathClick}
               showSolutionIcons={showSolutionIcons}
               onSolutionClick={onSolutionClick}
@@ -69,6 +72,7 @@ export interface DGridCellProps {
   gameTargets?: GameTargets;
   targetPositions?: Position[];
   targetPaths?: { [key: number]: RobotPath | null };
+  showPathIcons?: boolean;
   onTargetPathClick?: (targetIndex: number) => void;
   showSolutionIcons?: boolean;
   onSolutionClick?: (targetIndex: number) => void;
@@ -82,6 +86,7 @@ export function DGridCell({
   gameTargets,
   targetPositions = gameTargets?.targetPositions,
   targetPaths,
+  showPathIcons,
   onTargetPathClick,
   showSolutionIcons,
   onSolutionClick,
@@ -181,7 +186,7 @@ export function DGridCell({
     }
     onSolutionClick?.(targetIndex);
   }, [targetIndex, onSolutionClick]);
-  if (targetPath && onTargetPathClick) {
+  if (targetPath && showPathIcons && onTargetPathClick) {
     contents = (
       <text
         className={"target-path-handle"}

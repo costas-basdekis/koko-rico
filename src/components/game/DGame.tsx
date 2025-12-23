@@ -35,6 +35,7 @@ export interface DGameProps {
   onNewGameClick?: () => void;
   onShowSettings?: () => void;
   targetPositions?: Position[];
+  showPathIcons?: boolean;
   onTargetPathClick?: (targetIndex: number) => void;
   showSolutionIcons?: boolean;
   onSolutionClick?: (targetIndex: number) => void;
@@ -75,6 +76,7 @@ export function DGame({
   onNewGameClick,
   onShowSettings,
   targetPositions,
+  showPathIcons,
   onTargetPathClick,
   showSolutionIcons,
   onSolutionClick,
@@ -191,6 +193,7 @@ export function DGame({
         gameTargets={gameTargets}
         targetPositions={targetPositions}
         targetPaths={gameTargets?.completedTargetPaths}
+        showPathIcons={showPathIcons}
         onTargetPathClick={onTargetPathClick}
         showSolutionIcons={showSolutionIcons}
         onSolutionClick={onSolutionClick}
