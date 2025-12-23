@@ -393,4 +393,31 @@ export class GameTargets {
     }
     return this.change({ solutions });
   }
+
+  concedeTarget(targetIndexForSolution: number): GameTargets {
+    const targetPosition = this.targetPositions[targetIndexForSolution];
+    if (!targetPosition) {
+      throw new Error(`Invalid target index ${targetIndexForSolution}`);
+    }
+    if (
+      this.concededTargetPositions.includes(targetPosition) ||
+      this.completedTargetPositions.includes(targetPosition)
+    ) {
+      return this;
+    }
+    const solution = this.solutions[targetIndexForSolution];
+    if (!solution) {
+      return this;
+    }
+    return this.change({
+      concededTargetPositions: [
+        ...this.concededTargetPositions,
+        targetPosition,
+      ],
+      completedTargetPaths: {
+        ...this.completedTargetPaths,
+        [targetIndexForSolution]: solution,
+      },
+    });
+  }
 }

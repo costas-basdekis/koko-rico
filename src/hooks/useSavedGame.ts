@@ -42,6 +42,8 @@ export function useSavedGame(
   setDesiredTargetDistance: React.Dispatch<React.SetStateAction<number>>;
   effectiveTargetDistance: number;
   setEffectiveTargetDistance: React.Dispatch<React.SetStateAction<number>>;
+  findingSolution: boolean;
+  onFindSolution: () => void;
 } {
   const savedGameAndTargets = useMemo(() => {
     return loadGameFromLocalStorage(key);
@@ -175,6 +177,31 @@ export function useSavedGame(
     puzzleService,
     setGameOrError,
   ]);
+  const [findingSolution, setFindingSolution] = useState(false);
+  const setGameTargetOrError = useCallback(
+    (gameOrError: { gameTargets: GameTargets } | string) => {
+      setFindingSolution(false);
+      if (typeof gameOrError === "string") {
+      } else {
+        setGame(game, gameOrError.gameTargets);
+      }
+    },
+    [setGame, setFindingSolution],
+  );
+  const onFindSolution = useCallback(() => {
+    if (findingSolution) {
+      return;
+    }
+    setFindingSolution(true);
+    puzzleService.requestFillTargetSolutions(
+      {
+        serialised: game.serialise(),
+        serialisedTargets: gameTargets.serialise(),
+        distanceLimit: gameTargets.targetDistance,
+      },
+      setGameTargetOrError,
+    );
+  }, [findingSolution, puzzleService, game, gameTargets, setGameTargetOrError]);
   return {
     game,
     setGame,
@@ -192,5 +219,7 @@ export function useSavedGame(
     setDesiredTargetDistance,
     effectiveTargetDistance,
     setEffectiveTargetDistance,
+    findingSolution,
+    onFindSolution,
   };
 }

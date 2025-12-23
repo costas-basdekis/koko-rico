@@ -11,6 +11,7 @@ import {
   SvgContainer,
   SimplePuzzleSettingsDialog,
   useShowSettingsDialog,
+  ShowSolutionConfirmationDialog,
 } from "../components";
 import { PuzzleService, useSavedGame, useSettings } from "../hooks";
 
@@ -30,6 +31,8 @@ export function MultiRobotPuzzleMode() {
     onNewGame,
     desiredTargetDistance,
     setDesiredTargetDistance,
+    findingSolution,
+    onFindSolution,
   } = useSavedGame(
     "multiRobotPuzzleGame",
     makeInitialGame,
@@ -98,6 +101,24 @@ export function MultiRobotPuzzleMode() {
     },
     [gameTargets, setGame, history],
   );
+  const [targetIndexForSolution, setTargetIndexForSolution] = useState<
+    number | null
+  >(null);
+  const onSolutionCancel = useCallback(() => {
+    setTargetIndexForSolution(null);
+  }, [setTargetIndexForSolution]);
+  const onSolutionConfirm = useCallback(() => {
+    if (targetIndexForSolution === null) {
+      return;
+    }
+    const newGameTargets = gameTargets.concedeTarget(targetIndexForSolution);
+    const targetPath =
+      newGameTargets.completedTargetPaths[targetIndexForSolution];
+    if (targetPath) {
+      setGame(history.first.applyRobotPath(targetPath), newGameTargets);
+    }
+    setTargetIndexForSolution(null);
+  }, [targetIndexForSolution, setTargetIndexForSolution, gameTargets, history]);
   return (
     <>
       <UsageInstructions
@@ -129,6 +150,17 @@ export function MultiRobotPuzzleMode() {
         showSolutionIcons={showSolutionIcons}
         onShowSolutionIconsChange={setShowSolutionIcons}
       />
+      <ShowSolutionConfirmationDialog
+        open={targetIndexForSolution !== null}
+        hasSolution={
+          targetIndexForSolution !== null &&
+          gameTargets.solutions[targetIndexForSolution] !== null
+        }
+        findingSolution={findingSolution}
+        onFindSolution={onFindSolution}
+        onConfirm={onSolutionConfirm}
+        onCancel={onSolutionCancel}
+      />
       <ButtonRow>
         <MovesCounter game={game} gameTargets={gameTargets} />
         <br />
@@ -158,6 +190,7 @@ export function MultiRobotPuzzleMode() {
           targetPositions={visibleTargetPositions}
           onTargetPathClick={onTargetPathClick}
           showSolutionIcons={showSolutionIcons}
+          onSolutionClick={setTargetIndexForSolution}
         />
       </SvgContainer>
     </>

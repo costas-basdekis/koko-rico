@@ -1,5 +1,5 @@
 import _ from "underscore";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Direction, Game, GameTargets } from "../game";
 import {
   DGame,
@@ -9,6 +9,7 @@ import {
   SvgContainer,
   SimplePuzzleSettingsDialog,
   useShowSettingsDialog,
+  ShowSolutionConfirmationDialog,
 } from "../components/";
 import { PuzzleService, useSavedGame, useSettings } from "../hooks";
 
@@ -72,6 +73,18 @@ export function SingleRobotPuzzleMode() {
     );
   }, [game]);
   const [showSettingsDialog, setShowSettingsDialog] = useShowSettingsDialog();
+  const [targetIndexForSolution, setTargetIndexForSolution] = useState<
+    number | null
+  >(null);
+  const onSolutionCancel = useCallback(() => {
+    setTargetIndexForSolution(null);
+  }, [setTargetIndexForSolution]);
+  const onSolutionConfirm = useCallback(() => {
+    if (targetIndexForSolution === null) {
+      return;
+    }
+    setTargetIndexForSolution(null);
+  }, [targetIndexForSolution]);
   return (
     <>
       <UsageInstructions
@@ -100,6 +113,11 @@ export function SingleRobotPuzzleMode() {
         showSolutionIcons={showSolutionIcons}
         onShowSolutionIconsChange={setShowSolutionIcons}
       />
+      <ShowSolutionConfirmationDialog
+        open={targetIndexForSolution !== null}
+        onConfirm={onSolutionConfirm}
+        onCancel={onSolutionCancel}
+      />
       <div>
         <MovesCounter game={game} gameTargets={gameTargets} />
         <br />
@@ -125,6 +143,7 @@ export function SingleRobotPuzzleMode() {
           targetPositions={visibleTargetPositions}
           onShowSettings={showSettingsDialog}
           showSolutionIcons={showSolutionIcons}
+          onSolutionClick={setTargetIndexForSolution}
         />
       </SvgContainer>
     </>
