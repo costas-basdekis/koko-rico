@@ -12,6 +12,10 @@
   fill: yellow;
 }
 
+.grid-square.target-position.conceded-target-position:not(.silver-target-position):not(.bronze-target-position) {
+  fill: red;
+}
+
 .grid-square.target-position.completed-target-position {
   fill: green;
 }

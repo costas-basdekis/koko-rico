@@ -219,6 +219,7 @@ export function DGridCell({
           "grid-square",
           `${showRobotControls ? "robot-next-position" : ""}`,
           `${isTarget ? "target-position" : ""}`,
+          `${isTargetConceded ? "conceded-target-position" : ""}`,
           `${isTargetCompleted ? "completed-target-position" : ""}`,
           `${isSilverTargetCompleted ? "silver-target-position" : ""}`,
           `${isBronzeTargetCompleted ? "bronze-target-position" : ""}`,
