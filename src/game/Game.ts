@@ -346,6 +346,7 @@ export class Game implements HistoryItem<Game> {
     distanceLimit: number,
     leftWallsCrossed?: PositionMap<boolean>,
     topWallsCrossed?: PositionMap<boolean>,
+    solutionBuilder?: SolutionBuilder,
   ): PositionMap<number> {
     if (leftWallsCrossed || topWallsCrossed) {
       this.singleRobotDistanceMap = undefined;
@@ -354,13 +355,15 @@ export class Game implements HistoryItem<Game> {
       this.singleRobotDistanceMapDistance !== distanceLimit ||
       !this.singleRobotDistanceMap ||
       leftWallsCrossed ||
-      topWallsCrossed
+      topWallsCrossed ||
+      solutionBuilder
     ) {
       this.singleRobotDistanceMap = new SingleRobotDistanceEvaluator(
         this,
         robot,
         leftWallsCrossed,
         topWallsCrossed,
+        solutionBuilder,
       ).evaluate(distanceLimit);
       this.singleRobotDistanceMapDistance = distanceLimit;
     }
@@ -372,6 +375,7 @@ export class Game implements HistoryItem<Game> {
     distanceLimit: number,
     leftWallsCrossed?: PositionMap<boolean>,
     topWallsCrossed?: PositionMap<boolean>,
+    solutionBuilder?: SolutionBuilder,
   ): PositionMap<number> {
     if (leftWallsCrossed || topWallsCrossed) {
       this.multiRobotDistanceMap = undefined;
@@ -380,13 +384,15 @@ export class Game implements HistoryItem<Game> {
       this.multiRobotDistanceMapDistance != distanceLimit ||
       !this.multiRobotDistanceMap ||
       leftWallsCrossed ||
-      topWallsCrossed
+      topWallsCrossed ||
+      solutionBuilder
     ) {
       this.multiRobotDistanceMap = new MultiRobotDistanceEvaluator(
         this,
         robot,
         leftWallsCrossed,
         topWallsCrossed,
+        solutionBuilder,
       ).evaluate(distanceLimit);
     }
     return this.multiRobotDistanceMap;

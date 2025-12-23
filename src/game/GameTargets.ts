@@ -10,6 +10,7 @@ import {
   LatestGameTargetsFormat,
   migrate,
 } from "./GameTargetsMigrations";
+import { SolutionBuilder } from "./SolutionBuilder";
 
 export class GameTargets {
   targetDistance: number;
@@ -39,9 +40,13 @@ export class GameTargets {
     desiredTargetDistance: number,
     count: number | null = null,
   ): GameTargets {
+    const solutionBuilder = new SolutionBuilder();
     const distanceMap = game.calculateReachableMultiRobotPositions(
       game.robots[0],
       desiredTargetDistance,
+      undefined,
+      undefined,
+      solutionBuilder,
     );
     const [, targetDistance] = Array.from(distanceMap.entries())
       .filter(([, distance]) => distance >= desiredTargetDistance)
@@ -56,7 +61,7 @@ export class GameTargets {
     }
     const [silverTargetDistance, bronzeTargetDistance] =
       this.getDefaultSilverAndBronzeTargetDistances(targetDistance);
-    return new GameTargets(
+    let gameTargets = new GameTargets(
       targetDistance,
       silverTargetDistance,
       bronzeTargetDistance,
@@ -68,6 +73,8 @@ export class GameTargets {
       [],
       {},
     );
+    gameTargets = gameTargets.fillTargetSolutionsWithBuilder(solutionBuilder);
+    return gameTargets;
   }
 
   static deserialise(serialised: GameTargetsFormat): GameTargets {
@@ -386,6 +393,19 @@ export class GameTargets {
       this.targetPositions,
       solutions,
     );
+    if (
+      solutions.every((solution, index) => solution === this.solutions[index])
+    ) {
+      return this;
+    }
+    return this.change({ solutions });
+  }
+
+  fillTargetSolutionsWithBuilder(
+    solutionBuilder: SolutionBuilder,
+  ): GameTargets {
+    const solutions = this.solutions.slice();
+    solutionBuilder.fillTargetSolutions(this.targetPositions, solutions);
     if (
       solutions.every((solution, index) => solution === this.solutions[index])
     ) {
