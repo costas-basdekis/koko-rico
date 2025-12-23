@@ -24,7 +24,10 @@ export function useSavedGame(
   defaultTargetDistance: number,
 ): {
   game: Game;
-  setGame: React.Dispatch<React.SetStateAction<Game>>;
+  setGame: (
+    newGameOrFunc: Game | ((newGame: Game) => Game | null | undefined),
+    newGameTargets?: GameTargets,
+  ) => void;
   gameTargets: GameTargets;
   history: ItemHistory<Game>;
   onReset: () => Game;
