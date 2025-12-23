@@ -91,7 +91,7 @@ self.addEventListener("message", (e) => {
     postMessage({
       type: "solutions-filled",
       callbackId: e.data.callbackId,
-      solutions: new GameBuilder().backgroundFillTargetSolutions(e.data),
+      ...new GameBuilder().backgroundFillTargetSolutions(e.data),
     });
   }
 });
