@@ -277,10 +277,7 @@ export class GameTargets {
   ): GameTargets {
     const completedTargetPath =
       this.completedTargetPaths[completedTargetPositionIndex];
-    if (
-      completedTargetPath !== null &&
-      completedTargetPath.length <= game.path.length
-    ) {
+    if (completedTargetPath && completedTargetPath.length <= game.path.length) {
       return this;
     }
     return this.change({
