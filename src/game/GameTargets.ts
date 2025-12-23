@@ -16,13 +16,14 @@ export class GameTargets {
   silverTargetDistance: number;
   bronzeTargetDistance: number;
   targetPositions: Position[];
+  solutions: (RobotPath | null)[];
   completedTargetPositions: Position[];
   silverTargetPositions: Position[];
   bronzeTargetPositions: Position[];
   completedTargetPaths: { [key: number]: RobotPath | null };
 
   static empty(): GameTargets {
-    return new GameTargets(0, 0, 0, [], [], [], [], {});
+    return new GameTargets(0, 0, 0, [], [], [], [], [], {});
   }
 
   static getDefaultSilverAndBronzeTargetDistances(
@@ -59,6 +60,7 @@ export class GameTargets {
       silverTargetDistance,
       bronzeTargetDistance,
       targetPositions,
+      targetPositions.map(() => null),
       [],
       [],
       [],
@@ -78,6 +80,7 @@ export class GameTargets {
     silverTargetPositions,
     bronzeTargetPositions,
     targetPositions,
+    solutions,
     completedTargetPositions,
     completedTargetPaths,
   }: LatestGameTargetsFormat): GameTargets {
@@ -101,6 +104,7 @@ export class GameTargets {
       silverTargetDistance,
       bronzeTargetDistance,
       targetPositions,
+      solutions,
       completedTargetPositions,
       silverTargetPositions,
       bronzeTargetPositions,
@@ -160,6 +164,7 @@ export class GameTargets {
     silverTargetDistance: number,
     bronzeTargetDistance: number,
     targetPositions: Position[],
+    solutiuons: (RobotPath | null)[],
     completedTargetPositions: Position[],
     silverTargetPositions: Position[],
     bronzeTargetPositions: Position[],
@@ -169,6 +174,7 @@ export class GameTargets {
     this.silverTargetDistance = silverTargetDistance;
     this.bronzeTargetDistance = bronzeTargetDistance;
     this.targetPositions = targetPositions;
+    this.solutions = solutiuons;
     this.completedTargetPositions = completedTargetPositions;
     this.silverTargetPositions = silverTargetPositions;
     this.bronzeTargetPositions = bronzeTargetPositions;
@@ -177,11 +183,12 @@ export class GameTargets {
 
   serialise(): LatestGameTargetsFormat {
     return {
-      version: 2,
+      version: 3,
       targetDistance: this.targetDistance,
       silverTargetDistance: this.silverTargetDistance,
       bronzeTargetDistance: this.bronzeTargetDistance,
       targetPositions: this.targetPositions,
+      solutions: this.solutions,
       completedTargetPositions: this.completedTargetPositions,
       silverTargetPositions: this.silverTargetPositions,
       bronzeTargetPositions: this.bronzeTargetPositions,
@@ -200,6 +207,7 @@ export class GameTargets {
   }
 
   change({
+    solutions = this.solutions,
     completedTargetPositions: completedTargets = this.completedTargetPositions,
     silverTargetPositions = this.silverTargetPositions,
     bronzeTargetPositions = this.bronzeTargetPositions,
@@ -210,6 +218,7 @@ export class GameTargets {
       this.silverTargetDistance,
       this.bronzeTargetDistance,
       this.targetPositions,
+      solutions,
       completedTargets,
       silverTargetPositions,
       bronzeTargetPositions,
