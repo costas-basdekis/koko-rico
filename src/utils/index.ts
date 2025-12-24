@@ -4,6 +4,7 @@ export * from "./ItemHistory";
 export * from "./localStorageUtils";
 export * from "./MoveInterpreter";
 export * from "./Position";
+export * from "./PuzzleService";
 export * from "./screenUtils";
 export * from "./serviceWorkerRegistration";
 export * from "./SingleTouchManager";

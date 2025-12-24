@@ -13,7 +13,8 @@ import {
   useShowSettingsDialog,
   ShowSolutionConfirmationDialog,
 } from "../components";
-import { PuzzleService, useSavedGame, useSettings } from "../hooks";
+import { useSavedGame, useSettings } from "../hooks";
+import { PuzzleService } from "../utils";
 
 const DefaultDesiredTargetDistance = 5;
 

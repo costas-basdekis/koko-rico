@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Game, GameTargets, Robot } from "../game";
-import { PuzzleService, usePuzzleService } from "./usePuzzleService";
+import { usePuzzleService } from "./usePuzzleService";
 import {
   ItemHistory,
   loadGameFromLocalStorage,
   Position,
+  PuzzleService,
   saveGameToLocalStorage,
 } from "../utils";
 
