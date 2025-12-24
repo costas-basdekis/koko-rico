@@ -107,14 +107,17 @@ export function useSavedGame(
         newGameFunc = () => newGameOrFunc;
       }
       setHistory((originalHistory) => {
-        const newGame = newGameFunc(originalHistory.current);
+        let newGame = newGameFunc(originalHistory.current);
         if (!newGame) {
-          return originalHistory;
+          newGame = originalHistory.current;
         }
         newGameTargets =
           newGameTargets.updateCompletedTargetsAfterMove(newGame);
         if (newGameTargets != gameTargets) {
           setGameTargets(newGameTargets);
+        }
+        if (newGame === originalHistory.current) {
+          return originalHistory;
         }
         const newHistory = originalHistory.setCurrent(newGame);
         return newHistory;
