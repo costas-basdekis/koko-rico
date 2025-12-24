@@ -110,7 +110,7 @@ export function DGridCell({
         positionsEqual({ x, y }, concededTarget),
       ) ?? false
     );
-  }, [x, y, gameTargets?.completedTargetPositions, isTarget]);
+  }, [x, y, gameTargets?.concededTargetPositions, isTarget]);
   const isTargetCompleted = useMemo(() => {
     if (!isTarget || isTargetConceded) {
       return false;
